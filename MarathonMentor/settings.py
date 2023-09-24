@@ -29,7 +29,6 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -39,6 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'training_plan'
 ]
+
+
+# User the custom model User for authentication
+AUTH_USER_MODEL = 'training_plan.RunnerUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
