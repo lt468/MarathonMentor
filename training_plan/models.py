@@ -96,7 +96,7 @@ class Run(models.Model):
     sets = models.PositiveIntegerField(help_text="Sets", default=0)
 
     def __str__(self):
-        return f"Run name: {self.name}; Zone: {self.zone}"
+        return f"Run name: {self.name}; Zone: {self.zone}. ID {self.id}"
 
 class MarathonPlan(models.Model):
 

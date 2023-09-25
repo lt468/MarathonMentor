@@ -58,7 +58,7 @@ def CreatePlan(user):
 
     # Calculate the difference of days from now
     if date_of_marathon >= today + timedelta(days=MIN_DAYS) and date_of_marathon <= today + timedelta(days=MAX_DAYS) and date_of_marathon >= today:
-        days = (user.date_of_marathon - today).days
+        days = (date_of_marathon- today).days
 
     else:
         raise ValueError("Date of Marathon is invalid")
@@ -71,16 +71,56 @@ def CreatePlan(user):
     # plan.save() - TODO -  make sure random plans aren't saved
     return plan
     
-def CreateRunsInPlan(plan):
+def CreateRunsInPlan(user):
+
+    """
+    Steps in allocating runs to training days
+
+    1) Get the total number of training days and spare days for the plan in the plan then get the number of training weeks and spare days in each phase
+    2) Build phase 1:
+        
+    """
+
+    """
+    Phases for different fitess levels
+
+    Each phase will be a dictionary containing the days of the week and the ID of the run that the user will be doing
+    An ID of 0 means that there is no run
+    """
+
+    beginner_phase1 = {
+        "mon": 0,
+        "tue": 2,
+        "wed": 0,
+        "thu": 2,
+        "fri": 0,
+        "sat": 3,
+        "sun": 1
+    }
+
+    date_of_marathon = user.date_of_marathon
+    today = date.today()
+
+    days = (date_of_marathon- today).days
 
     # Firstly get the number of training days and spare days
     training_days = (days // 7) * 7
 
-    # Get the number of training days and spare days for phases
+    # Get the number of training days and the plan spare days
     p1_training_days = (training_days // 6) * 3
     p2_training_days = (training_days // 6) * 2
     p3_training_days = (training_days // 6) * 1
-    spare_days = days - (p1_training_days + p2_training_days + p3_training_days)
+    plan_spare_days = days - (p1_training_days + p2_training_days + p3_training_days)
 
-    pass
+    # Get the number of training weeks and spare days for each of the training phases
+    p1_training_weeks = p1_training_days // 7
+    p2_training_weeks = p2_training_days // 7
+    p3_training_weeks = p3_training_days // 7
+
+    p1_spare_days = p1_training_days % 7
+    p2_spare_days = p2_training_days % 7
+    p3_spare_days = p3_training_days % 7
+
+    # Base phase - phase 1
+
 

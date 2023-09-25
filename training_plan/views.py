@@ -17,6 +17,7 @@ def index(request):
         plan_algo.CreatePlan(user) # Create the phases in the plan
 
         plan = MarathonPlan.objects.all()
+        plan_algo.CreateRunsInPlan(user)
 
     else:
         # TODO - return a redirect if user isn't logged in
