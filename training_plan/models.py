@@ -127,3 +127,13 @@ class ScheduledRuns(models.Model):
 
     def __str__(self):
         return f"Training run: {self.run} for {self.marathon_plan} plan on {self.date}"
+
+class TrainingWeek(models.Model):
+    marathon_plan = models.ForeignKey(MarathonPlan, on_delete=models.CASCADE)
+    week_number = models.PositiveIntegerField()  # Which week of the training plan
+    feedback = models.CharField(max_length=10, choices=[("too_easy", "Too Easy"), ("just_right", "Just Right"), ("too_hard", "Too Hard")], null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)  # When the feedback was provided (if at all)
+
+    def __str__(self):
+        return f"Week {self.week_number} for {self.marathon_plan}"
+

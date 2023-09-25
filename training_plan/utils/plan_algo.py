@@ -40,87 +40,69 @@ defined in the Django models.
 """
 
 
-""" Plan constants """
-MIN_DAYS = 90 
-MAX_DAYS = 365
-
-def CreatePlan(user):
+class NewMarathonPlan:
     """
-    The plan will be split into 3 phases
-    Phase 1 - Base: The first half of the programme focusing on mainly base workouts
-    Phase 2 - Peak 1: The start of the second half with the focus on more longer intense runs
-    Phase 3 - Peak 2: Final part of the programme to peak into the marathon day
+    The NewMarathonPlan class represents a marathon training plan.
+    The plan will be split into 3 phases:
+    - Phase 1 - Base: The first half of the programme focusing on mainly base workouts.
+    - Phase 2 - Peak 1: The start of the second half with the focus on more longer intense runs.
+    - Phase 3 - Peak 2: Final part of the programme to peak into the marathon day.
+        Phases are split with a ratio of 3:2:1 for Phases 1:2:3 respectively.
 
-    Phases spilt with a ratio of 3:2:1 for Phases 1:2:3 respectively
+        Steps in allocating runs to training days:
+    1) Get the total number of training days and spare days for the plan in the plan then get the number of training weeks and spare days in each phase.
+    2) Build phase 1: ...
+
+    Phases for different fitness levels:
+#??    Each phase will be a dictionary containing the days of the week and the ID of the run that the user will be doing. An ID of 0 means that there is no run.
     """
-    date_of_marathon = user.date_of_marathon
-    today = date.today()
 
-    # Calculate the difference of days from now
-    if date_of_marathon >= today + timedelta(days=MIN_DAYS) and date_of_marathon <= today + timedelta(days=MAX_DAYS) and date_of_marathon >= today:
-        days = (date_of_marathon- today).days
+    """ Plan constants """
+    MIN_DAYS = 90 
+    MAX_DAYS = 365
 
-    else:
-        raise ValueError("Date of Marathon is invalid")
+    def __init__(self, user) -> None:
+        self.user = user
+        self.date_of_marathon = user.date_of_marathon
+        self.today = date.today()
 
-    # Model for MarathonPlan variables
-    start_date = today
-    end_date = today + timedelta(days=days)
+    def validate_marathon_date(self):
+        if not (self.today + timedelta(days=self.MIN_DAYS) <= self.date_of_marathon <= self.today + timedelta(days=self.MAX_DAYS)):
+            raise ValueError("Date of Marathon is invalid")
 
-    plan = MarathonPlan(user=user, start_date=start_date, end_date=end_date, active=False) # TODO - change to active when adding the new active one
-    # plan.save() - TODO -  make sure random plans aren't saved
-    return plan
-    
-def CreateRunsInPlan(user):
-
-    """
-    Steps in allocating runs to training days
-
-    1) Get the total number of training days and spare days for the plan in the plan then get the number of training weeks and spare days in each phase
-    2) Build phase 1:
+    def create_plan(self):
+        self.validate_marathon_date()
         
-    """
+        days = (self.date_of_marathon - self.today).days
+        end_date = self.today + timedelta(days=days)
+        
+        plan = MarathonPlan(user=self.user, start_date=self.today, end_date=end_date, active=False)
+        # plan.save() - TODO: make sure not randomly saving plans
+        return plan
 
-    """
-    Phases for different fitess levels
+    def create_runs_in_plan(self):
+        self.validate_marathon_date() # TODO in views, if the value error is raised, then render a certain page/html saying the date is invalid and its a server error, etc.
+        # As the user should have not been able to get this far anyway with an invalid date
+        
+        days = (self.date_of_marathon - self.today).days
 
-    Each phase will be a dictionary containing the days of the week and the ID of the run that the user will be doing
-    An ID of 0 means that there is no run
-    """
+        # Firstly get the number of training days and spare days
+        training_days = (days // 7) * 7
 
-    beginner_phase1 = {
-        "mon": 0,
-        "tue": 2,
-        "wed": 0,
-        "thu": 2,
-        "fri": 0,
-        "sat": 3,
-        "sun": 1
-    }
+        # Get the number of training days and the plan spare days
+        p1_training_days = (training_days // 6) * 3
+        p2_training_days = (training_days // 6) * 2
+        p3_training_days = (training_days // 6) * 1
+        plan_spare_days = days - (p1_training_days + p2_training_days + p3_training_days)
 
-    date_of_marathon = user.date_of_marathon
-    today = date.today()
+        # Get the number of training weeks and spare days for each of the training phases
+        p1_training_weeks = p1_training_days // 7
+        p2_training_weeks = p2_training_days // 7
+        p3_training_weeks = p3_training_days // 7
 
-    days = (date_of_marathon- today).days
+        p1_spare_days = p1_training_days % 7
+        p2_spare_days = p2_training_days % 7
+        p3_spare_days = p3_training_days % 7
 
-    # Firstly get the number of training days and spare days
-    training_days = (days // 7) * 7
-
-    # Get the number of training days and the plan spare days
-    p1_training_days = (training_days // 6) * 3
-    p2_training_days = (training_days // 6) * 2
-    p3_training_days = (training_days // 6) * 1
-    plan_spare_days = days - (p1_training_days + p2_training_days + p3_training_days)
-
-    # Get the number of training weeks and spare days for each of the training phases
-    p1_training_weeks = p1_training_days // 7
-    p2_training_weeks = p2_training_days // 7
-    p3_training_weeks = p3_training_days // 7
-
-    p1_spare_days = p1_training_days % 7
-    p2_spare_days = p2_training_days % 7
-    p3_spare_days = p3_training_days % 7
-
-    # Base phase - phase 1
 
 
