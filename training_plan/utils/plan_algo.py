@@ -216,20 +216,19 @@ class NewMarathonPlan:
     def create_runs_in_plan(self):
         """
         Schedules the runs within the training plan based on the phases and their duration.
+
+        The start of phase 1 always starts on a Monday. If the start date is the current day and it is a Monday, then it will start it from the current day,
+        e.g., if today is Monday, and then start day is today, then phase 1 will start from today
+
+        Phase 3 will always taper and end on the Marathon date.
         """
 
         self.validate_marathon_date()
 
-        # Given the end date, the day of marathon, the last training week will be 7 days if marathon is on the Sunday or less days if before Sunday
-        marathon_weekday = self.date_of_marathon.weekday()
+        # Calculate the end date of Phase 3 (it's the marathon date)
+        p3_end_date = self.date_of_marathon
 
-        # Calculate the end date of Phase 3 (Sunday before marathon or day of marathon if it's on Sunday)
-        if marathon_weekday != 6:  # If not Sunday
-            p3_end_date = self.date_of_marathon - timedelta(days=(marathon_weekday + 1))
-        else:
-            p3_end_date = self.date_of_marathon
-
-        # Calculate the start date of the training (next Monday)
+        # Calculate the start date of the training (next Monday from start date)
         days_until_next_monday = (7 - self.today.weekday()) % 7
         p1_start_date = self.today + timedelta(days=days_until_next_monday)
 
@@ -242,27 +241,28 @@ class NewMarathonPlan:
         p2_training_days = (total_days_available * 2) // total_ratio
         p3_training_days = (total_days_available * 1) // total_ratio
 
-        # Ensure each phase's days are multiples of 7 for full weeks
-        p1_training_days = (p1_training_days // 7) * 7
-        p2_training_days = (p2_training_days // 7) * 7
-        p3_training_days = (p3_training_days // 7) * 7
+        # Adjust Phase 1 to ensure it ends on a Sunday
+        if (p1_start_date + timedelta(days=p1_training_days - 1)).weekday() != 6:  # If not Sunday
+            spare_days_p1 = 6 - (p1_start_date + timedelta(days=p1_training_days - 1)).weekday()
+            p1_training_days += spare_days_p1
 
-        # Calculate the start and end dates for each phase
-        p3_start_date = p3_end_date - timedelta(days=p3_training_days - 1)
-        p2_end_date = p3_start_date - timedelta(days=1)
-        p2_start_date = p2_end_date - timedelta(days=p2_training_days - 1)
-        p1_end_date = p2_start_date - timedelta(days=1)
-        # Note: p1_start_date already defined
+        # Adjust Phase 2 to ensure it starts on a Monday and ends on a Sunday
+        p2_start_date = p1_start_date + timedelta(days=p1_training_days)
+        if (p2_start_date + timedelta(days=p2_training_days - 1)).weekday() != 6:  # If not Sunday
+            spare_days_p2 = 6 - (p2_start_date + timedelta(days=p2_training_days - 1)).weekday()
+            p2_training_days += spare_days_p2
 
-        # Calculate spare days
-        spare_days = total_days_available - (p1_training_days + p2_training_days + p3_training_days)
+        # Phase 3 starts on the next Monday after Phase 2 ends
+        p3_start_date = p2_start_date + timedelta(days=p2_training_days)
+
+        # Calculate the actual end dates for each phase
+        p1_end_date = p1_start_date + timedelta(days=p1_training_days - 1)
+        p2_end_date = p2_start_date + timedelta(days=p2_training_days - 1)
 
         # Schedule runs for each phase
         self.schedule_runs_for_phase("phase1", p1_start_date)
         self.schedule_runs_for_phase("phase2", p2_start_date)
         self.schedule_runs_for_phase("phase3", p3_start_date)
-
-        # Handle spare days if needed
 
     # Schedule the runs for a given phase
     def schedule_runs_for_phase(self, phase_name, start_date_of_phase):
