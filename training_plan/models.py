@@ -4,7 +4,31 @@ from django.contrib.auth.models import UserManager as DefaultUserManager
 
 # Override and create custom superuser with default values for non-nullable fields
 class RunnerUserManager(DefaultUserManager):
+    """
+    Custom manager for RunnerUser to provide custom superuser creation.
+    """
+
     def create_superuser(self, username, email=None, password=None, **extra_fields):
+        """
+        Creates and returns a superuser with the given username, email, and password.
+        
+        Parameters
+        ----------
+        username : str
+            The desired username for the superuser.
+        email : str, optional
+            The email address for the superuser.
+        password : str, optional
+            The password for the superuser.
+        extra_fields : dict, optional
+            Additional fields to set for the superuser.
+            
+        Returns
+        -------
+        RunnerUser
+            The created superuser.
+        """
+
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('dob', '2000-01-01')  # Set default DOB
@@ -18,6 +42,10 @@ class RunnerUserManager(DefaultUserManager):
         return self._create_user(username, email, password, **extra_fields)
 
 class RunnerUser(AbstractUser):
+    """
+    Custom user model for runners which extends the default Django user model.
+    """
+
     # User fintess choices 
     FITNESS_LEVEL_CHOICES = [
         ("beginner", "Beginner"),
@@ -39,32 +67,14 @@ class RunnerUser(AbstractUser):
     # Creating custom superuser
     objects = RunnerUserManager()
 
+    def __str__(self):
+        if self.is_superuser:
+            return f"Superuser: {self.username}, doing marathon {self.current_plan}. They have all permissions."
+        return f"Username: {self.username}, doing marathon plan {self.current_plan}. They have user level permissions."
+
 class Run(models.Model):
     """
-    Since each run will be adapted to the specifics of a User and their training plan, we save default runs that are defined on the intermediate level.
-    These runs are then used within ./utils/plan_algo.py to determine the personalized values for a run. For a given run, we define the standard duration,
-    distance, and rest periods & interval times/distances (for intervals), which are the only variables that will change, as unity, with values
-
-    = Recovery == Z1
-    - Duration = 30' = 1 
-    - Distance = 5km = 1 
-
-    = Base == Z2
-    - Duration = 90' = 1
-    - Distance = 15km = 1
-
-    = Long Tempo == 3
-    - Duration = 40' = 1
-    - Distance = 10km = 1
-
-    = Tempo == Z4
-    - Duration = 25' = 1
-    - Distance = 6km = 1
-
-    = Interval == Z5
-    - On = 4' = 1
-    - Off = 4' = 1
-    - Sets = 4 = 1
+    Model representing a run, which contains details like heart rate zone, feel, duration, etc.
     """
 
     # Heart rate zones for a run
@@ -110,7 +120,7 @@ class MarathonPlan(models.Model):
     def __str__(self):
         return f"Plan {self.id} for {self.user.username}. Begins: {self.start_date}; Ends: {self.end_date}"
 
-class ScheduledRuns(models.Model):
+class ScheduledRun(models.Model):
 
     id = models.AutoField(primary_key=True)
     run = models.CharField(max_length=100, default="Training Run")  # Name of run

@@ -1,5 +1,5 @@
 # utils/plan_algo.py
-from ..models import MarathonPlan, Run, ScheduledRuns
+from ..models import MarathonPlan, Run, ScheduledRun
 from datetime import date, timedelta
 
 """ Plan constants """
@@ -298,7 +298,7 @@ class NewMarathonPlan:
             else:
                 run_name="Marathon"
 
-            scheduled_run = ScheduledRuns(
+            scheduled_run = ScheduledRun(
                 run=run_name,
                 marathon_plan=self.plan,
                 run_type=run_details,

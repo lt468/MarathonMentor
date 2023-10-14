@@ -35,4 +35,28 @@ target marathon time, availability, and other factors to tailor the plan to indi
 This file serves as the core logic for generating the training plan, utilizing the workout templates 
 defined in the Django models.
 
+Since each run will be adapted to the specifics of a User and their training plan, we save default runs that are defined on the intermediate level.
+These runs are then used within ./utils/plan_algo.py to determine the personalized values for a run. For a given run, we define the standard duration,
+distance, and rest periods & interval times/distances (for intervals), which are the only variables that will change, as unity, with values
+
+= Recovery == Z1
+- Duration = 30' = 1 
+- Distance = 5km = 1 
+
+= Base == Z2
+- Duration = 90' = 1
+- Distance = 15km = 1
+
+= Long Tempo == 3
+- Duration = 40' = 1
+- Distance = 10km = 1
+
+= Tempo == Z4
+- Duration = 25' = 1
+- Distance = 6km = 1
+
+= Interval == Z5
+- On = 4' = 1
+- Off = 4' = 1
+- Sets = 4 = 1
 
