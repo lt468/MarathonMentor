@@ -85,7 +85,7 @@ class Run(models.Model):
     ]
 
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100, default="Unnamed Run")  # Name of run
+    name = models.CharField(max_length=100, default="Basic Run")  # Name of run
     zone = models.PositiveSmallIntegerField(choices=ZONE_CHOICES) # Heart rate zone of run
     feel = models.CharField(max_length=20, choices=FEEL_CHOICES) # Feel of run
     duration = models.PositiveIntegerField(help_text="Duration in minutes") # Time of run
@@ -104,6 +104,7 @@ class MarathonPlan(models.Model):
     user = models.ForeignKey(RunnerUser, on_delete=models.CASCADE) # The plan for a user
     start_date = models.DateField() # Start date of plan
     end_date = models.DateField() # End date of plan - day of the martahon
+    weeks = models.PositiveIntegerField(help_text="Do not touch - is calculated in plan_ago.py", null=True, blank=True)
     active = models.BooleanField(default=False)
 
     def __str__(self):
@@ -112,7 +113,7 @@ class MarathonPlan(models.Model):
 class ScheduledRuns(models.Model):
 
     id = models.AutoField(primary_key=True)
-    run = models.CharField(max_length=100, default="Unnamed Run")  # Name of run
+    run = models.CharField(max_length=100, default="Training Run")  # Name of run
 
     marathon_plan = models.ForeignKey(MarathonPlan, on_delete=models.CASCADE) # The plan
     run_type = models.ForeignKey(Run, on_delete=models.CASCADE) # Can access properties like Feel and HR zone
@@ -131,6 +132,7 @@ class ScheduledRuns(models.Model):
 class TrainingWeek(models.Model):
     marathon_plan = models.ForeignKey(MarathonPlan, on_delete=models.CASCADE)
     week_number = models.PositiveIntegerField()  # Which week of the training plan
+    week_commencing = models.DateField()
     feedback = models.CharField(max_length=10, choices=[("too_easy", "Too Easy"), ("just_right", "Just Right"), ("too_hard", "Too Hard")], null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)  # When the feedback was provided (if at all)
 

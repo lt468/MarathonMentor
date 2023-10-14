@@ -14,15 +14,10 @@ def index(request):
         except RunnerUser.DoesNotExist:
             raise ValueError("User doesn't exist (likely not logged in or incorrect username passed)")
 
-        plan_algo.CreatePlan(user) # Create the phases in the plan
-
-        plan = MarathonPlan.objects.all()
-        plan_algo.CreateRunsInPlan(user)
-
     else:
         # TODO - return a redirect if user isn't logged in
         user = None
 
     return render(request, "training_plan/index.html", {
-        "data": plan
+        "data": 5
     })
