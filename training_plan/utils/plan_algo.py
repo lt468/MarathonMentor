@@ -239,7 +239,7 @@ class NewMarathonPlan:
         total_ratio = 3 + 2 + 1
         p1_training_days = (total_days_available * 3) // total_ratio
         p2_training_days = (total_days_available * 2) // total_ratio
-        p3_training_days = (total_days_available * 1) // total_ratio
+        # p3_training_days = (total_days_available * 1) // total_ratio
 
         # Adjust Phase 1 to ensure it ends on a Sunday
         if (p1_start_date + timedelta(days=p1_training_days - 1)).weekday() != 6:  # If not Sunday
@@ -256,13 +256,15 @@ class NewMarathonPlan:
         p3_start_date = p2_start_date + timedelta(days=p2_training_days)
 
         # Calculate the actual end dates for each phase
-        p1_end_date = p1_start_date + timedelta(days=p1_training_days - 1)
-        p2_end_date = p2_start_date + timedelta(days=p2_training_days - 1)
+        # p1_end_date = p1_start_date + timedelta(days=p1_training_days - 1)
+        # p2_end_date = p2_start_date + timedelta(days=p2_training_days - 1)
 
         # Schedule runs for each phase
         self.schedule_runs_for_phase("phase1", p1_start_date)
         self.schedule_runs_for_phase("phase2", p2_start_date)
         self.schedule_runs_for_phase("phase3", p3_start_date)
+        
+        # TODO - CREATE RUNS IN PLAN SHOULD BE DONE, SO NOW PLAN THE RUNS FOR THE WEEKS, doing
 
     # Schedule the runs for a given phase
     def schedule_runs_for_phase(self, phase_name, start_date_of_phase):
@@ -279,19 +281,19 @@ class NewMarathonPlan:
 
         plan_for_phase = BASIC_PLANS[self.user.fitness_level][phase_name]
 
-
         # Calculate overload factor
         total_days_in_plan = (self.date_of_marathon - self.today).days
         overload_factor = SCALING_FACTORS[self.user.fitness_level] / total_days_in_plan
 
         for run_info in plan_for_phase:
+            # Scheduled run attributes for each of the scheduled runs (that will be saved into the database)
             run_details = Run.objects.get(id=run_info["run_id"])
             run_date = self.calculate_run_date(start_date_of_phase, run_info["day"])
 
             # TODO
             # Apply the feedback adjustment for this week (assuming you have a method to get feedback for the week)
-            feedback_for_week = self.get_feedback_for_week(run_date) # You'll need to implement this
-            adjusted_overload_factor = overload_factor + FEEDBACK_ADJUSTMENT[feedback_for_week]
+            # feedback_for_week = self.get_feedback_for_week(run_date) # You'll need to implement this
+            # adjusted_overload_factor = overload_factor + FEEDBACK_ADJUSTMENT[feedback_for_week]
 
             if not (run_date == self.date_of_marathon):
                 run_name=f"{run_details.feel} Training Run"
