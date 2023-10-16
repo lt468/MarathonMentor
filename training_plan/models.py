@@ -84,6 +84,7 @@ class Run(models.Model):
         (3, "Z3 - Tempo"),
         (4, "Z4 - High Tempo"),
         (5, "Z5 - Interval/Anaerobic"),
+        (0, "Rest")
     ]
 
     # How a run should feel
@@ -92,6 +93,7 @@ class Run(models.Model):
         ("base", "Base"),
         ("hard", "Hard"),
         ("max-effort", "Max Effort"),
+        ("rest", "Rest")
     ]
 
     id = models.AutoField(primary_key=True)

@@ -13,9 +13,9 @@ BASIC_PLANS = {
         "phase1": [
             {"day": "mon", "run_id":  1}, 
             {"day": "tue", "run_id":  2}, 
-            {"day": "wed", "run_id":  0}, 
+            {"day": "wed", "run_id":  6}, 
             {"day": "thu", "run_id":  2}, 
-            {"day": "fri", "run_id":  0}, 
+            {"day": "fri", "run_id":  6}, 
             {"day": "sat", "run_id":  3}, 
             {"day": "sun", "run_id":  2} 
         ],
@@ -24,7 +24,7 @@ BASIC_PLANS = {
             {"day": "tue", "run_id":  5}, 
             {"day": "wed", "run_id":  2}, 
             {"day": "thu", "run_id":  2}, 
-            {"day": "fri", "run_id":  0}, 
+            {"day": "fri", "run_id":  6}, 
             {"day": "sat", "run_id":  2}, 
             {"day": "sun", "run_id":  3} 
         ],
@@ -33,7 +33,7 @@ BASIC_PLANS = {
             {"day": "tue", "run_id":  5}, 
             {"day": "wed", "run_id":  2}, 
             {"day": "thu", "run_id":  4}, 
-            {"day": "fri", "run_id":  0}, 
+            {"day": "fri", "run_id":  6}, 
             {"day": "sat", "run_id":  1}, 
             {"day": "sun", "run_id":  3} 
         ]
@@ -44,7 +44,7 @@ BASIC_PLANS = {
             {"day": "tue", "run_id":  2}, 
             {"day": "wed", "run_id":  1}, 
             {"day": "thu", "run_id":  2}, 
-            {"day": "fri", "run_id":  0}, 
+            {"day": "fri", "run_id":  6}, 
             {"day": "sat", "run_id":  3}, 
             {"day": "sun", "run_id":  2} 
         ],
@@ -53,7 +53,7 @@ BASIC_PLANS = {
             {"day": "tue", "run_id":  5}, 
             {"day": "wed", "run_id":  2}, 
             {"day": "thu", "run_id":  2}, 
-            {"day": "fri", "run_id":  0}, 
+            {"day": "fri", "run_id":  6}, 
             {"day": "sat", "run_id":  2}, 
             {"day": "sun", "run_id":  3} 
         ],
@@ -62,7 +62,7 @@ BASIC_PLANS = {
             {"day": "tue", "run_id":  5}, 
             {"day": "wed", "run_id":  2}, 
             {"day": "thu", "run_id":  4}, 
-            {"day": "fri", "run_id":  0}, 
+            {"day": "fri", "run_id":  6}, 
             {"day": "sat", "run_id":  2}, 
             {"day": "sun", "run_id":  3} 
         ]
@@ -73,7 +73,7 @@ BASIC_PLANS = {
             {"day": "tue", "run_id":  2}, 
             {"day": "wed", "run_id":  2}, 
             {"day": "thu", "run_id":  2}, 
-            {"day": "fri", "run_id":  0}, 
+            {"day": "fri", "run_id":  6}, 
             {"day": "sat", "run_id":  3}, 
             {"day": "sun", "run_id":  2} 
         ],
@@ -82,7 +82,7 @@ BASIC_PLANS = {
             {"day": "tue", "run_id":  5}, 
             {"day": "wed", "run_id":  2}, 
             {"day": "thu", "run_id":  2}, 
-            {"day": "fri", "run_id":  0}, 
+            {"day": "fri", "run_id":  6}, 
             {"day": "sat", "run_id":  2}, 
             {"day": "sun", "run_id":  3} 
         ],
@@ -91,7 +91,7 @@ BASIC_PLANS = {
             {"day": "tue", "run_id":  5}, 
             {"day": "wed", "run_id":  2}, 
             {"day": "thu", "run_id":  4}, 
-            {"day": "fri", "run_id":  0}, 
+            {"day": "fri", "run_id":  6}, 
             {"day": "sat", "run_id":  2}, 
             {"day": "sun", "run_id":  3} 
         ]
@@ -209,8 +209,8 @@ class NewMarathonPlan:
 
         self.validate_marathon_date()
 
-        self.plan = MarathonPlan(user=self.user, start_date=self.today, end_date=self.date_of_marathon, active=False)
-        # plan.save() - TODO: make sure not randomly saving plans
+        self.plan = MarathonPlan(user=self.user, start_date=self.today, end_date=self.date_of_marathon) # TODO - no weeks!!
+        self.plan.save()
         return self.plan
 
     # Creates the runs given the time frame of dates
@@ -226,50 +226,45 @@ class NewMarathonPlan:
 
         self.validate_marathon_date()
 
-        # Calculate the end date of Phase 3 (it's the marathon date)
-        p3_end_date = self.date_of_marathon
-
-        # Calculate the start date of the training (next Monday from start date)
-        days_until_next_monday = (7 - self.today.weekday()) % 7
-        p1_start_date = self.today + timedelta(days=days_until_next_monday)
-
-        # Calculate total available days for training
-        total_days_available = (p3_end_date - p1_start_date).days + 1
-
-        # Distribute days according to 3:2:1 ratio
-        total_ratio = 3 + 2 + 1
-        p1_training_days = (total_days_available * 3) // total_ratio
-        p2_training_days = (total_days_available * 2) // total_ratio
-        # p3_training_days = (total_days_available * 1) // total_ratio
-
-        # Adjust Phase 1 to ensure it ends on a Sunday
-        if (p1_start_date + timedelta(days=p1_training_days - 1)).weekday() != 6:  # If not Sunday
-            spare_days_p1 = 6 - (p1_start_date + timedelta(days=p1_training_days - 1)).weekday()
-            p1_training_days += spare_days_p1
-
-        # Adjust Phase 2 to ensure it starts on a Monday and ends on a Sunday
-        p2_start_date = p1_start_date + timedelta(days=p1_training_days)
-        if (p2_start_date + timedelta(days=p2_training_days - 1)).weekday() != 6:  # If not Sunday
-            spare_days_p2 = 6 - (p2_start_date + timedelta(days=p2_training_days - 1)).weekday()
-            p2_training_days += spare_days_p2
-
-        # Phase 3 starts on the next Monday after Phase 2 ends
-        p3_start_date = p2_start_date + timedelta(days=p2_training_days)
-
-        # Calculate the actual end dates for each phase
-        p1_end_date = p1_start_date + timedelta(days=p1_training_days - 1)
-        p2_end_date = p2_start_date + timedelta(days=p2_training_days - 1)
-
-        # Weeks of each phase
-        p1_weeks = (p1_end_date - p1_start_date) / 7
-        p2_weeks = (p2_end_date - p2_start_date) / 7
-        p3_weeks = (p3_end_date - p3_start_date) // 7
-        p3_days = (p3_end_date - p3_start_date) % 7
+        # Calculate total days between start and marathon date
+        total_days = (self.date_of_marathon - self.today).days
+        
+        # Split total days into 3:2:1 ratio
+        phase1_days = (3/6) * total_days
+        phase2_days = (2/6) * total_days
+        phase3_days = (1/6) * total_days
+        
+        # Adjust phase 1 start date to next Monday
+        phase1_start = self.today
+        while phase1_start.weekday() != 0:  # 0 represents Monday
+            phase1_start += timedelta(days=1)
+        
+        # Adjust phase 1 end date to a Sunday
+        phase1_end = phase1_start + timedelta(days=phase1_days-1)
+        while phase1_end.weekday() != 6:  # 6 represents Sunday
+            phase1_end += timedelta(days=1)
+        
+        # Adjust phase 2 start date to next Monday
+        phase2_start = phase1_end + timedelta(days=1)
+        
+        # Adjust phase 2 end date to a Sunday
+        phase2_end = phase2_start + timedelta(days=phase2_days-1)
+        while phase2_end.weekday() != 6:  # 6 represents Sunday
+            phase2_end += timedelta(days=1)
+        
+        # Adjust phase 3 start date to next Monday
+        phase3_start = phase2_end + timedelta(days=1)
+        phase3_end = self.date_of_marathon
+        
+        # Calculate weeks in each phase
+        phase1_weeks = (phase1_end - phase1_start).days // 7
+        phase2_weeks = (phase2_end - phase2_start).days // 7
+        phase3_weeks = (phase3_end - phase3_start).days // 7
 
         # Schedule runs for each phase
-        self.schedule_runs_for_phase("phase1", p1_start_date, p1_weeks)
-        self.schedule_runs_for_phase("phase2", p2_start_date, p2_weeks)
-        self.schedule_runs_for_phase("phase3", p3_start_date, p3_weeks)
+        self.schedule_runs_for_phase("phase1", phase1_start, phase1_weeks)
+        self.schedule_runs_for_phase("phase2", phase2_start, phase2_weeks)
+        self.schedule_runs_for_phase("phase3", phase3_start, phase3_weeks)
         
     # Schedule the runs for a given phase
     def schedule_runs_for_phase(self, phase_name, start_date_of_phase, repeat):
@@ -307,7 +302,7 @@ class NewMarathonPlan:
                 run_date = self.calculate_run_date(start_date_of_phase, run_info["day"], i)
 
                 if not (run_date == self.date_of_marathon):
-                    run_name=f"{run_details.feel} Training Run"
+                    run_name=f"{run_details.feel} Training Run".capitalize()
                 else:
                     run_name="Marathon"
 
@@ -369,4 +364,4 @@ class NewMarathonPlan:
         delta_days = days_mapping[day_of_week] - start_date.weekday()
         if delta_days < 0:
             delta_days += 7
-        return repeat + start_date + timedelta(days=delta_days)
+        return timedelta(days=repeat) + start_date + timedelta(days=delta_days)

@@ -34,7 +34,9 @@ def register(request):
         if form.is_valid():
             user = form.save()
             # Create Marathon plan
-            user_plan = plan_algo.NewMarathonPlan(user)
+            plan = plan_algo.NewMarathonPlan(user)
+            user_plan = plan.create_plan()
+            plan.create_runs_in_plan()
             print(user_plan)
             return render(request, "training_plan/plan.html", {
                 "user_plan": user_plan
