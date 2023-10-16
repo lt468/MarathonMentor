@@ -8,7 +8,6 @@ for documnetation.
 | **Date**    | **Status**    | **TODO for tomorrow**    | **Notes**    |
 |---------------- | --------------- | --------------- | --------------- |
 | 15/10/2023    | Getting back into the project after a hiatus    | Create the form for the user sign-up and Marathon Plan creation | N/A |
-| 16/10/2023    | Creating form. Found bug in plan_algo.py: overload factor not used. Changed 
-                  to progression factor for each of the phases. Now looking to see if this works| Item3.2   | Can recommend beginners to have at least 180 day plan |
+| 16/10/2023    | Creating form. Found bug in plan_algo.py: overload factor not used. Changed to progression factor for each of the phases. Now looking to see if this works| Item3.2   | Can recommend beginners to have at least 180 day plan |
 | Item1.3   | Item2.3   | Item3.3   | Item4.3   |
 
