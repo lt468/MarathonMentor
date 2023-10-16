@@ -57,8 +57,8 @@ class RunnerUser(AbstractUser):
     weight = models.PositiveIntegerField(help_text="Weight in kilograms", null=True, blank=True) # User's weight
     height = models.PositiveIntegerField(help_text="Height in centimeters", null=True, blank=True) # User's height
     fitness_level = models.CharField(max_length=50, choices=FITNESS_LEVEL_CHOICES) # User's fitness level
-    current_plan = models.ForeignKey("MarathonPlan", on_delete=models.CASCADE, null=True, blank=True) 
     date_of_marathon = models.DateField(auto_now=False, auto_now_add=False, help_text="Date of marathon", null=True, blank=True)
+    # current_plan = models.ForeignKey("MarathonPlan", on_delete=models.CASCADE, null=True, blank=True) 
 
     # Override the groups and user_permissions fields to set a unique related_name
     groups = models.ManyToManyField(Group, related_name="runneruser_set", blank=True)
@@ -115,7 +115,6 @@ class MarathonPlan(models.Model):
     start_date = models.DateField() # Start date of plan
     end_date = models.DateField() # End date of plan - day of the martahon
     weeks = models.PositiveIntegerField(help_text="Do not touch - is calculated in plan_ago.py", null=True, blank=True)
-    active = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Plan {self.id} for {self.user.username}. Begins: {self.start_date}; Ends: {self.end_date}"
