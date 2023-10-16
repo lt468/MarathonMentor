@@ -1,12 +1,12 @@
 from django.shortcuts import render
-from .models import RunnerUser
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
 from .utils import plan_algo
-
+from .models import RunnerUser
+from .forms import MergedSignUpForm
 
 def index(request):
     # Check the Marathon date is valid
@@ -29,7 +29,16 @@ def index(request):
 
 def register(request):
     if request.method == "POST":
+
+        form = MergedSignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+        else:
+            # Errors here
+            pass
+
         # List of register attributes
+
         first_name = request.POST["first_name"]
         last_name = request.POST["last_name"]
         username = request.POST["username"]
@@ -48,7 +57,6 @@ def register(request):
             return render(request, "network/register.html", {
                 "message": "Passwords must match."
             })
-
 
         # Attempt to create new user
         try:
@@ -75,3 +83,4 @@ def register(request):
         print(user_plan)
 
         return HttpResponseRedirect(reverse("index"))
+

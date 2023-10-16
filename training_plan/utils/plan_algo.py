@@ -1,6 +1,7 @@
 # utils/plan_algo.py
-from ..models import MarathonPlan, Run, ScheduledRun
 from datetime import date, timedelta
+
+from ..models import MarathonPlan, Run, ScheduledRun
 
 """ Plan constants """
 MIN_DAYS = 90 
