@@ -371,8 +371,8 @@ class NewMarathonPlan:
         end_duration : float
             The desired ending duration in minutes for the last week.
         b_value : float, optional
-            The base value for the logarithm (default is the optimal value found earlier).
-        
+            The base value for the logarithm (default is the optimal value found by considering plateau after many weeks **TODO need more explanation).
+
         Returns
         -------
         numpy.ndarray
@@ -383,6 +383,9 @@ class NewMarathonPlan:
         >>> progressive_duration(12, 24, 120)
         array([ 24.        ,  50.94271358,  66.70319069, ..., 117.20647524, 120.58861784])
         """
+
+        #default_end_duration = 
+
         # Calculate the value of 'a' based on the number of weeks and start/end durations
         a_value = (end_duration - start_duration) * np.log(b_value) / np.log(n_weeks)
         
