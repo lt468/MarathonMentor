@@ -33,11 +33,21 @@ def register(request):
         form = MergedSignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Create Marathon plan
+            # Create Marathon plan object
             plan = plan_algo.NewMarathonPlan(user)
-            user_plan = plan.create_plan()
+
+            # Create new plan
+            success, user_plan = plan.create_plan()
+
+            # If there is an error in the marathon date
+            if not success:
+                return render(request, "trainin_plan/error.html", {
+                    "error_msg": user_plan
+                }, status=422)
+
+            # Schedule the runs
             plan.create_runs_in_plan()
-            print(user_plan)
+
             return render(request, "training_plan/plan.html", {
                 "user_plan": user_plan
             })

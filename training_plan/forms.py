@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from datetime import date, timedelta
 
 from .models import RunnerUser
-from .utils import plan_algo
+from .utils import p_a_constants as c
 
 class MergedSignUpForm(UserCreationForm):
     email = forms.EmailField()
@@ -28,14 +28,15 @@ class MergedSignUpForm(UserCreationForm):
         if date_of_marathon and date_of_marathon <= today:
             raise ValidationError("The date of the marathon must be in the future.")
 
-        if date_of_marathon and date_of_marathon < today + timedelta(days=plan_algo.MIN_DAYS):
-            raise ValidationError(f"The date of the marathon must be at least {plan_algo.MIN_DAYS} days from today.")
+        if date_of_marathon and date_of_marathon < today + timedelta(days=c.MIN_DAYS):
+            raise ValidationError(f"The date of the marathon must be at least {c.MIN_DAYS} days from today.")
 
-        if date_of_marathon and date_of_marathon > today + timedelta(days=plan_algo.MAX_DAYS):
-            raise ValidationError(f"The date of the marathon must be less than {plan_algo.MAX_DAYS} days from today.")
+        if date_of_marathon and date_of_marathon > today + timedelta(days=c.MAX_DAYS):
+            raise ValidationError(f"The date of the marathon must be less than {c.MAX_DAYS} days from today.")
 
         return date_of_marathon
 
+"""Leave if you want two sign-up pages"""
 ## For initial sign-up
 #class SignUpForm(UserCreationForm):
 #    email = forms.EmailField()

@@ -1,8 +1,7 @@
 # utils/plan_algo.py
 from datetime import date, timedelta
-import numpy as np
 
-from ..models import MarathonPlan, Run, ScheduledRun
+from ..models import MarathonPlan, ScheduledRun
 from . import p_a_constants as c
 
 class NewMarathonPlan:
@@ -29,18 +28,18 @@ class NewMarathonPlan:
     -------
     _validate_marathon_date():
         Validates the date of the marathon.
+    _calculate_run_date(start_date: date, day_of_week: str) -> date:
+        Determines the date for a run given its day of the week.
     create_plan() -> object:
         Creates the marathon training plan.
     create_runs_in_plan():
         Schedules the runs within the plan.
-    schedule_runs_for_phase(phase_name: str, start_date_of_phase: date):
+    _schedule_runs_for_phase(phase_name: str, start_date_of_phase: date):
         Schedules the runs for a specific phase.
-    _calculate_run_date(start_date: date, day_of_week: str) -> date:
-        Determines the date for a run given its day of the week.
 
 
     Phases for different fitness levels:
-    Each phase will be a dictionary containing the days of the week and the ID of the run that the user will be doing. An ID of 6 means that there is no run.
+    Each phase will be a dictionary containing the days of the week and the ID of the run that the user will be doing. An ID of 0 means that there is no run.
     """
 
     # Constructor
@@ -68,25 +67,20 @@ class NewMarathonPlan:
             If the date of the marathon is not within the allowed range.
         """
 
-        if not (self.today + timedelta(days=MIN_DAYS) <= self.date_of_marathon <= self.today + timedelta(days=MAX_DAYS)):
-            raise ValueError("Date of Marathon is invalid")
+        if not (self.today + timedelta(days=c.MIN_DAYS) <= self.date_of_marathon <= self.today + timedelta(days=c.MAX_DAYS)):
+            raise ValueError("Date of marathon is not in allowed range (caught in plan_algo.py)")
 
     # Create the marathon plan
-    def create_plan(self) -> MarathonPlan:
-        """
-        Creates a marathon training plan.
+    def create_plan(self):
 
-        Returns
-        -------
-        object
-            The created marathon plan.
-        """
-
-        self._validate_marathon_date()
+        try:
+            self._validate_marathon_date()
+        except ValueError as i:
+            return False, f"The marathon date is invalid: {i}"
 
         self.plan = MarathonPlan(user=self.user, start_date=self.today, end_date=self.date_of_marathon) # TODO - no weeks!!
         self.plan.save()
-        return self.plan
+        return True, self.plan
 
     # Creates the runs given the time frame of dates
     def create_runs_in_plan(self):
@@ -98,8 +92,6 @@ class NewMarathonPlan:
 
         Phase 3 will always taper and end on the Marathon date.
         """
-
-        self._validate_marathon_date()
 
         # Calculate total days between start and marathon date
         total_days = (self.date_of_marathon - self.today).days
@@ -137,138 +129,53 @@ class NewMarathonPlan:
         phase3_weeks = (phase3_end - phase3_start).days // 7
 
         # Schedule runs for each phase
-        self.schedule_runs_for_phase("phase1", phase1_start, phase1_weeks)
-        self.schedule_runs_for_phase("phase2", phase2_start, phase2_weeks)
-        self.schedule_runs_for_phase("phase3", phase3_start, phase3_weeks)
+        self._schedule_runs_for_phase("phase1", phase1_start, phase1_weeks)
+        self._schedule_runs_for_phase("phase2", phase2_start, phase2_weeks)
+        self._schedule_runs_for_phase("phase3", phase3_start, phase3_weeks)
         
     # Schedule the runs for a given phase
-    def schedule_runs_for_phase(self, phase_name, start_date_of_phase, weeks_in_phase):
-        """
-        Schedules the runs for a specific phase.
+    def _schedule_runs_for_phase(self, phase, phase_start_date, weeks_in_phase):
 
-        Parameters
-        ----------
-        phase_name : str
-            The name of the phase ("phase1", "phase2", or "phase3").
-        start_date_of_phase : date
-            The date on which the phase starts.
-        weeks_in_phase : int
-            The amount weeks within a phase
-        """
+        # Data required for getting workouts from DEFAULT_RUNS dictonary
+        fit_level = self.user.fitness_level
+        phase = phase
 
-        # Get the weekly plan for the phase
-        plan_for_phase = c.BASIC_PLANS[self.user.fitness_level][phase_name]
-
-        # Base variables
-        changing_scaling_factors = c.SCALING_FACTORS[self.user.fitness_level].copy()
-
-        for i in range(weeks_in_phase): # Loop over the given weeks in a phase
-            for run_info in plan_for_phase: # For each of the runs in the phase plans
-                # Scheduled run attributes for each of the scheduled runs (that will be saved into the database)
-                run_details = Run.objects.get(id=run_info["run_id"])
-                run_date = self._calculate_run_date(start_date_of_phase, run_info["day"], i)
-
-                if not (run_date == self.date_of_marathon):
-                    run_name=f"{run_details.feel} Training Run".capitalize()
-                else:
-                    run_name="Marathon"
+        # Loop
+        for i in range(weeks_in_phase):
+            for day in c.WEEK:
+                # Create the run attributes
+                run_id = c.BASIC_PLANS[fit_level][phase][day]
+                 
+                distance = self._calculate_distance(run_id, fit_level, phase, weeks_in_phase, i)
 
                 scheduled_run = ScheduledRun(
-                    run=run_name,
-                    marathon_plan=self.plan,
-                    run_type=run_details,
-                    date=run_date,
-                    duration=run_details.duration * changing_scaling_factors["duration"], #, To adjust
-                    distance=run_details.distance * changing_scaling_factors["distance"], # To adjust
-                    on=run_details.on * changing_scaling_factors["on"], # To adjust
-                    off=run_details.off * changing_scaling_factors["off"], # To adjust
-                    sets=run_details.sets * changing_scaling_factors["sets"] # To adjust
+                    run = c.DEFAULT_RUNS[run_id]["name"],
+                    marathon_plan = self.plan,
+                    run_feel = c.DEFAULT_RUNS[run_id]["feel"],
+                    date = self._calculate_run_date(phase_start_date, day, i),
+                    distance = distance,
+                    # DEFINE AND CALC THESE IN DICTIONARY TOO !!
+                    est_duration =
+                    est_avg_pace =
+                    on =
+                    off =
+                    sets =
                 )
                 scheduled_run.save()
 
 
-            progression_factor = self._calc_progression_factor(weeks_in_phase, changing_scaling_factors)
-            for attribute in changing_scaling_factors:
-                changing_scaling_factors[attribute] += (changing_scaling_factors[attribute] * progression_factor[attribute])
+    def _calculate_distance(self, run_id, fit_level, phase, weeks_in_phase, i):
+        low = c.DEFAULT_RUNS[run_id]["distance"][fit_level][phase]["low"]
+        high = c.DEFAULT_RUNS[run_id]["distance"][fit_level][phase]["high"]
+        diff = low - high
 
-        # TODO - Maybe as an UpdateMarathonPlan class?
-        # Apply the feedback adjustment for this week (assuming you have a method to get feedback for the week)
-        # feedback_for_week = self.get_feedback_for_week(run_date) # You'll need to implement this
-        # adjusted_overload_factor = overload_factor + FEEDBACK_ADJUSTMENT[feedback_for_week]
+        addition = diff / (weeks_in_phase - 1)
 
-        # Calculate overload factor for a given phase
-        # total_days_in_plan = (self.date_of_marathon - self.today).days
-        # overload_factor = SCALING_FACTORS[self.user.fitness_level] / total_days_in_plan
+        return low + (addition * i)
 
+    def _calculate_duration(self):
+        pass
 
-    def _calc_progression_factor(self, weeks_in_phase, scale_factors, bpf=0.1, bwn=12):
-        """
-        Determines the progression factor for each of the attributes of within a workout (duration, distance, on, off, sets, etc.)
-
-        Parameters
-        ----------
-        scale_factors : dict
-            Scale factor dictionary that is changed for each itteration of progressive overload
-        bpf : float
-            Base progression factor - how each week progesses. Arbitrary default value of 0.1
-        bwn : int
-            Base week number for calculation. Arbitrary default value of 12
-
-        Returns
-        -------
-        dictionary
-            Dictionary with the individual progression factors for the attributes
-        """
-    #"beginner": {
-    #    "duration": 0.4,
-    #    "distance": 0.4,
-    #    "on": 0.4,
-    #    "off": 1.6,
-    #    "sets": 0.5
-
-        # Progression for duration
-
-
-        progression_factor = (bpf / weeks_in_phase) * bwn
-        return scale_factors
-
-    def _progressive_duration(self, n_weeks, start_duration, end_duration, b_value=2.735):
-        """
-        Returns a list of progressive durations for each week up to n_weeks.
-        
-        Parameters
-        ----------
-        n_weeks : int
-            The number of weeks.
-        start_duration : float
-            The starting duration in minutes for week 1.
-        end_duration : float
-            The desired ending duration in minutes for the last week.
-        b_value : float, optional
-            The base value for the logarithm (default is the optimal value found by considering plateau after many weeks **TODO need more explanation).
-
-        Returns
-        -------
-        numpy.ndarray
-            An array of durations, with each entry representing the duration for a week.
-        
-        Examples
-        --------
-        >>> progressive_duration(12, 24, 120)
-        array([ 24.        ,  50.94271358,  66.70319069, ..., 117.20647524, 120.58861784])
-        """
-
-        #default_end_duration = 
-
-        # Calculate the value of 'a' based on the number of weeks and start/end durations
-        a_value = (end_duration - start_duration) * np.log(b_value) / np.log(n_weeks)
-        
-        # Calculate the progression for each week
-        x = np.arange(1, n_weeks + 1)
-        y = a_value * np.log(x) + start_duration
-        
-        return y
-            
     # Calculate the run date
     def _calculate_run_date(self, start_date, day_of_week, weeks_in_phase) -> date:
         """

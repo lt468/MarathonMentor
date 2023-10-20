@@ -1,5 +1,8 @@
 """ Contstants and Data for the plan_algo.py file"""
 
+""" Week"""
+WEEK = ("mon", "tue", "wed", "thu", "fri", "sat", "sun") 
+
 """ Plan constants """
 MIN_DAYS = 90 
 MAX_DAYS = 365
@@ -7,91 +10,91 @@ MAX_DAYS = 365
 """ Basic plans """
 BASIC_PLANS = {
     "beginner": {
-        "phase1": [
-            {"day": "mon", "run_id":  2}, 
-            {"day": "tue", "run_id":  0}, 
-            {"day": "wed", "run_id":  2}, 
-            {"day": "thu", "run_id":  0}, 
-            {"day": "fri", "run_id":  1}, 
-            {"day": "sat", "run_id":  6}, 
-            {"day": "sun", "run_id":  0} 
-        ],
-        "phase2": [
-            {"day": "mon", "run_id":  2}, 
-            {"day": "tue", "run_id":  1}, 
-            {"day": "wed", "run_id":  2}, 
-            {"day": "thu", "run_id":  3}, 
-            {"day": "fri", "run_id":  0}, 
-            {"day": "sat", "run_id":  6}, 
-            {"day": "sun", "run_id":  2} 
-        ],
-        "phase3": [
-            {"day": "mon", "run_id":  2}, 
-            {"day": "tue", "run_id":  5}, 
-            {"day": "wed", "run_id":  2}, 
-            {"day": "thu", "run_id":  4}, 
-            {"day": "fri", "run_id":  0}, 
-            {"day": "sat", "run_id":  1}, 
-            {"day": "sun", "run_id":  6} 
-        ]
+        "phase1": {
+            "mon": 2, 
+            "tue": 0, 
+            "wed": 2, 
+            "thu": 0, 
+            "fri": 1, 
+            "sat": 6, 
+            "sun": 0 
+        },
+        "phase2": {
+            "mon": 2, 
+            "tue": 1, 
+            "wed": 2, 
+            "thu": 3, 
+            "fri": 0, 
+            "sat": 6, 
+            "sun": 2 
+        },
+        "phase3": {
+            "mon": 2, 
+            "tue": 5, 
+            "wed": 2, 
+            "thu": 4, 
+            "fri": 0, 
+            "sat": 1, 
+            "sun": 6 
+        }
     },
     "intermediate": {
-        "phase1": [
-            {"day": "mon", "run_id":  2}, 
-            {"day": "tue", "run_id":  0}, 
-            {"day": "wed", "run_id":  2}, 
-            {"day": "thu", "run_id":  2}, 
-            {"day": "fri", "run_id":  1}, 
-            {"day": "sat", "run_id":  6}, 
-            {"day": "sun", "run_id":  3} 
-        ],
-        "phase2": [
-            {"day": "mon", "run_id":  2}, 
-            {"day": "tue", "run_id":  2}, 
-            {"day": "wed", "run_id":  2}, 
-            {"day": "thu", "run_id":  3}, 
-            {"day": "fri", "run_id":  0}, 
-            {"day": "sat", "run_id":  6}, 
-            {"day": "sun", "run_id":  2} 
-        ],
-        "phase3": [
-            {"day": "mon", "run_id":  2}, 
-            {"day": "tue", "run_id":  5}, 
-            {"day": "wed", "run_id":  2}, 
-            {"day": "thu", "run_id":  4}, 
-            {"day": "fri", "run_id":  0}, 
-            {"day": "sat", "run_id":  1}, 
-            {"day": "sun", "run_id":  6} 
-        ]
+        "phase1": {
+            "mon": 2, 
+            "tue": 0, 
+            "wed": 2, 
+            "thu": 2, 
+            "fri": 1, 
+            "sat": 6, 
+            "sun": 3 
+        },
+        "phase2": {
+            "mon": 2, 
+            "tue": 2, 
+            "wed": 2, 
+            "thu": 3, 
+            "fri": 0, 
+            "sat": 6, 
+            "sun": 2 
+        },
+        "phase3": {
+            "mon": 2, 
+            "tue": 5, 
+            "wed": 2, 
+            "thu": 4, 
+            "fri": 0, 
+            "sat": 1, 
+            "sun": 6 
+        }
     },
     "advanced": {
-        "phase1": [
-            {"day": "mon", "run_id":  2}, 
-            {"day": "tue", "run_id":  0}, 
-            {"day": "wed", "run_id":  2}, 
-            {"day": "thu", "run_id":  2}, 
-            {"day": "fri", "run_id":  2}, 
-            {"day": "sat", "run_id":  6}, 
-            {"day": "sun", "run_id":  3} 
-        ],
-        "phase2": [
-            {"day": "mon", "run_id":  2}, 
-            {"day": "tue", "run_id":  2}, 
-            {"day": "wed", "run_id":  2}, 
-            {"day": "thu", "run_id":  3}, 
-            {"day": "fri", "run_id":  0}, 
-            {"day": "sat", "run_id":  6}, 
-            {"day": "sun", "run_id":  2} 
-        ],
-        "phase3": [
-            {"day": "mon", "run_id":  2}, 
-            {"day": "tue", "run_id":  5}, 
-            {"day": "wed", "run_id":  2}, 
-            {"day": "thu", "run_id":  4}, 
-            {"day": "fri", "run_id":  0}, 
-            {"day": "sat", "run_id":  1}, 
-            {"day": "sun", "run_id":  6} 
-        ]
+        "phase1": {
+            "mon": 2, 
+            "tue": 0, 
+            "wed": 2, 
+            "thu": 2, 
+            "fri": 2, 
+            "sat": 6, 
+            "sun": 3 
+        },
+        "phase2": {
+            "mon": 2, 
+            "tue": 2, 
+            "wed": 2, 
+            "thu": 3, 
+            "fri": 0, 
+            "sat": 6, 
+            "sun": 2 
+        },
+        "phase3": {
+            "mon": 2, 
+            "tue": 5, 
+            "wed": 2, 
+            "thu": 4, 
+            "fri": 0, 
+            "sat": 1, 
+            "sun": 6 
+        }
     },
 }
 

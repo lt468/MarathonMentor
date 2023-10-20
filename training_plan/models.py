@@ -58,7 +58,6 @@ class RunnerUser(AbstractUser):
     height = models.PositiveIntegerField(help_text="Height in centimeters", null=True, blank=True) # User's height
     fitness_level = models.CharField(max_length=50, choices=FITNESS_LEVEL_CHOICES) # User's fitness level
     date_of_marathon = models.DateField(auto_now=False, auto_now_add=False, help_text="Date of marathon", null=True, blank=True)
-    # current_plan = models.ForeignKey("MarathonPlan", on_delete=models.CASCADE, null=True, blank=True) 
 
     # Override the groups and user_permissions fields to set a unique related_name
     groups = models.ManyToManyField(Group, related_name="runneruser_set", blank=True)
@@ -72,51 +71,12 @@ class RunnerUser(AbstractUser):
             return f"Superuser: {self.username}, doing marathon {self.current_plan}. They have all permissions."
         return f"Username: {self.username}, doing marathon plan {self.current_plan}. They have user level permissions."
 
-class Run(models.Model):
-    """
-    Model representing a run, which contains details like heart rate zone, feel, duration, etc.
-    """
-
-    # Heart rate zones for a run
-    ZONE_CHOICES = [
-        (1, "Z1 - Recovery"),
-        (2, "Z2 - Base"),
-        (3, "Z3 - Tempo"),
-        (4, "Z4 - High Tempo"),
-        (5, "Z5 - Interval/Anaerobic"),
-        (0, "Rest")
-    ]
-
-    # How a run should feel
-    FEEL_CHOICES = [
-        ("recovery", "Recovery"),
-        ("base", "Base"),
-        ("hard", "Hard"),
-        ("max-effort", "Max Effort"),
-        ("rest", "Rest")
-    ]
-
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100, default="Basic Run")  # Name of run
-    zone = models.PositiveSmallIntegerField(choices=ZONE_CHOICES) # Heart rate zone of run
-    feel = models.CharField(max_length=20, choices=FEEL_CHOICES) # Feel of run
-    duration = models.PositiveIntegerField(help_text="Duration in minutes") # Time of run
-    distance = models.PositiveIntegerField(help_text="Distance in km") # Distance of run
-
-    on = models.PositiveIntegerField(help_text="Work time in minutes", default=0)
-    off = models.PositiveIntegerField(help_text="Rest time in minutes", default=0)
-    sets = models.PositiveIntegerField(help_text="Sets", default=0)
-
-    def __str__(self):
-        return f"Run name: {self.name}; Zone: {self.zone}. ID {self.id}"
-
 class MarathonPlan(models.Model):
 
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(RunnerUser, on_delete=models.CASCADE) # The plan for a user
     start_date = models.DateField() # Start date of plan
     end_date = models.DateField() # End date of plan - day of the martahon
-    weeks = models.PositiveIntegerField(help_text="Do not touch - is calculated in plan_ago.py", null=True, blank=True)
 
     def __str__(self):
         return f"Plan {self.id} for {self.user.username}. Begins: {self.start_date}; Ends: {self.end_date}"
@@ -125,14 +85,12 @@ class ScheduledRun(models.Model):
 
     id = models.AutoField(primary_key=True)
     run = models.CharField(max_length=100, default="Training Run")  # Name of run
-
+    run_feel = models.CharField(default="Training session")
     marathon_plan = models.ForeignKey(MarathonPlan, on_delete=models.CASCADE) # The plan
-    run_type = models.ForeignKey(Run, on_delete=models.CASCADE) # Can access properties like Feel and HR zone
     date = models.DateField() # The date of the run
-
-    duration = models.PositiveIntegerField(help_text="Duration in minutes") # Time of run
     distance = models.PositiveIntegerField(help_text="Distance in km") # Distance of run
-
+    est_duration = models.PositiveIntegerField(help_text="Duration in minutes") # Time of run
+    est_avg_pace = models.DurationField() # Distance of run
     on = models.PositiveIntegerField(help_text="Work time in minutes", default=0)
     off = models.PositiveIntegerField(help_text="Rest time in minutes", default=0)
     sets = models.PositiveIntegerField(help_text="Sets", default=0)
@@ -140,13 +98,13 @@ class ScheduledRun(models.Model):
     def __str__(self):
         return f"Training run: {self.run} for {self.marathon_plan} plan on {self.date}"
 
-class TrainingWeek(models.Model):
-    marathon_plan = models.ForeignKey(MarathonPlan, on_delete=models.CASCADE)
-    week_number = models.PositiveIntegerField()  # Which week of the training plan
-    week_commencing = models.DateField()
-    feedback = models.CharField(max_length=10, choices=[("too_easy", "Too Easy"), ("just_right", "Just Right"), ("too_hard", "Too Hard")], null=True, blank=True)
-    timestamp = models.DateTimeField(auto_now_add=True)  # When the feedback was provided (if at all)
-
+class CompletedRun(models.Model):
+    scheduled_run = models.OneToOneField(ScheduledRun, on_delete=models.SET_NULL, null=True, blank=True)
+    date = models.DateField()
+    distance = models.PositiveIntegerField(help_text="Distance of completed run in km")
+    duration = models.PositiveIntegerField(help_text="Duration of completed run in minutes")
+    avg_pace = models.DurationField()  
+    is_completed = models.BooleanField(default=False)
+    
     def __str__(self):
-        return f"Week {self.week_number} for {self.marathon_plan}"
-
+        return f"Completed run on {self.date} with pace {self.pace}"
