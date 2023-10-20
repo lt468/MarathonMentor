@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'MarathonMentor.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mydb',
+        'NAME': 'marathon_mentor_training_plan_db',
         'USER': 'lt',
         'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD'),
         'HOST': 'localhost',

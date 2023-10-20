@@ -147,9 +147,14 @@ class NewMarathonPlan:
                 # Create the run attributes
                 run_id = c.BASIC_PLANS[fit_level][phase][day]
                  
-                if run_id != 5:
+                if run_id == 0:
+                    distance = 0
+                    duration = 0
+                    est_avg_pace = timedelta(minutes=0)
+                    on = off = sets = 0
+                elif run_id != 5:
                     distance = self._calculate_distance(run_id, fit_level, phase, weeks_in_phase, i)
-                    duration = c.DEFAULT_RUNS[run_id]["first_duration"]["fit_level"]
+                    duration = c.DEFAULT_RUNS[run_id]["first_duration"][fit_level]
                     pace = 1 / (distance / duration)
                     est_avg_pace = timedelta(minutes=pace)
 
@@ -167,7 +172,7 @@ class NewMarathonPlan:
                     duration = 0
 
                 scheduled_run = ScheduledRun(
-                    dict_id = [run_id],
+                    dict_id = run_id,
                     run = c.DEFAULT_RUNS[run_id]["name"],
                     marathon_plan = self.plan,
                     run_feel = c.DEFAULT_RUNS[run_id]["feel"],
@@ -185,7 +190,7 @@ class NewMarathonPlan:
     def _calculate_distance(self, run_id, fit_level, phase, weeks_in_phase, i):
         low = c.DEFAULT_RUNS[run_id]["distance"][fit_level][phase]["low"]
         high = c.DEFAULT_RUNS[run_id]["distance"][fit_level][phase]["high"]
-        diff = low - high
+        diff = high - low
 
         addition = diff / (weeks_in_phase - 1)
 
@@ -204,10 +209,10 @@ class NewMarathonPlan:
 
             return weekly_value
 
-        on_low = c.DEFAULT_RUNS[run_id]["on"][fit_level][phase]["low"]
-        on_high = c.DEFAULT_RUNS[run_id]["on"][fit_level][phase]["high"]
-        off_low = c.DEFAULT_RUNS[run_id]["off"][fit_level][phase]["low"]
-        off_high = c.DEFAULT_RUNS[run_id]["off"][fit_level][phase]["high"]
+        on_low = c.DEFAULT_RUNS[run_id]["on"]
+        on_high = c.DEFAULT_RUNS[run_id]["on"]
+        off_low = c.DEFAULT_RUNS[run_id]["off"]
+        off_high = c.DEFAULT_RUNS[run_id]["off"]
         sets_low = c.DEFAULT_RUNS[run_id]["sets"][fit_level][phase]["low"]
         sets_high = c.DEFAULT_RUNS[run_id]["sets"][fit_level][phase]["high"]
         

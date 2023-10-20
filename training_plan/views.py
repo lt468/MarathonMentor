@@ -38,6 +38,7 @@ def register(request):
 
             # Create new plan
             success, user_plan = plan.create_plan()
+            print(success)
 
             # If there is an error in the marathon date
             if not success:
@@ -53,7 +54,10 @@ def register(request):
             })
         else:
             # Errors here
-            return HttpResponseRedirect(reverse("index"))
+            print(form.errors)
+            return render(request, "training_plan/error.html", {
+                "error_msg": "something went wrong with user sign-up"
+            })
 
     else:
         form = MergedSignUpForm()
