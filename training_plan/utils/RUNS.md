@@ -41,22 +41,36 @@ distance, and rest periods & interval times/distances (for intervals), which are
 
 = Recovery == Z1
 - Duration = 30' = 1 
-- Distance = 5km = 1 
+- Distance = 4km = 1 
 
 = Base == Z2
+- Duration = 60' = 1
+- Distance = 10km = 1
+
+= Long Base == Z2
 - Duration = 90' = 1
 - Distance = 15km = 1
 
 = Long Tempo == 3
-- Duration = 40' = 1
-- Distance = 10km = 1
+- Duration = 30' = 1
+- Distance = 6km = 1
 
 = Tempo == Z4
-- Duration = 25' = 1
-- Distance = 6km = 1
+- Duration = 20' = 1
+- Distance = 8km = 1
 
 = Interval == Z5
 - On = 4' = 1
 - Off = 4' = 1
 - Sets = 4 = 1
+
+
+== 20/10 == db_redesign update ====
+- I am going to to base the times off of the user's inputted pace for the runs and save them in a database
+to calculate the estimated time of completion for all runs but the intervals (which will be done on time anyway).
+- I am then going to create a tool in the browser for the user to calculate the pace time if they have a time for the 
+entire workout and use that as input OR use the strava API to get their runs and automatically do it for them
+- If there is no pace inputted I will ask the user to use select "use default" which will mean that the default values
+are used for pace and then give an estimated time
+
 
