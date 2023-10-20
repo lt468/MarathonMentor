@@ -126,7 +126,8 @@ DEFAULT_RUNS = {
                     "high": 5
                 },
                 "phase3": {
-                    "const": 5
+                    "low": 5, 
+                    "high": 5
                 }
             },
             "intermediate": {
@@ -139,7 +140,8 @@ DEFAULT_RUNS = {
                     "high": 6
                 },
                 "phase3": {
-                    "const": 6
+                    "low": 6,
+                    "high": 6
                 }
             },
             "advanced": {
@@ -152,10 +154,16 @@ DEFAULT_RUNS = {
                     "high": 8
                 },
                 "phase3": {
-                    "const": 8
+                    "low": 8,
+                    "high": 8
                 }
             },
         },
+        "first_duration": {
+            "beginner": 10,
+            "intermediate": 15,
+            "advanced": 50
+        }
     },
     2: {
         "name": "Base Run",
@@ -175,7 +183,8 @@ DEFAULT_RUNS = {
                     "high": 15
                 },
                 "phase3": {
-                    "const": 16
+                    "low": 16,
+                    "high": 16
                 }
             },
             "intermediate": {
@@ -188,7 +197,8 @@ DEFAULT_RUNS = {
                     "high": 16
                 },
                 "phase3": {
-                    "const": 16
+                    "low": 16,
+                    "high": 16
                 }
             },
             "advanced": {
@@ -201,10 +211,16 @@ DEFAULT_RUNS = {
                     "high": 16
                 },
                 "phase3": {
-                    "const": 16
+                    "low": 16,
+                    "high": 16
                 }
             },
         },
+        "first_duration": {
+            "beginner": 10,
+            "intermediate": 35,
+            "advanced": 50
+        }
     },
     3: {
         "name": "Long Tempo Run",
@@ -224,7 +240,8 @@ DEFAULT_RUNS = {
                     "high": 12
                 },
                 "phase3": {
-                    "const": 12
+                    "low": 12,
+                    "high": 12
                 }
             },
             "intermediate": {
@@ -237,7 +254,8 @@ DEFAULT_RUNS = {
                     "high": 15
                 },
                 "phase3": {
-                    "const": 15
+                    "low": 15,
+                    "high": 15
                 }
             },
             "advanced": {
@@ -250,10 +268,16 @@ DEFAULT_RUNS = {
                     "high": 16
                 },
                 "phase3": {
-                    "const": 16
+                    "low": 16,
+                    "high": 16
                 }
             },
         },
+        "first_duration": {
+            "beginner": 10,
+            "intermediate": 25,
+            "advanced": 20
+        }
     },
     4: {
         "name": "Harder Tempo Run",
@@ -273,7 +297,8 @@ DEFAULT_RUNS = {
                     "high": 8
                 },
                 "phase3": {
-                    "const": 8
+                    "low": 8,
+                    "high": 8
                 }
             },
             "intermediate": {
@@ -286,7 +311,8 @@ DEFAULT_RUNS = {
                     "high": 10
                 },
                 "phase3": {
-                    "const": 10
+                    "low": 10,
+                    "high": 10
                 }
             },
             "advanced": {
@@ -299,10 +325,16 @@ DEFAULT_RUNS = {
                     "high": 12
                 },
                 "phase3": {
-                    "const": 12
+                    "low": 12,
+                    "high": 12
                 }
             },
         },
+        "first_duration": {
+            "beginner": 50,
+            "intermediate": 50,
+            "advanced": 50
+        }
     },
     5: {
         "name": "Interval Runs",
@@ -356,6 +388,11 @@ DEFAULT_RUNS = {
                     "high": 8
                 },
             }
+        },
+        "first_duration": {
+            "beginner": 16,
+            "intermediate": 32,
+            "advanced": 48
         }
     },
     6: {
@@ -409,19 +446,12 @@ DEFAULT_RUNS = {
                 }
             },
         },
-    }
-}
-
-""" Limits for calculating run attributes """
-LIMITS = {
-    "beginner": {
-        "run": {
-            
-
+        "first_duration": {
+            "beginner": 35,
+            "intermediate": 70,
+            "advanced": 60
         }
-    },
-    "intermediate": {},
-    "advanced":{}
+    }
 }
 
 """ Scaling factors """

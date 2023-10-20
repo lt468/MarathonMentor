@@ -1,7 +1,8 @@
 # utils/plan_algo.py
 from datetime import date, timedelta
+import numpy as np
 
-from ..models import MarathonPlan, ScheduledRun
+from ..models import MarathonPlan, ScheduledRun, CompletedRun
 from . import p_a_constants as c
 
 class NewMarathonPlan:
@@ -146,20 +147,37 @@ class NewMarathonPlan:
                 # Create the run attributes
                 run_id = c.BASIC_PLANS[fit_level][phase][day]
                  
-                distance = self._calculate_distance(run_id, fit_level, phase, weeks_in_phase, i)
+                if run_id != 5:
+                    distance = self._calculate_distance(run_id, fit_level, phase, weeks_in_phase, i)
+                    duration = c.DEFAULT_RUNS[run_id]["first_duration"]["fit_level"]
+                    pace = 1 / (distance / duration)
+                    est_avg_pace = timedelta(minutes=pace)
+
+                    on = off = sets = 0
+                else:
+                    if fit_level == "beginner":
+                        est_avg_pace = timedelta(minutes=5, seconds=30)
+                    elif fit_level == "intermediate":
+                        est_avg_pace = timedelta(minutes=4, seconds=30)
+                    else: 
+                        est_avg_pace = timedelta(minutes=3, seconds=30)
+
+                    on, off, sets = self._calculate_interval_progression(fit_level, phase, weeks_in_phase, i)
+                    distance = 0
+                    duration = 0
 
                 scheduled_run = ScheduledRun(
+                    dict_id = [run_id],
                     run = c.DEFAULT_RUNS[run_id]["name"],
                     marathon_plan = self.plan,
                     run_feel = c.DEFAULT_RUNS[run_id]["feel"],
                     date = self._calculate_run_date(phase_start_date, day, i),
                     distance = distance,
-                    # DEFINE AND CALC THESE IN DICTIONARY TOO !!
-                    est_duration =
-                    est_avg_pace =
-                    on =
-                    off =
-                    sets =
+                    est_duration = duration,
+                    est_avg_pace = est_avg_pace,
+                    on = on,
+                    off = off, 
+                    sets = sets
                 )
                 scheduled_run.save()
 
@@ -173,8 +191,41 @@ class NewMarathonPlan:
 
         return low + (addition * i)
 
+
+    def _calculate_interval_progression(self, fit_level, phase, weeks_in_phase, i, run_id=5):
+        def calculate_weekly_value(low, high, weeks, current_week):
+            diff = high - low
+
+            # Calculate the ideal change, considering total weeks
+            ideal_change = round(diff * current_week / weeks)
+
+            # Calculate the weekly value based on the ideal change
+            weekly_value = low + ideal_change
+
+            return weekly_value
+
+        on_low = c.DEFAULT_RUNS[run_id]["on"][fit_level][phase]["low"]
+        on_high = c.DEFAULT_RUNS[run_id]["on"][fit_level][phase]["high"]
+        off_low = c.DEFAULT_RUNS[run_id]["off"][fit_level][phase]["low"]
+        off_high = c.DEFAULT_RUNS[run_id]["off"][fit_level][phase]["high"]
+        sets_low = c.DEFAULT_RUNS[run_id]["sets"][fit_level][phase]["low"]
+        sets_high = c.DEFAULT_RUNS[run_id]["sets"][fit_level][phase]["high"]
+        
+        on_value = calculate_weekly_value(on_low, on_high, weeks_in_phase, i)
+        off_value = calculate_weekly_value(off_low, off_high, weeks_in_phase, i)
+        sets_value = calculate_weekly_value(sets_low, sets_high, weeks_in_phase, i)
+    
+        return (on_value, off_value, sets_value)
+
     def _calculate_duration(self):
         pass
+        #completed_runs_with_specific_dict_id = CompletedRun.objects.filter(scheduled_run__dict_id=run_id)
+        #if not completed_runs_with_specific_dict_id.exists():
+        #    pass
+        #    #avg_paces = [run.avg_pace for run in completed_runs_with_specific_dict_id if run.avg_pace] 
+        #    #seconds_list = [pace.total_seconds() for pace in avg_paces]
+        #    #avg_seconds = int(np.mean(seconds_list))
+        #    #avg_timedelta = timedelta(seconds=avg_seconds)
 
     # Calculate the run date
     def _calculate_run_date(self, start_date, day_of_week, weeks_in_phase) -> date:

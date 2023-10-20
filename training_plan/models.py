@@ -84,13 +84,14 @@ class MarathonPlan(models.Model):
 class ScheduledRun(models.Model):
 
     id = models.AutoField(primary_key=True)
+    dict_id = models.PositiveIntegerField()
     run = models.CharField(max_length=100, default="Training Run")  # Name of run
     run_feel = models.CharField(default="Training session")
     marathon_plan = models.ForeignKey(MarathonPlan, on_delete=models.CASCADE) # The plan
     date = models.DateField() # The date of the run
     distance = models.PositiveIntegerField(help_text="Distance in km") # Distance of run
     est_duration = models.PositiveIntegerField(help_text="Duration in minutes") # Time of run
-    est_avg_pace = models.DurationField() # Distance of run
+    est_avg_pace = models.DurationField() # Pace of run
     on = models.PositiveIntegerField(help_text="Work time in minutes", default=0)
     off = models.PositiveIntegerField(help_text="Rest time in minutes", default=0)
     sets = models.PositiveIntegerField(help_text="Sets", default=0)
