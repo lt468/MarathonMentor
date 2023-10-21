@@ -233,7 +233,7 @@ class NewMarathonPlan:
         #    #avg_timedelta = timedelta(seconds=avg_seconds)
 
     # Calculate the run date
-    def _calculate_run_date(self, start_date, day_of_week, weeks_in_phase) -> date:
+    def _calculate_run_date(self, start_date, day_of_week, week_of_phase) -> date:
         """
         Determines the date for a run based on its specified day of the week and the start date of the phase.
 
@@ -243,7 +243,7 @@ class NewMarathonPlan:
             The date on which the phase (or week) starts.
         day_of_week : str
             The day of the week (e.g., "mon", "tue").
-        weeks_in_phase : int
+        week_of_phase : int
             How many weeks in to the phase so that each week there are runs (rather than always the same week)
 
         Returns
@@ -264,4 +264,4 @@ class NewMarathonPlan:
         delta_days = days_mapping[day_of_week] - start_date.weekday()
         if delta_days < 0:
             delta_days += 7
-        return timedelta(days=weeks_in_phase) + start_date + timedelta(days=delta_days)
+        return timedelta(days=(week_of_phase * 7)) + start_date + timedelta(days=delta_days)

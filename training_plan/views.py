@@ -38,7 +38,6 @@ def register(request):
 
             # Create new plan
             success, user_plan = plan.create_plan()
-            print(success)
 
             # If there is an error in the marathon date
             if not success:
