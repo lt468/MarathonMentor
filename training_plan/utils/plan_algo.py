@@ -100,7 +100,7 @@ class NewMarathonPlan:
         # Split total days into 3:2:1 ratio
         phase1_days = (3/6) * total_days
         phase2_days = (2/6) * total_days
-        # phase3_days = (1/6) * total_days # Not used
+        phase3_days = (1/6) * total_days # Not used
         
         # Adjust phase 1 start date to next Monday
         phase1_start = self.today
@@ -122,17 +122,38 @@ class NewMarathonPlan:
         
         # Adjust phase 3 start date to next Monday
         phase3_start = phase2_end + timedelta(days=1)
-        phase3_end = self.date_of_marathon
+        phase3_end = self.date_of_marathon - timedelta(days=7) # End phase 3 a week before marathon date for week of taper
         
         # Calculate weeks in each phase
         phase1_weeks = (phase1_end - phase1_start).days // 7
+        print("==phase 1==")
+        print(phase1_start, phase1_start.weekday(), phase1_end, phase1_end.weekday())
+        print(phase1_end - phase1_start)
+        print((phase1_end - phase1_start).days)
+        print((phase1_end - phase1_start).days // 7)
+        print((phase1_end - phase1_start).days / 7)
         phase2_weeks = (phase2_end - phase2_start).days // 7
+        print("==phase 2==")
+        print(phase2_start, phase2_start.weekday(), phase2_end, phase2_end.weekday())
+        print(phase2_end - phase2_start)
+        print((phase2_end - phase2_start).days)
+        print((phase2_end - phase2_start).days // 7)
+        print((phase2_end - phase2_start).days / 7)
         phase3_weeks = (phase3_end - phase3_start).days // 7
+        print("==phase 3==")
+        print(phase3_start, phase3_start.weekday(), phase3_end, phase3_end.weekday())
+        print(phase3_end - phase3_start)
+        print((phase3_end - phase3_start).days)
+        print((phase3_end - phase3_start).days // 7)
+        print((phase3_end - phase3_start).days / 7)
 
+
+        # There is a hole week missing when the runs are scheduleds at the end of phase 1 and 2 due to the // division - need to + 1 to the total weeks
         # Schedule runs for each phase
-        self._schedule_runs_for_phase("phase1", phase1_start, phase1_weeks)
-        self._schedule_runs_for_phase("phase2", phase2_start, phase2_weeks)
-        self._schedule_runs_for_phase("phase3", phase3_start, phase3_weeks)
+        self._schedule_runs_for_phase("phase1", phase1_start, phase1_weeks + 1)
+        self._schedule_runs_for_phase("phase2", phase2_start, phase2_weeks + 1)
+        self._schedule_runs_for_phase("phase3", phase3_start, phase3_weeks + 1) 
+        self._schedule_runs_for_taper(phase3_end, self.user.fitness_level)
         
     # Schedule the runs for a given phase
     def _schedule_runs_for_phase(self, phase, phase_start_date, weeks_in_phase):
@@ -169,7 +190,7 @@ class NewMarathonPlan:
 
                     on, off, sets = self._calculate_interval_progression(fit_level, phase, weeks_in_phase, i)
                     distance = 0
-                    duration = 0
+                    duration = (on + off) * sets
 
                 scheduled_run = ScheduledRun(
                     dict_id = run_id,
@@ -185,6 +206,76 @@ class NewMarathonPlan:
                     sets = sets
                 )
                 scheduled_run.save()
+
+    def _schedule_runs_for_taper(self, phase3_end, fit_level):
+
+        phase3_end_weekday = phase3_end.weekday()
+
+        # We always know the current last scheduled day in phase 3 is a sunday, so a weekday of 6
+        amount_to_delete = 6 - phase3_end_weekday
+        current_phase3_end_date = phase3_end + timedelta(days=amount_to_delete)
+
+        # Query for scheduled_runs to be removed for taper
+        # Query the ScheduledRun model for runs between the two dates
+        taper_start_date = phase3_end + timedelta(days=1)
+        runs_to_delete = ScheduledRun.objects.filter(date__range=(taper_start_date, current_phase3_end_date))
+
+        # Delete the retrieved runs
+        runs_to_delete.delete()
+        
+        # Add the scheduled taper runs
+        for i, day in enumerate(c.WEEK):
+            # Create the run attributes
+            run_id = c.LAST[day]["dict_id"] # I know that it techincally isn't the correct day of the week in the loop to the actual day of the week but it works
+             
+            if run_id == 0:
+                distance = 0
+                duration = 0
+                est_avg_pace = timedelta(minutes=0)
+                on = off = sets = 0
+
+            elif run_id == 5:
+                if fit_level == "beginner":
+                    est_avg_pace = timedelta(minutes=5, seconds=30)
+                elif fit_level == "intermediate":
+                    est_avg_pace = timedelta(minutes=4, seconds=30)
+                else: 
+                    est_avg_pace = timedelta(minutes=3, seconds=30)
+
+                on, off, sets = c.LAST[day]["on"], c.LAST[day]["off"], c.LAST[day]["sets"]
+                distance = 0
+                duration = (on + off) * sets
+
+            elif run_id == 9:
+                distance = c.DEFAULT_RUNS[run_id]["distance"]
+                duration = c.DEFAULT_RUNS[run_id]["first_duration"][fit_level]
+                pace = 1 / (distance / duration)
+                est_avg_pace = timedelta(minutes=pace)
+
+                on = off = sets = 0
+
+            else:
+                distance = c.LAST[day]["distance"]
+                duration = c.LAST[day]["duration"][fit_level]
+                pace = 1 / (distance / duration)
+                est_avg_pace = timedelta(minutes=pace)
+
+                on = off = sets = 0
+
+            scheduled_run = ScheduledRun(
+                dict_id = run_id,
+                run = c.DEFAULT_RUNS[run_id]["name"],
+                marathon_plan = self.plan,
+                run_feel = c.DEFAULT_RUNS[run_id]["feel"],
+                date = taper_start_date + timedelta(days=i),
+                distance = distance,
+                est_duration = duration,
+                est_avg_pace = est_avg_pace,
+                on = on,
+                off = off, 
+                sets = sets
+            )
+            scheduled_run.save()
 
 
     def _calculate_distance(self, run_id, fit_level, phase, weeks_in_phase, i):

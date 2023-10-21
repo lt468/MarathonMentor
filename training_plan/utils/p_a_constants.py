@@ -451,37 +451,59 @@ DEFAULT_RUNS = {
             "intermediate": 70,
             "advanced": 60
         }
+    },
+    9: {
+        "name": "Marathon Day",
+        "zone": {
+            "int": 2,
+            "desc": "Max"
+        },
+        "feel": "Full Out! Go for it!",
+        "distance": 42,
+        "first_duration": {
+            "beginner": 240,
+            "intermediate": 210,
+            "advanced": 180
+        }
     }
 }
 
-""" Scaling factors """
-SCALING_FACTORS = {
-    "beginner": {
-        "duration": 0.4,
-        "distance": 0.4,
-        "on": 0.4,
-        "off": 1.6,
-        "sets": 0.5
+""" Last week of training """
+LAST = {
+    "mon": {
+        "dict_id": 0
+    }, 
+    "tue": {
+        "dict_id": 5,
+        "on": 4,
+        "off": 4,
+        "sets": 4
     },
-    "intermediate": {
-        "duration": 1,
-        "distance": 1,
-        "on": 1,
-        "off": 1,
-        "sets": 1
-    },
-    "advanced": {
-        "duration": 1.2,
-        "distance": 1.2,
-        "on": 1.2,
-        "off": 0.8,
-        "sets": 1.2
-    }
-}
-
-""" Feedback adjustments """
-FEEDBACK_ADJUSTMENTS = {
-    "too_easy": 1.1,   # Increase by 10%
-    "just_right": 1,  # No change
-    "too_hard": 0.9   # Decrease by 10%
+    "wed": {
+        "dict_id": 0
+    }, 
+    "thu": {
+        "dict_id": 2,
+        "distance": 12,
+        "duration": {
+            "beginner": 70,
+            "intermediate": 60,
+            "advanced": 50
+        }
+    }, 
+    "fri": {
+        "dict_id": 2,
+        "distance": 12,
+        "duration": {
+            "beginner": 70,
+            "intermediate": 60,
+            "advanced": 50
+        }
+    }, 
+    "sat": {
+        "dict_id": 0
+    }, 
+    "sun": {
+        "dict_id": 9
+    } # Marathon day 
 }
