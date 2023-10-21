@@ -1,4 +1,8 @@
-# utils/plan_algo.py
+"""
+This module provides logic for creating a marathon training plan.
+
+It uses a user's fitness level and the date of their marathon to create a tailored training plan split into different phases.
+"""
 from datetime import date, timedelta
 import numpy as np
 
@@ -126,27 +130,8 @@ class NewMarathonPlan:
         
         # Calculate weeks in each phase
         phase1_weeks = (phase1_end - phase1_start).days // 7
-        print("==phase 1==")
-        print(phase1_start, phase1_start.weekday(), phase1_end, phase1_end.weekday())
-        print(phase1_end - phase1_start)
-        print((phase1_end - phase1_start).days)
-        print((phase1_end - phase1_start).days // 7)
-        print((phase1_end - phase1_start).days / 7)
         phase2_weeks = (phase2_end - phase2_start).days // 7
-        print("==phase 2==")
-        print(phase2_start, phase2_start.weekday(), phase2_end, phase2_end.weekday())
-        print(phase2_end - phase2_start)
-        print((phase2_end - phase2_start).days)
-        print((phase2_end - phase2_start).days // 7)
-        print((phase2_end - phase2_start).days / 7)
         phase3_weeks = (phase3_end - phase3_start).days // 7
-        print("==phase 3==")
-        print(phase3_start, phase3_start.weekday(), phase3_end, phase3_end.weekday())
-        print(phase3_end - phase3_start)
-        print((phase3_end - phase3_start).days)
-        print((phase3_end - phase3_start).days // 7)
-        print((phase3_end - phase3_start).days / 7)
-
 
         # There is a hole week missing when the runs are scheduleds at the end of phase 1 and 2 due to the // division - need to + 1 to the total weeks
         # Schedule runs for each phase

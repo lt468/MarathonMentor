@@ -1,4 +1,6 @@
-""" Contstants and Data for the plan_algo.py file"""
+"""
+This module provides constants that are used in the creation of a marathon training plan.
+"""
 
 """ Week"""
 WEEK = ("mon", "tue", "wed", "thu", "fri", "sat", "sun") 
