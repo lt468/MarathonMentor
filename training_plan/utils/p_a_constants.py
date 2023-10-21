@@ -171,7 +171,7 @@ DEFAULT_RUNS = {
             "int": 2,
             "desc": "Base"
         },
-        "feel": "You're working but you can still chat comfortably and maintain the pase without feeling exhausted",
+        "feel": "You're working but you can still chat comfortably and maintain the pace without feeling exhausted",
         "distance": {
             "beginner": {
                 "phase1": {
