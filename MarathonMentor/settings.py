@@ -58,7 +58,7 @@ ROOT_URLCONF = 'MarathonMentor.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'MarathonMentor.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'marathon_mentor_training_plan_db',
+        'NAME': 'mm_tp_db',
         'USER': 'lt',
         'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD'),
         'HOST': 'localhost',
@@ -128,3 +128,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Login and logout redirect
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"

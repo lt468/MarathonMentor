@@ -33,6 +33,27 @@ class MergedSignUpForm(UserCreationForm):
             raise ValidationError(f"The date of the marathon must be less than {c.MAX_DAYS} days from today.")
 
         return date_of_marathon
+    
+    def clean_dob(self):
+        birth_date = self.cleaned_data.get("dob")
+        today = date.today()
+
+        if birth_date is None:
+            raise ValidationError("Date of birth required")
+
+        DATE_LIMIT = today - timedelta(days=365*120)
+        age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+
+        if age < 18:
+            raise ValidationError("You must be at least 18 years old to register.")
+
+        if birth_date >= today:
+            raise ValidationError("Your date of birth cannot be in the future")
+
+        if birth_date < DATE_LIMIT :
+            raise ValidationError(f"Please enter a valid date of birth")
+
+        return birth_date
 
 """Leave if you want two sign-up pages"""
 ## For initial sign-up

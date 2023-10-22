@@ -8,6 +8,7 @@ from .utils import plan_algo
 from .models import RunnerUser
 from .forms import MergedSignUpForm
 
+
 def index(request):
     # Check the Marathon date is valid
     if request.user.is_authenticated:
@@ -18,7 +19,8 @@ def index(request):
             user = RunnerUser.objects.get(username=username)
 
         except RunnerUser.DoesNotExist:
-            raise ValueError("User doesn't exist (likely not logged in or incorrect username passed)")
+            raise ValueError(
+                "User doesn't exist (likely not logged in or incorrect username passed)")
     else:
         # TODO - return a redirect if user isn't logged in
         user = None
@@ -26,6 +28,7 @@ def index(request):
     return render(request, "training_plan/index.html", {
         "data": 5
     })
+
 
 def register(request):
 
@@ -54,16 +57,12 @@ def register(request):
         else:
             # Errors here
             print(form.errors)
-            return render(request, "training_plan/error.html", {
-                "error_msg": "something went wrong with user sign-up"
+            return render(request, "training_plan/register.html", {
+                "form": form
             })
-
     else:
         form = MergedSignUpForm()
 
     return render(request, "training_plan/register.html", {
         "form": form
     })
-
-
-

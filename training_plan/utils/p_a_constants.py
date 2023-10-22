@@ -3,99 +3,99 @@ This module provides constants that are used in the creation of a marathon train
 """
 
 """ Week"""
-WEEK = ("mon", "tue", "wed", "thu", "fri", "sat", "sun") 
+WEEK = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 
 """ Plan constants """
-MIN_DAYS = 90 
+MIN_DAYS = 90
 MAX_DAYS = 365
 
 """ Basic plans """
 BASIC_PLANS = {
     "beginner": {
         "phase1": {
-            "mon": 2, 
-            "tue": 0, 
-            "wed": 2, 
-            "thu": 0, 
-            "fri": 1, 
-            "sat": 6, 
-            "sun": 0 
+            "mon": 2,
+            "tue": 0,
+            "wed": 2,
+            "thu": 0,
+            "fri": 1,
+            "sat": 6,
+            "sun": 0
         },
         "phase2": {
-            "mon": 2, 
-            "tue": 1, 
-            "wed": 2, 
-            "thu": 3, 
-            "fri": 0, 
-            "sat": 6, 
-            "sun": 2 
+            "mon": 2,
+            "tue": 1,
+            "wed": 2,
+            "thu": 3,
+            "fri": 0,
+            "sat": 6,
+            "sun": 2
         },
         "phase3": {
-            "mon": 2, 
-            "tue": 5, 
-            "wed": 2, 
-            "thu": 4, 
-            "fri": 0, 
-            "sat": 1, 
-            "sun": 6 
+            "mon": 2,
+            "tue": 5,
+            "wed": 2,
+            "thu": 4,
+            "fri": 0,
+            "sat": 1,
+            "sun": 6
         }
     },
     "intermediate": {
         "phase1": {
-            "mon": 2, 
-            "tue": 0, 
-            "wed": 2, 
-            "thu": 2, 
-            "fri": 1, 
-            "sat": 6, 
-            "sun": 3 
+            "mon": 2,
+            "tue": 0,
+            "wed": 2,
+            "thu": 2,
+            "fri": 1,
+            "sat": 6,
+            "sun": 3
         },
         "phase2": {
-            "mon": 2, 
-            "tue": 2, 
-            "wed": 2, 
-            "thu": 3, 
-            "fri": 0, 
-            "sat": 6, 
-            "sun": 2 
+            "mon": 2,
+            "tue": 2,
+            "wed": 2,
+            "thu": 3,
+            "fri": 0,
+            "sat": 6,
+            "sun": 2
         },
         "phase3": {
-            "mon": 2, 
-            "tue": 5, 
-            "wed": 2, 
-            "thu": 4, 
-            "fri": 0, 
-            "sat": 1, 
-            "sun": 6 
+            "mon": 2,
+            "tue": 5,
+            "wed": 2,
+            "thu": 4,
+            "fri": 0,
+            "sat": 1,
+            "sun": 6
         }
     },
     "advanced": {
         "phase1": {
-            "mon": 2, 
-            "tue": 0, 
-            "wed": 2, 
-            "thu": 2, 
-            "fri": 2, 
-            "sat": 6, 
-            "sun": 3 
+            "mon": 2,
+            "tue": 0,
+            "wed": 2,
+            "thu": 2,
+            "fri": 2,
+            "sat": 6,
+            "sun": 3
         },
         "phase2": {
-            "mon": 2, 
-            "tue": 2, 
-            "wed": 2, 
-            "thu": 3, 
-            "fri": 0, 
-            "sat": 6, 
-            "sun": 2 
+            "mon": 2,
+            "tue": 2,
+            "wed": 2,
+            "thu": 3,
+            "fri": 0,
+            "sat": 6,
+            "sun": 2
         },
         "phase3": {
-            "mon": 2, 
-            "tue": 5, 
-            "wed": 2, 
-            "thu": 4, 
-            "fri": 0, 
-            "sat": 1, 
-            "sun": 6 
+            "mon": 2,
+            "tue": 5,
+            "wed": 2,
+            "thu": 4,
+            "fri": 0,
+            "sat": 1,
+            "sun": 6
         }
     },
 }
@@ -124,11 +124,11 @@ DEFAULT_RUNS = {
                     "high": 4
                 },
                 "phase2": {
-                    "low": 2, 
+                    "low": 2,
                     "high": 5
                 },
                 "phase3": {
-                    "low": 5, 
+                    "low": 5,
                     "high": 5
                 }
             },
@@ -138,7 +138,7 @@ DEFAULT_RUNS = {
                     "high": 5
                 },
                 "phase2": {
-                    "low": 3, 
+                    "low": 3,
                     "high": 6
                 },
                 "phase3": {
@@ -152,7 +152,7 @@ DEFAULT_RUNS = {
                     "high": 8
                 },
                 "phase2": {
-                    "low": 5, 
+                    "low": 5,
                     "high": 8
                 },
                 "phase3": {
@@ -181,7 +181,7 @@ DEFAULT_RUNS = {
                     "high": 10
                 },
                 "phase2": {
-                    "low": 8, 
+                    "low": 8,
                     "high": 15
                 },
                 "phase3": {
@@ -195,7 +195,7 @@ DEFAULT_RUNS = {
                     "high": 12
                 },
                 "phase2": {
-                    "low": 12, 
+                    "low": 12,
                     "high": 16
                 },
                 "phase3": {
@@ -209,7 +209,7 @@ DEFAULT_RUNS = {
                     "high": 15
                 },
                 "phase2": {
-                    "low": 12, 
+                    "low": 12,
                     "high": 16
                 },
                 "phase3": {
@@ -238,7 +238,7 @@ DEFAULT_RUNS = {
                     "high": 10
                 },
                 "phase2": {
-                    "low": 8, 
+                    "low": 8,
                     "high": 12
                 },
                 "phase3": {
@@ -252,7 +252,7 @@ DEFAULT_RUNS = {
                     "high": 12
                 },
                 "phase2": {
-                    "low": 10, 
+                    "low": 10,
                     "high": 15
                 },
                 "phase3": {
@@ -266,7 +266,7 @@ DEFAULT_RUNS = {
                     "high": 12
                 },
                 "phase2": {
-                    "low": 10, 
+                    "low": 10,
                     "high": 16
                 },
                 "phase3": {
@@ -295,7 +295,7 @@ DEFAULT_RUNS = {
                     "high": 5
                 },
                 "phase2": {
-                    "low": 3, 
+                    "low": 3,
                     "high": 8
                 },
                 "phase3": {
@@ -309,7 +309,7 @@ DEFAULT_RUNS = {
                     "high": 5
                 },
                 "phase2": {
-                    "low": 5, 
+                    "low": 5,
                     "high": 10
                 },
                 "phase3": {
@@ -323,7 +323,7 @@ DEFAULT_RUNS = {
                     "high": 10
                 },
                 "phase2": {
-                    "low": 10, 
+                    "low": 10,
                     "high": 12
                 },
                 "phase3": {
@@ -411,11 +411,11 @@ DEFAULT_RUNS = {
                     "high": 15
                 },
                 "phase2": {
-                    "low": 15, 
+                    "low": 15,
                     "high": 22
                 },
                 "phase3": {
-                    "low": 22, 
+                    "low": 22,
                     "high": 36
                 }
             },
@@ -425,11 +425,11 @@ DEFAULT_RUNS = {
                     "high": 20
                 },
                 "phase2": {
-                    "low": 18, 
+                    "low": 18,
                     "high": 24
                 },
                 "phase3": {
-                    "low": 22, 
+                    "low": 22,
                     "high": 36
                 }
             },
@@ -439,11 +439,11 @@ DEFAULT_RUNS = {
                     "high": 20
                 },
                 "phase2": {
-                    "low": 18, 
+                    "low": 18,
                     "high": 26
                 },
                 "phase3": {
-                    "low": 22, 
+                    "low": 22,
                     "high": 36
                 }
             },
@@ -474,7 +474,7 @@ DEFAULT_RUNS = {
 LAST = {
     "mon": {
         "dict_id": 0
-    }, 
+    },
     "tue": {
         "dict_id": 5,
         "on": 4,
@@ -483,7 +483,7 @@ LAST = {
     },
     "wed": {
         "dict_id": 0
-    }, 
+    },
     "thu": {
         "dict_id": 2,
         "distance": 12,
@@ -492,7 +492,7 @@ LAST = {
             "intermediate": 60,
             "advanced": 50
         }
-    }, 
+    },
     "fri": {
         "dict_id": 2,
         "distance": 12,
@@ -501,11 +501,11 @@ LAST = {
             "intermediate": 60,
             "advanced": 50
         }
-    }, 
+    },
     "sat": {
         "dict_id": 0
-    }, 
+    },
     "sun": {
         "dict_id": 9
-    } # Marathon day 
+    }  # Marathon day
 }
