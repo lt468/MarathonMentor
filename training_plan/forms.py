@@ -11,12 +11,10 @@ class MergedSignUpForm(UserCreationForm):
 
     class Meta:
         model = RunnerUser
-        fields = ["first_name", "last_name", "username", "email", "password1", "password2", "dob", "weight", "height", "fitness_level", "date_of_marathon"]
+        fields = ["first_name", "last_name", "username", "email", "password1", "password2", "dob", "fitness_level", "date_of_marathon"]
 
         widgets = {
             "dob": forms.DateInput(attrs={"type": "date"}),
-            "weight": forms.NumberInput(attrs={"placeholder": "Weight in kg"}),
-            "height": forms.NumberInput(attrs={"placeholder": "Height in cm"}),
             "fitness_level": forms.Select(choices=RunnerUser.FITNESS_LEVEL_CHOICES),
             "date_of_marathon": forms.DateInput(attrs={"type": "date"}),
         }

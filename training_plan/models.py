@@ -54,8 +54,6 @@ class RunnerUser(AbstractUser):
     ]
 
     dob = models.DateField(verbose_name="Date of birth") # User's date of birth - to calculate their age
-    weight = models.PositiveIntegerField(help_text="Weight in kilograms", null=True, blank=True) # User's weight
-    height = models.PositiveIntegerField(help_text="Height in centimeters", null=True, blank=True) # User's height
     fitness_level = models.CharField(max_length=50, choices=FITNESS_LEVEL_CHOICES) # User's fitness level
     date_of_marathon = models.DateField(auto_now=False, auto_now_add=False, help_text="Date of marathon", null=True, blank=True)
 
