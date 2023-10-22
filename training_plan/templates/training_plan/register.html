@@ -9,7 +9,7 @@
     <body>
         <form action="{% url 'register' %}" method="POST">
             {% csrf_token %}
-            {{ form }}
+            {{ form.as_div }}
            <input type="submit" name="submit" value="Submit"> 
         </form>
     </body>
