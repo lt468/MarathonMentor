@@ -1,16 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title></title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="css/style.css" rel="stylesheet">
-    </head>
-    <body>
-        <form action="{% url 'register' %}" method="POST">
-            {% csrf_token %}
-            {{ form.as_div }}
-           <input type="submit" name="submit" value="Submit"> 
-        </form>
-    </body>
-</html>
+{% extends "registration/nonavbar.html" %}
+{% load crispy_forms_tags %}
+{% block head %}
+    <title>Register</title>
+{% endblock %}
+
+{% block body %}
+    <h1 class="display-6">Register</h1>
+    {% csrf_token %}
+    {% crispy form %}
+{% endblock %}

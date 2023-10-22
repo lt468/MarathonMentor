@@ -53,9 +53,17 @@ class RunnerUser(AbstractUser):
         ("advanced", "Advanced"),
     ]
 
+    # Ensures first name and last name are required
+    first_name = models.CharField(max_length=30, blank=False, error_messages={
+        'blank': "This field is required.",
+    })
+    last_name = models.CharField(max_length=30, blank=False, error_messages={
+        'blank': "This field is required.",
+    })
+
     dob = models.DateField(verbose_name="Date of birth") # User's date of birth - to calculate their age
     fitness_level = models.CharField(max_length=50, choices=FITNESS_LEVEL_CHOICES) # User's fitness level
-    date_of_marathon = models.DateField(auto_now=False, auto_now_add=False, help_text="Date of marathon", null=True, blank=True)
+    date_of_marathon = models.DateField(auto_now=False, auto_now_add=False, help_text="Date of marathon")
 
     # Override the groups and user_permissions fields to set a unique related_name
     groups = models.ManyToManyField(Group, related_name="runneruser_set", blank=True)

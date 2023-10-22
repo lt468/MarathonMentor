@@ -1,0 +1,28 @@
+:root {
+    /* CSS HEX */
+    --black: #000000ff;
+    --dim-gray: #66666eff;
+    --taupe-gray: #9999a1ff;
+    --platinum: #e6e6e9ff;
+    --antiflash-white: #f4f4f6ff;
+}
+
+// Overide default colours
+$dark: #000000ff; // --black
+$primary: #66666eff; // --dim-gray
+$secondary: #9999a1ff; // --taupe-gray
+$info: #e6e6e9ff; // --platinum
+$light: #f4f4f6ff; //--antiflash-white
+
+// Import Bootstrap’s source files
+@import "../../../node_modules/bootstrap/scss/bootstrap";
+
+body {
+    background-color: var(--antiflash-white);
+    color: var(--black);
+}
+/* Remove Asterisk for required fields */
+
+.asteriskField {
+    display: none;
+}
