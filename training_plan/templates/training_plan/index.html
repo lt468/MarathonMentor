@@ -1,20 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title></title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="css/style.css" rel="stylesheet">
-    </head>
-    <body>
-        {% if user.is_authenticated %}
-        Hi {{ user.username }}
-        <p><a href="{% url 'logout' %}">Log Out</a></p>
-        {% else %}
-        <p>You are not logged in</p>
-        <a href="{% url 'login' %}">Log In</a>
-        {% endif %}
+{% extends "layout.html" %}
 
-        {{ data }}
-    </body>
-</html>
+{% block body %}
+{% if user.is_authenticated %}
+    <h1>Hi {{ user.username }}</h1>
+    <p><a href="{% url 'logout' %}">Log Out</a></p>
+    {% else %}
+    <p>You are not logged in</p>
+    <a href="{% url 'login' %}">Log In</a>
+{% endif %}
+
+{{ data }}
+{% endblock %}

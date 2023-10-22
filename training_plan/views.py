@@ -57,12 +57,12 @@ def register(request):
         else:
             # Errors here
             print(form.errors)
-            return render(request, "training_plan/register.html", {
+            return render(request, "registration/register.html", {
                 "form": form
             })
     else:
         form = MergedSignUpForm()
 
-    return render(request, "training_plan/register.html", {
+    return render(request, "registration/register.html", {
         "form": form
     })
