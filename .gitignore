@@ -1,43 +1,102 @@
-# Environment files
-*.env
-
-# Python
-__pycache__/
+# Django #
+*.log
+*.pot
 *.pyc
-*.pyo
-*.pyd
-.Python
+__pycache__
 db.sqlite3
-db.sqlite3-journal
-*.sqlite3
-*.log
+media
 
-# Django
-*.log
-.local
-staticfiles/
-media/
+# Backup files # 
+*.bak 
 
-# MySQL
-*.sql
-*.db
+# PyCharm #
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/**/aws.xml
+.idea/**/contentModel.xml
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+.idea/**/gradle.xml
+.idea/**/libraries
+*.iws
+out/
+atlassian-ide-plugin.xml
 
-# Virtual environment
-env/
-venv/
-ENV/
-venv.bak/
-env.bak/
+# Python #
+*.py[cod] 
+*$py.class 
+.Python
+build/ 
+develop-eggs/ 
+dist/ 
+downloads/ 
+eggs/ 
+.eggs/ 
+lib/ 
+lib64/ 
+parts/ 
+sdist/ 
+var/ 
+wheels/ 
+*.egg-info/ 
+.installed.cfg 
+*.egg 
+*.manifest 
+*.spec 
+pip-log.txt 
+pip-delete-this-directory.txt 
+htmlcov/ 
+.tox/ 
+.coverage 
+.coverage.* 
+.cache 
+.pytest_cache/ 
+nosetests.xml 
+coverage.xml 
+*.cover 
+.hypothesis/ 
+.ipynb_checkpoints 
+.python-version 
+celerybeat-schedule.* 
+*.sage.py 
+.env 
+.venv 
+env/ 
+venv/ 
+ENV/ 
+env.bak/ 
+venv.bak/ 
+/site 
+.mypy_cache/ 
 
-# VS Code
-.vscode/
+# Sublime Text # 
+*.tmlanguage.cache 
+*.tmPreferences.cache 
+*.stTheme.cache 
+*.sublime-workspace 
+*.sublime-project 
+sftp-config.json 
+Package Control.last-run 
+Control.ca-list 
+Control.ca-bundle 
+Control.system-ca-bundle 
+GitHub.sublime-settings 
 
-# PyCharm
-.idea/
-*.iml
-
-# Jupyter Notebook
-.ipynb_checkpoints
+# Visual Studio Code # 
+.vscode/* 
+!.vscode/settings.json 
+!.vscode/tasks.json 
+!.vscode/launch.json 
+!.vscode/extensions.json 
+.history
 
 # macOS
 .DS_Store
@@ -63,3 +122,6 @@ package-lock.json
 *.swn
 *~
 
+# CSS files (SCSS files still preserved)
+./training_plan/static/css/styles.css.map
+./training_plan/static/css/styles.css
