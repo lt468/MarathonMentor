@@ -123,5 +123,5 @@ package-lock.json
 *~
 
 # CSS files (SCSS files still preserved)
-./training_plan/static/css/styles.css.map
-./training_plan/static/css/styles.css
+training_plan/static/css/styles.css.map
+training_plan/static/css/styles.css
