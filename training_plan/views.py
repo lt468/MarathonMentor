@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate, login
 from django.shortcuts import render
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
@@ -17,13 +18,10 @@ def index(request):
         # Verify that the username leads to a valid user
         try:
             user = RunnerUser.objects.get(username=username)
-
         except RunnerUser.DoesNotExist:
-            raise ValueError(
-                "User doesn't exist (likely not logged in or incorrect username passed)")
-    else:
-        # TODO - return a redirect if user isn't logged in
-        user = None
+            return render(request, "registration/register.html", {
+                "data": 5
+            })
 
     return render(request, "training_plan/index.html", {
         "data": 5
@@ -31,13 +29,12 @@ def index(request):
 
 
 def register(request):
-
     if request.method == "POST":
         form = MergedSignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Create Marathon plan object
-            plan = plan_algo.NewMarathonPlan(user)
+
+            plan = plan_algo.NewMarathonPlan(user) # Create Marathon plan object
 
             # Create new plan
             success, user_plan = plan.create_plan()
@@ -51,9 +48,13 @@ def register(request):
             # Schedule the runs
             plan.create_runs_in_plan()
 
-            return render(request, "training_plan/plan.html", {
-                "user_plan": user_plan
-            })
+            # To log the user in after registration
+            username = request.POST['username']
+            password = request.POST['password1']
+            user = authenticate(username=username, password=password)
+            login(request, user)       
+
+            return HttpResponseRedirect(reverse("index"))
         else:
             # Errors here
             print(form.errors)

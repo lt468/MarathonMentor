@@ -1,4 +1,7 @@
+{% extends "registration/nonavbar.html" %}
 <!-- templates/registration/login.html -->
+{% block body %}
+
 <h2>Log In</h2>
 <form method="post">
     {% csrf_token %}
@@ -6,3 +9,5 @@
     <button type="submit">Log In</button>
     <p><a href="{% url 'password_reset' %}">Forgotten password?</a></p>
 </form>
+
+{% endblock %}
