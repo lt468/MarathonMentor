@@ -2,8 +2,7 @@
 
 {% block body %}
 {% if user.is_authenticated %}
-    <h1 class="display-1"> Hello, {{ user.username }} </h1>
+    <h2 class="display-2"> Hello, {{ user.username }} </h2>
 {% endif %}
 
-{{ data }}
 {% endblock %}

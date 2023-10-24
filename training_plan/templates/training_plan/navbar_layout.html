@@ -17,20 +17,54 @@
         <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
     </head>
     <body>
-        <nav class="navbar bg-primary">
-          <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'index' %}">
-                <img src="{% static 'images/logo.png' %}" alt="Logo" width="30" height="30" class="rounded dd-inline-block align-text-top">
-              Marathon Mentor
-            </a>
-          </div>
-        </nav>
+        <div class="main-container d-flex">
+            <!-- Code for the side-bar -->
+            <div class="sidebar text-center" id="side-bar">
+                <h5 class="display-5">Marathon</h5>
+                <div class="d-inline-flex justify-content-around">
+                    <h5 class="display-5 me-2">Mentor</h5> 
+                    <img class="ms-2" src="{% static 'images/logo_dark.png' %}" alt="Marathon Mentor Logo" width="60px" height="60px"> 
+                </div>
+                <ul class="nav nav-pills flex-column mt-2 mb-auto">
+                    {% if user.is_authenticated %}
 
-        <div id="page-content">
-            {% block body %}
-            {% endblock %}
+                    <li class="nav-item mb-2">
+                        <a href="#" id="nav-home" class="nav-link m-2">Home</a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#" id="nav-calendar" class="nav-link m-2">Calendar</a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#" id="nav-completed-runs" class="nav-link m-2">Completed Runs</a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="#" id="nav-settings" class="nav-link m-2">Settings</a>
+                    </li>
+                    <div class="d-flex justify-content-center mt-5">
+                        <li class="nav-item mb-2">
+                            <a href="{% url 'logout' %}" id="nav-logout" class="nav-link m-2 logout-link">Log Out</a>
+                        </li>
+                    </div>
+
+                    {% else %}
+
+                    <li class="nav-item mb-2">
+                        <a href="{% url 'register' %}" id="nav-register" class="nav-link m-2">Register</a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="{% url 'login' %}" id="nav-login" class="nav-link m-2">Log In</a>
+                    </li>
+                    {% endif %}
+
+                </ul>
+            </div>
+
+            <!-- Code for the main content of the page -->
+            <div id="page-content">
+                {% block body %}
+                {% endblock %}
+            </div>
         </div>
-
 
         <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     </body>
