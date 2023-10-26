@@ -17,52 +17,52 @@
         <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
     </head>
     <body>
-            <!-- Code for the side-bar -->
-            <div class="sidebar text-center" id="side-bar">
-                <a href="#" class="link-unstyled"> <!-- Make the logo clickable -->
-                    <h5 class="display-5">Marathon</h5>
-                    <div class="d-inline-flex justify-content-around">
-                        <h5 class="display-5 me-2">Mentor</h5> 
-                        <img class="ms-2" src="{% static 'images/logo_dark.png' %}" alt="Marathon Mentor Logo" width="60px" height="60px"> 
-                    </div>
-                </a>
-                <ul class="nav nav-pills flex-column mt-2 mb-auto">
-                    {% if user.is_authenticated %}
+        <!-- Code for the side-bar -->
+        <div class="sidebar text-center" id="side-bar">
+            <a href="{% url 'index' %}" class="link-unstyled"> <!-- Make the logo clickable -->
+                <h5 class="display-5">Marathon</h5>
+                <div class="d-inline-flex justify-content-around">
+                    <h5 class="display-5 me-2">Mentor</h5> 
+                    <img class="ms-2" src="{% static 'images/logo_dark.png' %}" alt="Marathon Mentor Logo" width="60px" height="60px"> 
+                </div>
+            </a>
+            <ul class="nav nav-pills flex-column mt-2 mb-auto">
+                {% if user.is_authenticated %}
 
+                <li class="nav-item mb-2">
+                    <a href="{% url 'index' %}" id="nav-home" class="nav-link m-2 a-s">Home</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="#" id="nav-calendar" class="nav-link m-2 a-s">Calendar</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="#" id="nav-completed-runs" class="nav-link m-2 a-s">Completed Runs</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="#" id="nav-settings" class="nav-link m-2 a-s">Settings</a>
+                </li>
+                <div class="d-flex justify-content-center mt-5">
                     <li class="nav-item mb-2">
-                        <a href="#" id="nav-home" class="nav-link m-2 a-s">Home</a>
+                        <a href="{% url 'logout' %}" id="nav-logout" class="nav-link m-2 logout-link a-s">Log Out</a>
                     </li>
-                    <li class="nav-item mb-2">
-                        <a href="#" id="nav-calendar" class="nav-link m-2 a-s">Calendar</a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="#" id="nav-completed-runs" class="nav-link m-2 a-s">Completed Runs</a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="#" id="nav-settings" class="nav-link m-2 a-s">Settings</a>
-                    </li>
-                    <div class="d-flex justify-content-center mt-5">
-                        <li class="nav-item mb-2">
-                            <a href="{% url 'logout' %}" id="nav-logout" class="nav-link m-2 logout-link a-s">Log Out</a>
-                        </li>
-                    </div>
+                </div>
 
-                    {% else %}
+                {% else %}
 
-                    <li class="nav-item mb-2">
-                        <a href="{% url 'register' %}" id="nav-register" class="nav-link m-2 a-s">Register</a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="{% url 'login' %}" id="nav-login" class="nav-link m-2 a-s">Log In</a>
-                    </li>
-                    {% endif %}
+                <li class="nav-item mb-2">
+                    <a href="{% url 'register' %}" id="nav-register" class="nav-link m-2 a-s">Register</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="{% url 'login' %}" id="nav-login" class="nav-link m-2 a-s">Log In</a>
+                </li>
+                {% endif %}
 
-                </ul>
-            </div>
+            </ul>
+        </div>
 
-            <!-- Code for the main content of the page -->
-            {% block body %}
-            {% endblock %}
+        <!-- Code for the main content of the page -->
+        {% block body %}
+        {% endblock %}
         <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     </body>
 </html>

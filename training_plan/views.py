@@ -1,3 +1,4 @@
+from datetime import date
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render
 from django.db import IntegrityError
@@ -6,25 +7,41 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .utils import plan_algo
-from .models import RunnerUser
+from .models import RunnerUser, MarathonPlan, ScheduledRun
 from .forms import MergedSignUpForm
 
 
 def index(request):
-    # Check the Marathon date is valid
+    marathon_plan = next_10_runs = days_to_go = None
+
     if request.user.is_authenticated:
         username = request.user.username
 
-        # Verify that the username leads to a valid user
         try:
             user = RunnerUser.objects.get(username=username)
+            marathon_plan = MarathonPlan.objects.filter(user=user).first() # Get the actual plan from the query set
+            if marathon_plan:
+                # Found the marathon plan for the specified user
+                print(f"Marathon plan for user {username}: {marathon_plan}")
+                # Calculate the days until the marathon
+                today = date.today()
+                days_to_go = (marathon_plan.end_date - today).days
+
+                # Query for the next 10 runs based on the marathon plan and current date
+                next_10_runs = ScheduledRun.objects.filter(marathon_plan=marathon_plan, date__gte=today).order_by('date')[:10]
+
+            else:
+                # No marathon plan found for the specified user
+                print(f"No marathon plan found for user {username}")
+
         except RunnerUser.DoesNotExist:
-            return render(request, "registration/register.html", {
-                "data": 5
-            })
+            # User with the specified username does not exist
+            print(f"User with username {username} does not exist.")
 
     return render(request, "training_plan/index.html", {
-        "data": 5
+        "plan": marathon_plan,
+        "days_to_go": days_to_go,
+        "next_10_runs": next_10_runs
     })
 
 

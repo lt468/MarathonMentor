@@ -2,16 +2,37 @@
 {% load static %}
 
 {% block body %}
-    <div class="container text-center page-content">
+    <div class="text-center page-content">
         {% if user.is_authenticated %}
-        <div class="row">
+        <!-- all of this needs to be done in javascript to make a SPA -->
+        <div class="row justify-content-center">
             <div class="col">
-                <h2 class="display-2"> {{ user.first_name }} </h2>
+                <h4 class="display-4">Welcome back, {{ user.first_name }}</h4>
             </div>
         </div>
+            {% if plan %}
+        <div class="m-3 d-flex justify-content-around">
+            <span id="marathon-date" class="fs-5">Marathon Date: {{ plan.end_date|date:"jS F Y" }}</span> 
+            <span id="days-to-go" class="fs-5 {% if days_to_go <= 30 %}text-success{% elif days_to_go <= 90 %}text-warning{% endif %}">
+                Days to go: {{ days_to_go }}
+            </span>
+        </div>
+        <div class="m-3 d-flex justify-content-around">
+            {% for run in next_10_runs %}
+
+            {{ run }}
+
+            {% endfor %}
+            
+    <!-- up to here, the rest can be left as html -->
+        </div>
+            {% else %}
+            TODO - if no marathon plan
+            {% endif %}
             
         {% else %}
 
+        <!-- Default page if the user isn't logged in -->
         <div class="row justify-content-md-center">
             <div class="col">
                 <h2 class="display-2"> Welcome to Marathon Mentor!</h2>
@@ -30,4 +51,7 @@
         </div>
         {% endif %}
     </div>
+
+<!-- Load js file for this template -->
+<script src="{% static 'js/index.js' %}"></script>
 {% endblock %}
