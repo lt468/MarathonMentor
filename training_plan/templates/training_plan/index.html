@@ -1,8 +1,33 @@
 {% extends "training_plan/navbar_layout.html" %}
+{% load static %}
 
 {% block body %}
-{% if user.is_authenticated %}
-    <h2 class="display-2"> Hello, {{ user.username }} </h2>
-{% endif %}
+    <div class="container text-center page-content">
+        {% if user.is_authenticated %}
+        <div class="row">
+            <div class="col">
+                <h2 class="display-2"> {{ user.first_name }} </h2>
+            </div>
+        </div>
+            
+        {% else %}
 
+        <div class="row justify-content-md-center">
+            <div class="col">
+                <h2 class="display-2"> Welcome to Marathon Mentor!</h2>
+            </div>
+        </div>
+        <div class="row justify-content-md-center">
+            <div class="col-md-auto">
+                <img src="{% static 'images/logo_light.png' %}" alt="Marathon Mentor Logo" width="300px" height="300px"> 
+            </div>
+        </div>
+        <div class="row justify-content-md-center">
+            <div class="col-md-10">
+                <p class="fs-3">Unlock Your Marathon Potential with our Free Training App: Personalized Plans and Progress Tracking for Marathon Runners!</p>
+                <a href="{% url 'register' %}" class="btn btn-dark btn-lg" role="button">Register now!</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 {% endblock %}

@@ -24,9 +24,9 @@ body {
     width: 100%;
 }
 
-#page-content {
-    margin-left: 250px; /* Same as the width of the sidebar */
+.page-content {
     padding: 0px 10px;
+    margin-left: 250px; /* Same as the width of the sidebar */
 }
 
 #side-bar {
@@ -45,11 +45,11 @@ body {
 }
 
 /* Sidebar list */
-#side-bar a  {
+.a-s {
     color: var(--antiflash-white);
 }
 
-#side-bar a:hover  {
+.a-s:hover {
     color: var(--dim-gray);
 }
 
@@ -67,3 +67,15 @@ body {
 .asteriskField {
     display: none;
 }
+
+/* Unstyle links */
+.link-unstyled, .link-unstyled:link, .link-unstyled:hover {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+/* Ensure that the content on the index page is centered within its page-content div */
+#index-welcome-nouser {
+    height: 100%;
+}
+

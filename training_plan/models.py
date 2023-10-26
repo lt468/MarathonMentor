@@ -62,7 +62,7 @@ class RunnerUser(AbstractUser):
     })
 
     dob = models.DateField(verbose_name="Date of birth", help_text="You must be at least 18 years old.") # User's date of birth - to calculate their age
-    fitness_level = models.CharField(max_length=50, choices=FITNESS_LEVEL_CHOICES, help_text="If you are unsure if your fitnes level, choose beginner.") # User's fitness level
+    fitness_level = models.CharField(max_length=50, choices=FITNESS_LEVEL_CHOICES, help_text="If you are unsure of your fitnes level, choose beginner.") # User's fitness level
     date_of_marathon = models.DateField(auto_now=False, auto_now_add=False, help_text="Date of marathon: 90-365 days from today, recommend 180+ days.")
 
     # Override the groups and user_permissions fields to set a unique related_name

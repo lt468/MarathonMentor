@@ -9,6 +9,18 @@
     <div>
         <h6 class="display-6 text-center">Log In</h6>
 
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <ul>
+                {% for field, error_list in form.errors.items %}
+                {% for error in error_list %}
+                <li>{{ error }}</li>
+                {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
         <form method="POST">
             {% csrf_token %}
 
