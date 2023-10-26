@@ -6,6 +6,9 @@ __pycache__
 db.sqlite3
 media
 
+# Sent emails #
+sent_emails/
+
 # Backup files # 
 *.bak 
 

@@ -8,6 +8,7 @@ from crispy_forms.helper import FormHelper
 from .models import RunnerUser
 from .utils import p_a_constants as c
 
+
 class MergedSignUpForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super(MergedSignUpForm, self).__init__(*args, **kwargs)
