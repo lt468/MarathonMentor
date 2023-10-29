@@ -129,10 +129,3 @@ package-lock.json
 training_plan/static/css/styles.css.map
 training_plan/static/css/styles.css
 
-# React #
-training_plan-react/node_modules/
-training_plan-react/build/
-training_plan-react/.env
-training_plan-react/.env.local
-training_plan-react/.env.development
-training_plan-react/.env.production
