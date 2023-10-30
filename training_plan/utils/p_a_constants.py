@@ -108,7 +108,7 @@ DEFAULT_RUNS = {
             "int": 0,
             "desc": "Rest"
         },
-        "feel": "No run today! :("
+        "feel": "No run today!"
     },
     1: {
         "name": "Recovery Run",
@@ -220,8 +220,8 @@ DEFAULT_RUNS = {
         },
         "first_duration": {
             "beginner": 10,
-            "intermediate": 35,
-            "advanced": 50
+            "intermediate": 45,
+            "advanced": 55
         }
     },
     3: {
@@ -230,7 +230,7 @@ DEFAULT_RUNS = {
             "int": 3,
             "desc": "Hard"
         },
-        "feel": "Pushing the pace, you could carry on for longer but it's much harder to; can't sustain a conversation",
+        "feel": "Pushing the pace. You could carry on for longer but it's hard to do so; can't sustain a conversation",
         "distance": {
             "beginner": {
                 "phase1": {

@@ -85,7 +85,7 @@ class MarathonPlan(models.Model):
     end_date = models.DateField() # End date of plan - day of the martahon
 
     def __str__(self):
-        return f"Plan {self.id} for {self.user.username}. Begins: {self.start_date}; Ends: {self.end_date}"
+        return f"Plan {self.id} for {self.user.username}. (Plan Begins on {self.start_date} and ends on {self.end_date})"
 
 class ScheduledRun(models.Model):
 
@@ -103,7 +103,7 @@ class ScheduledRun(models.Model):
     sets = models.PositiveIntegerField(help_text="Sets", default=0)
 
     def __str__(self):
-        return f"Training run: {self.run} for {self.marathon_plan} plan on {self.date}"
+        return f"Training run of type: {self.run} for {self.marathon_plan}. Run date: {self.date}"
 
 class CompletedRun(models.Model):
     scheduled_run = models.OneToOneField(ScheduledRun, on_delete=models.SET_NULL, null=True, blank=True)

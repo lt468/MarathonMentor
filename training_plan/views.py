@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timedelta
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render
 from django.db import IntegrityError
@@ -12,7 +12,7 @@ from .forms import MergedSignUpForm
 
 
 def index(request):
-    marathon_plan = next_10_runs = days_to_go = None
+    marathon_plan = days_to_go = todays_run = next_run = None
 
     if request.user.is_authenticated:
         username = request.user.username
@@ -24,11 +24,24 @@ def index(request):
                 # Found the marathon plan for the specified user
                 print(f"Marathon plan for user {username}: {marathon_plan}")
                 # Calculate the days until the marathon
-                today = date.today()
+                today = date.today() + timedelta(days=345)
                 days_to_go = (marathon_plan.end_date - today).days
 
+                print(today)
+
                 # Query for the next 10 runs based on the marathon plan and current date
-                next_10_runs = ScheduledRun.objects.filter(marathon_plan=marathon_plan, date__gte=today).order_by('date')[:10]
+
+                try:
+                    todays_run = ScheduledRun.objects.get(marathon_plan=marathon_plan, date=today)
+                except ScheduledRun.DoesNotExist:
+                    # If there is no run scheduled then it means that the plan hasn't started yet
+                    todays_run = None
+
+                try:
+                    next_run = ScheduledRun.objects.filter(marathon_plan=marathon_plan, date__gte=today).order_by('date')[1]
+                except IndexError:
+                    # If there is no run scheduled then it means that the plan hasn't started yet
+                    next_run = None
 
             else:
                 # No marathon plan found for the specified user
@@ -41,7 +54,9 @@ def index(request):
     return render(request, "training_plan/index.html", {
         "plan": marathon_plan,
         "days_to_go": days_to_go,
-        "next_10_runs": next_10_runs
+        "todays_run": todays_run,
+        "next_run": next_run,
+        "greeting": calc_greeting() 
     })
 
 
@@ -84,4 +99,20 @@ def register(request):
     return render(request, "registration/register.html", {
         "form": form
     })
+
+# Helper functions
+def calc_greeting():
+    hours = datetime.now().hour
+
+    if hours >= 4 and hours < 12:
+        time_of_day = "morning "
+    elif hours >= 12 and hours < 17:
+        time_of_day = "afternoon "
+    elif hours >= 17 and hours < 23:
+        time_of_day = "evening "
+    else:
+        time_of_day = "night "
+
+    return time_of_day
+
 
