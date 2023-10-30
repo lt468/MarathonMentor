@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 
@@ -12,7 +12,7 @@ from .forms import MergedSignUpForm
 
 
 def index(request):
-    marathon_plan = days_to_go = todays_run = next_run = None
+    marathon_plan = days_to_go = todays_run = next_runs = None
 
     if request.user.is_authenticated:
         username = request.user.username
@@ -21,15 +21,9 @@ def index(request):
             user = RunnerUser.objects.get(username=username)
             marathon_plan = MarathonPlan.objects.filter(user=user).first() # Get the actual plan from the query set
             if marathon_plan:
-                # Found the marathon plan for the specified user
-                print(f"Marathon plan for user {username}: {marathon_plan}")
                 # Calculate the days until the marathon
-                today = date.today() + timedelta(days=345)
+                today = date.today()
                 days_to_go = (marathon_plan.end_date - today).days
-
-                print(today)
-
-                # Query for the next 10 runs based on the marathon plan and current date
 
                 try:
                     todays_run = ScheduledRun.objects.get(marathon_plan=marathon_plan, date=today)
@@ -38,10 +32,10 @@ def index(request):
                     todays_run = None
 
                 try:
-                    next_run = ScheduledRun.objects.filter(marathon_plan=marathon_plan, date__gte=today).order_by('date')[1]
+                    next_runs = ScheduledRun.objects.filter(marathon_plan=marathon_plan, date__gte=today).order_by('date')[1:4]
                 except IndexError:
                     # If there is no run scheduled then it means that the plan hasn't started yet
-                    next_run = None
+                    next_runs = None
 
             else:
                 # No marathon plan found for the specified user
@@ -55,7 +49,7 @@ def index(request):
         "plan": marathon_plan,
         "days_to_go": days_to_go,
         "todays_run": todays_run,
-        "next_run": next_run,
+        "next_runs": next_runs,
         "greeting": calc_greeting() 
     })
 
@@ -100,7 +94,7 @@ def register(request):
         "form": form
     })
 
-# Helper functions
+""" Helper functions """
 def calc_greeting():
     hours = datetime.now().hour
 
@@ -114,5 +108,4 @@ def calc_greeting():
         time_of_day = "night "
 
     return time_of_day
-
 

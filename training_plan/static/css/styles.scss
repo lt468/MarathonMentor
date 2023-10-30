@@ -23,6 +23,7 @@ body {
     min-height: 100vh;
     width: 100%;
     overflow-x: hidden; /* Hide horizontal overflow */
+    overflow-y: hidden;
 }
 
 .page-content {
@@ -79,8 +80,36 @@ body {
     height: 100%;
 }
 
-/*
-.bg-grad {
+/* Zone 0 background colour (Gray) */
+.bg-grad-0 {
+    background-image: linear-gradient(to bottom right, rgba(211, 211, 211, 0.5), white);
+}
+
+/* Zone 1 background colour (Blue) */
+.bg-grad-1 {
+    background-image: linear-gradient(to bottom right, rgba(173, 216, 230, 0.5), white);
+}
+
+/* Zone 2 and 6 background color (Green) */
+.bg-grad-2, .bg-grad-6 {
     background-image: linear-gradient(to bottom right, rgba(144, 238, 144, 0.5), white);
 }
-*/
+
+/* Zone 3 and 4 background color (Orange) */
+.bg-grad-3, .bg-grad-4 {
+    background-image: linear-gradient(to bottom right, rgba(247, 149, 72, 0.5), white);
+}
+
+/* Zone 5 background color (Red) */
+.bg-grad-5 {
+    background-image: linear-gradient(to bottom right, rgba(255, 99, 71, 0.5), white);
+}
+
+/* Marathon day */
+.bg-grad-9 {
+    background-image: linear-gradient(to bottom right, rgba(255, 215, 0, 0.5), white);
+}
+
+.upcm-run {
+    width: 30%;
+}
