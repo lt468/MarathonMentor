@@ -1,0 +1,21 @@
+{% extends "training_plan/navbar_layout.html" %}
+{% load custom_filters %}
+{% load static %}
+
+{% block body %}
+
+    <div class="page-content">
+        <div class="mt-3 text-center">
+            <h5 class="display-5">Scheduled Runs</h5>
+            <hr class="mx-5">
+        </div>
+
+        <!-- div to hold all the runs -->
+        <div id="scheduled-runs-container"></div>
+
+
+    </div>
+
+<script src="{% static 'js/scheduledRuns.js' %}"></script>
+
+{% endblock %}

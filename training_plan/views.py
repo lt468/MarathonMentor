@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render
 from django.db import IntegrityError
@@ -10,6 +11,9 @@ from .utils import plan_algo
 from .models import RunnerUser, MarathonPlan, ScheduledRun
 from .forms import MergedSignUpForm
 
+@login_required
+def scheduled_runs(request):
+    return render(request, "training_plan/scheduled_runs.html")
 
 def index(request):
     marathon_plan = days_to_go = todays_run = next_runs = None
@@ -19,7 +23,7 @@ def index(request):
 
         try:
             user = RunnerUser.objects.get(username=username)
-            marathon_plan = MarathonPlan.objects.filter(user=user).first() # Get the actual plan from the query set
+            marathon_plan = MarathonPlan.objects.get(user=user) # Get the actual plan from the query set
             if marathon_plan:
                 # Calculate the days until the marathon
                 today = date.today()
@@ -108,4 +112,26 @@ def calc_greeting():
         time_of_day = "night "
 
     return time_of_day
+
+@login_required
+def get_scheduled_runs(request):
+    username = request.user.username
+
+    user = RunnerUser.objects.get(username=username)
+    marathon_plan = MarathonPlan.objects.get(user=user) 
+    all_scheduled_runs = None
+    if marathon_plan:
+
+        try:
+            all_scheduled_runs = list(ScheduledRun.objects.filter(marathon_plan=marathon_plan, date__gt=date.today()).order_by('date').values())
+            
+        except ScheduledRun.DoesNotExist:
+            all_scheduled_runs = None
+
+    print(all_scheduled_runs)
+    return JsonResponse({'all_scheduled_runs': all_scheduled_runs})
+
+
+
+
 
