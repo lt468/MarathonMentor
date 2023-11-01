@@ -11,6 +11,7 @@ from .utils import plan_algo
 from .models import RunnerUser, MarathonPlan, ScheduledRun
 from .forms import MergedSignUpForm
 
+
 @login_required
 def scheduled_runs(request):
     return render(request, "training_plan/scheduled_runs.html")
@@ -103,13 +104,13 @@ def calc_greeting():
     hours = datetime.now().hour
 
     if hours >= 4 and hours < 12:
-        time_of_day = "morning "
+        time_of_day = "morning"
     elif hours >= 12 and hours < 17:
-        time_of_day = "afternoon "
+        time_of_day = "afternoon"
     elif hours >= 17 and hours < 23:
-        time_of_day = "evening "
+        time_of_day = "evening"
     else:
-        time_of_day = "night "
+        time_of_day = "night"
 
     return time_of_day
 
