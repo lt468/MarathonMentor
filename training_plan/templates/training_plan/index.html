@@ -4,7 +4,7 @@
 
 {% block body %}
 
-    <div class="page-content">
+    <div class="page-content" style="overflow-y: hidden;">
         <!-- If the user is looged in -->
         {% if user.is_authenticated %}
         <div class="d-flex justify-content-around mt-3">
@@ -67,7 +67,7 @@
             <div id="{{ run.id }}-upcomming-run-{{ run.dict_id }}" class="upcm-run mx-5 my-2 p-2 containter bg-white border border-secondary rounded">
                 <div class="d-flex justify-content-between">
                 <span><h5>{{ run.run }}</h5></span>
-                <span><h5><small class="text-body-secondary">{{ run.date|date:"jS F" }}</small></h5></span>
+                <span><h5><small class="text-body-secondary">{{ run.date|date:"d/m/y" }}</small></h5></span>
                 </div>
 
                 {% if run.distance %} <!-- Distance based run -->
@@ -79,8 +79,8 @@
                 <div class="m-auto">Rest time: {{ run.off }} minutes</div>
                 <div class="m-auto">Sets: {{ run.sets }}</div>
 
-                {% else %}
-                    Rest day
+                {% else %} <!-- Rest day -->
+                <div class="m-auto">Rest day</div> 
 
                 {% endif %}
 

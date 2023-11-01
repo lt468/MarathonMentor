@@ -23,7 +23,6 @@ body {
     min-height: 100vh;
     width: 100%;
     overflow-x: hidden; /* Hide horizontal overflow */
-    overflow-y: hidden;
 }
 
 .page-content {
@@ -87,7 +86,7 @@ body {
 
 /* Zone 1 background colour (Blue) */
 .bg-grad-1 {
-    background-image: linear-gradient(to bottom right, rgba(173, 216, 230, 0.5), white);
+    background-image: linear-gradient(to bottom right, rgba(0, 191, 255, 0.3), white);
 }
 
 /* Zone 2 and 6 background color (Green) */
@@ -111,5 +110,5 @@ body {
 }
 
 .upcm-run {
-    width: 30%;
+    width: 40%;
 }

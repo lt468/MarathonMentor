@@ -128,7 +128,6 @@ def get_scheduled_runs(request):
         except ScheduledRun.DoesNotExist:
             all_scheduled_runs = None
 
-    print(all_scheduled_runs)
     return JsonResponse({'all_scheduled_runs': all_scheduled_runs})
 
 
