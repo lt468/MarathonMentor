@@ -45,7 +45,7 @@ INSTALLED_APPS = [
 
 # User the custom model User for authentication
 AUTH_USER_MODEL = 'training_plan.RunnerUser'
-
+ 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

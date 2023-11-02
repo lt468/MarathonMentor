@@ -78,6 +78,7 @@ class RunnerUser(AbstractUser):
         return f"Username: {self.username}, doing marathon plan {self.current_plan}. They have user level permissions."
 
 class StravaUserProfile(models.Model):
+    id = models.AutoField(primary_key=True)
     user = models.OneToOneField(RunnerUser, on_delete=models.CASCADE)
     strava_access_token = models.CharField(max_length=200)
     strava_refresh_token = models.CharField(max_length=200)
