@@ -74,12 +74,12 @@ class RunnerUser(AbstractUser):
 
     def __str__(self):
         if self.is_superuser:
-            return f"Superuser: {self.username}, doing marathon {self.current_plan}. They have all permissions."
-        return f"Username: {self.username}, doing marathon plan {self.current_plan}. They have user level permissions."
+            return f"Superuser: {self.username}. They have all permissions."
+        return f"Username: {self.username}. They have user level permissions."
 
 class StravaUserProfile(models.Model):
-    id = models.AutoField(primary_key=True)
     user = models.OneToOneField(RunnerUser, on_delete=models.CASCADE)
+    client_id = models.BigIntegerField(null=True, blank=True)
     strava_access_token = models.CharField(max_length=200)
     strava_refresh_token = models.CharField(max_length=200)
     expires_at = models.DateTimeField()

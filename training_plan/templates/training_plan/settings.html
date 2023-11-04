@@ -2,8 +2,10 @@
 {% load custom_filters %}
 {% load static %}
 
+{% block body %}
 <div class="page-content" style="overflow-y: hidden;">
     <h1>Link Your Strava Account</h1>
-    <p>Click the button below to link your Strava account:</p>
+    <p>Click the link below to link your Strava account:</p>
     <a href="{% url "social:begin" "strava" %}">Link your Strava account</a>
 </div>
+{% endblock %}
