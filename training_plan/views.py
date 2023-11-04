@@ -17,38 +17,6 @@ def settings(request):
     return render(request, "training_plan/settings.html")
 
 @login_required
-@psa("social:complete")
-def strava_oauth_callback(request):
-
-    print("Called back!")
-    # Extract the query parameters from the URL
-    query_parameters = urlparse(request.get_full_path()).query
-    query_parameters = parse_qs(query_parameters)
-
-    # Extract the access token and refresh token
-    access_token = query_parameters.get('access_token', [None])[0]
-    refresh_token = query_parameters.get('refresh_token', [None])[0]
-    expires_at = query_parameters.get('expires_at', [None])[0]
-
-    # Get the current user
-    user = request.user
-
-    # Check if a StravaUserProfile already exists for this user
-    try:
-        strava_profile = StravaUserProfile.objects.get(user=user)
-        # Update the existing profile
-        strava_profile.strava_access_token = access_token
-        strava_profile.strava_refresh_token = refresh_token
-        strava_profile.expires_at = expires_at
-        strava_profile.save()
-    except StravaUserProfile.DoesNotExist:
-        # Create a new StravaUserProfile
-        strava_profile = StravaUserProfile(user=user, strava_access_token=access_token, strava_refresh_token=refresh_token, expires_at=expires_at)
-        strava_profile.save()
-
-    return HttpResponseRedirect(reverse("index"))
-
-@login_required
 def scheduled_runs(request):
     return render(request, "training_plan/scheduled_runs.html")
 
