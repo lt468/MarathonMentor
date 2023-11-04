@@ -170,6 +170,6 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
-    'training_plan.utils.my_pipeline.save_profile',  
+    'training_plan.utils.strava_funcs.save_profile',  
 )
 
