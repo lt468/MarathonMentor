@@ -39,6 +39,8 @@ def save_profile(backend, user, response, *args, **kwargs):
         #access_token = res.json()['access_token']
         print("Access Token = {}\n".format(access_token))
 
+        # Need to seperate out the funcitons and have some util directories to add the Strava profile integration to the user for easier 
+        # getting of run data 
         header = {'Authorization': 'Bearer ' + access_token} # Need to use the access token for the user you want to get the runs on 
         param = {'per_page': 1, 'page': 1}
         my_dataset = requests.get(activites_url, headers=header, params=param).json()
