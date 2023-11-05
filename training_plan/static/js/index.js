@@ -11,9 +11,27 @@ document.addEventListener('DOMContentLoaded', () => {
         let box = document.getElementById(`${upCommingRunsIds[i]}-upcomming-run-${upCommingRunsDictIds[i]}`);
         changeBackground(box, upCommingRunsDictIds[i]);
     }
+
+    // Render button to the DOM
+    const rootMarkAsCompletedDiv = document.getElementById('root-mark-complete'); // Get the root div for the page
+    btnMarkAsCompleted = displayButton();
+    rootMarkAsCompletedDiv.appendChild(btnMarkAsCompleted);
 });
 
 function changeBackground(runBox, dictId) {
     runBox.classList.remove('bg-white');
     runBox.classList.add(`bg-grad-${dictId}`);
+}
+
+// Mark as complete button for the index page
+function displayButton() {
+    let message = "Mark As Completed";
+
+    let a = document.createElement('a');
+    a.id = `mark-complete`;
+    a.classList = "btn btn-dark";
+    a.href = "#";
+    a.role = "button";
+    a.innerHTML = `${message}`;
+    return a;
 }

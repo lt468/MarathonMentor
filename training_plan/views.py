@@ -13,6 +13,10 @@ from .utils import plan_algo
 from .models import RunnerUser, MarathonPlan, ScheduledRun, StravaUserProfile
 from .forms import MergedSignUpForm
 
+def mark_as_complete(request):
+    return render(request, "training_plan/mark_as_complete.html")
+
+@login_required
 def settings(request):
     return render(request, "training_plan/settings.html")
 
@@ -21,7 +25,7 @@ def scheduled_runs(request):
     return render(request, "training_plan/scheduled_runs.html")
 
 def index(request):
-    marathon_plan = days_to_go = todays_run = next_runs = None
+    marathon_plan = days_to_go = todays_run = next_runs = today = None
 
     if request.user.is_authenticated:
         username = request.user.username
@@ -56,6 +60,7 @@ def index(request):
 
     return render(request, "training_plan/index.html", {
         "plan": marathon_plan,
+        "today": today,
         "days_to_go": days_to_go,
         "todays_run": todays_run,
         "next_runs": next_runs,

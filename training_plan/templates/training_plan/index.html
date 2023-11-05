@@ -7,13 +7,14 @@
     <div class="page-content" style="overflow-y: hidden;">
         <!-- If the user is looged in -->
         {% if user.is_authenticated %}
-        <div class="d-flex justify-content-around mt-3">
+        <div class="d-flex justify-content-around mt-3 align-items-center">
             <div>
                 <h5 class="display-5">Good {{ greeting }}, {{ user.first_name }}</h5>
             </div>
-            <div class="flex-row">
+            <div class="flex-row align-items-center text-center">
+                <div id="marathon-date" class="mb-2"><h5> Date: {{ today|date:"jS F Y" }}</h5></div> 
                 <div id="marathon-date" class="mb-2"><h5> Marathon Date: {{ plan.end_date|date:"jS F Y" }}</h5></div> 
-                <div id="days-to-go" class="text-center mb-2 {% if days_to_go <= 30 %}text-success{% elif days_to_go <= 90 %}text-warning{% endif %}">
+                <div id="days-to-go" class="mb-2 {% if days_to_go <= 30 %}text-success{% elif days_to_go <= 90 %}text-warning{% endif %}">
                     <h5>Days to go: {{ days_to_go }}</h5>
                 </div>
             </div>
@@ -56,6 +57,7 @@
             </div>
             {% endif %}
         </div>
+        <div id="root-mark-complete" class="d-flex justify-content-end mx-5"></div>
 
         <hr class="mx-5">
         <!-- Upcoming runs -->
