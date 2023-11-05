@@ -110,15 +110,14 @@ class ScheduledRun(models.Model):
     sets = models.PositiveIntegerField(help_text="Sets", default=0)
 
     def __str__(self):
-        return f"Training run of type: {self.run} for {self.marathon_plan}. Run date: {self.date}"
+        return f"{self.run} on {self.date} for {self.marathon_plan.user.username}"
 
 class CompletedRun(models.Model):
     scheduled_run = models.OneToOneField(ScheduledRun, on_delete=models.SET_NULL, null=True, blank=True)
-    date = models.DateField()
+    date = models.DateField(help_text="Date when run was completed")
     distance = models.PositiveIntegerField(help_text="Distance of completed run in km")
     duration = models.PositiveIntegerField(help_text="Duration of completed run in minutes")
-    avg_pace = models.DurationField()  
-    is_completed = models.BooleanField(default=False)
+    avg_pace = models.DurationField(verbose_name="Average Pace", help_text="Please format like mm:ss")  
     
     def __str__(self):
-        return f"Completed run on {self.date} with pace {self.pace}"
+        return f"Completed run on {self.date} with pace {self.avg_pace}"

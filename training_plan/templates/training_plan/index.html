@@ -125,6 +125,7 @@
     let runDictId = {{ todays_run.dict_id|escapejs }};
     let upCommingRunsIds = [{{ next_runs.0.id|escapejs }}, {{ next_runs.1.id|escapejs }}, {{ next_runs.2.id|escapejs }}];
     let upCommingRunsDictIds = [{{ next_runs.0.dict_id|escapejs }}, {{ next_runs.1.dict_id|escapejs }}, {{ next_runs.2.dict_id|escapejs }}];
+    let markAsCompletedURL = "{% url 'mark-as-complete' %}";
 </script>
 <script src="{% static 'js/index.js' %}"></script>
 

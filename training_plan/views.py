@@ -11,10 +11,27 @@ from social_django.utils import psa
 
 from .utils import plan_algo
 from .models import RunnerUser, MarathonPlan, ScheduledRun, StravaUserProfile
-from .forms import MergedSignUpForm
+from .forms import MergedSignUpForm, CompletedRunForm
 
+@login_required
 def mark_as_complete(request):
-    return render(request, "training_plan/mark_as_complete.html")
+    if request.method == "POST":
+        form = CompletedRunForm(request.POST, request.user)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse("index")) # For now, change in a bit
+        else:
+            # Errors here
+            print(form.errors)
+            return render(request, "training_plan/mark_as_complete.html", {
+                "form": form
+            })
+    else:
+        form = CompletedRunForm(request.user)
+
+    return render(request, "training_plan/mark_as_complete.html", {
+        "form": form
+    })
 
 @login_required
 def settings(request):

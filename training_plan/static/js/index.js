@@ -25,13 +25,13 @@ function changeBackground(runBox, dictId) {
 
 // Mark as complete button for the index page
 function displayButton() {
-    let message = "Mark As Completed";
+    let message = 'Mark As Completed';
 
     let a = document.createElement('a');
     a.id = `mark-complete`;
-    a.classList = "btn btn-dark";
-    a.href = "#";
-    a.role = "button";
+    a.classList = 'btn btn-dark';
+    a.href = markAsCompletedURL;
+    a.role = 'button';
     a.innerHTML = `${message}`;
     return a;
 }

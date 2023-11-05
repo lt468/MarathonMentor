@@ -1,9 +1,16 @@
 {% extends "training_plan/navbar_layout.html" %}
 {% load custom_filters %}
 {% load static %}
+{% load crispy_forms_tags %}
+
+{% block head %}
+    <title>Mark As Complete</title>
+{% endblock %}
 
 {% block body %}
-<h1>Link Your Strava Account</h1>
-<p>Click the button below to link your Strava account:</p>
-<a href="{% url 'link_strava_account' %}" class="btn btn-primary">Connect with Strava</a>
+    <div class="page-content" style="overflow-y: hidden;">
+        {% csrf_token %}
+        {% crispy form %}
+    </div>
 {% endblock %}
+
