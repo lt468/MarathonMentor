@@ -110,7 +110,7 @@ class CompletedRunForm(forms.ModelForm):
             scheduled_run = ScheduledRun.objects.get(
                 marathon_plan__user=user, date=today)
             if scheduled_run:
-                self.initial["scheduled_run"] = scheduled_run
+                self.fields["scheduled_run"].initial = scheduled_run
                 self.fields["scheduled_run"].widget.attrs['readonly'] = True  # Make the field view-only
             else:
                 self.fields["scheduled_run"].widget = forms.HiddenInput()

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.contrib.auth.models import UserManager as DefaultUserManager
+from datetime import datetime
 
 # Override and create custom superuser with default values for non-nullable fields
 class RunnerUserManager(DefaultUserManager):
@@ -110,7 +111,8 @@ class ScheduledRun(models.Model):
     sets = models.PositiveIntegerField(help_text="Sets", default=0)
 
     def __str__(self):
-        return f"{self.run} on {self.date} for {self.marathon_plan.user.username}"
+        formatted_date = self.date.strftime('%d-%m-%Y')
+        return f"{self.run} on {formatted_date}"
 
 class CompletedRun(models.Model):
     scheduled_run = models.OneToOneField(ScheduledRun, on_delete=models.SET_NULL, null=True, blank=True)
