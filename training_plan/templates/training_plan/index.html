@@ -33,29 +33,7 @@
                 <p class="lead"> {{ todays_run.run_feel }}</p>
             </div>
             <!-- Three conditions to display the data 1) if it's a distance based run, 2) if it's an interval run, 3) else it's a rest day -->
-            {% if todays_run.distance %} <!-- Distance based run -->
-            <div class="m-1 hstack gap-3 fs-5">
-                <div class="m-auto">Distance: {{ todays_run.distance }}km</div>
-                <div class="vr"></div>
-                <div class="m-auto">Estimated Duration: {{ todays_run.est_duration }} minutes</div>
-                <div class="vr"></div>
-                <div class="m-auto">Estimated Pace: {{ todays_run.est_avg_pace|format_timedelta }}</div>
-            </div>
-            {% elif todays_run.sets %} <!-- Interval based run -->
-            <div class="m-1 hstack gap-3 fs-5">
-                <div class="m-auto">Working time: {{ todays_run.on }} minutes</div>
-                <div class="vr"></div>
-                <div class="m-auto">Rest time: {{ todays_run.off }} minutes</div>
-                <div class="vr"></div>
-                <div class="m-auto">Sets: {{ todays_run.sets }}</div>
-                <div class="vr"></div>
-                <div class="m-auto">Estimated Pace: {{ todays_run.est_avg_pace|format_timedelta }}</div>
-            </div>
-            {% else %}
-            <div class="m-1 hstack gap-3 fs-5">
-                Enjoy your rest day
-            </div>
-            {% endif %}
+
         </div>
         <div id="root-mark-complete" class="d-flex justify-content-end mx-5"></div>
 
@@ -126,6 +104,18 @@
     let upCommingRunsIds = [{{ next_runs.0.id|escapejs }}, {{ next_runs.1.id|escapejs }}, {{ next_runs.2.id|escapejs }}];
     let upCommingRunsDictIds = [{{ next_runs.0.dict_id|escapejs }}, {{ next_runs.1.dict_id|escapejs }}, {{ next_runs.2.dict_id|escapejs }}];
     let markAsCompletedURL = "{% url 'mark-as-complete' %}";
+
+    function isRunDistance(){
+        obj = {
+            distance: {{ todays_run.distance }}, 
+            est_duration: {{ todays_run.est_duration }}, 
+            est_avg_pace: "{{ todays_run.est_avg_pace }}", 
+            on: {{ todays_run.on }}, 
+            off: {{ todays_run.off }}, 
+            sets: {{ todays_run.sets }},
+        }
+        return obj;
+    }
 </script>
 <script src="{% static 'js/index.js' %}"></script>
 
