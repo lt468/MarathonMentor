@@ -112,3 +112,33 @@ body {
 .upcm-run {
     width: 40%;
 }
+
+// Form for editing the values
+.form-control-info-bar {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    resize: none;
+    outline:none !important;
+    outline-width: 0 !important;
+    box-shadow: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    overflow: hidden;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    max-width: 33%;
+    text-align: center !important;
+}
+
+// Go to top button for scheduled and completed runs
+.goto-top {
+    display: none; /* Hidden by default */
+    position: fixed; /* Fixed/sticky position */
+    bottom: 20px; /* Place the button at the bottom of the page */
+    right: 30px; /* Place the button 30px from the right */
+    z-index: 99; /* Make sure it does not overlap */
+}
+

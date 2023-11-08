@@ -106,7 +106,7 @@
     let markAsCompletedURL = "{% url 'mark-as-complete' %}";
 
     function isRunDistance(){
-        obj = {
+    let obj = {
             distance: {{ todays_run.distance }}, 
             est_duration: {{ todays_run.est_duration }}, 
             est_avg_pace: "{{ todays_run.est_avg_pace }}", 

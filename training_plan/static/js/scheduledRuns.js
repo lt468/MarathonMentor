@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Dom Content loaded');
 
     const result = apiGetScheduledRuns();
-    
+
     const rootDiv = document.getElementById('scheduled-runs-container'); // Get the root div for the page
 
     // Initialize variables to keep track of the current month
@@ -46,6 +46,22 @@ document.addEventListener('DOMContentLoaded', () => {
             rootDiv.appendChild(runDiv);
         }
     });
+
+
+    // Go to top button - (taken from https://www.w3schools.com/howto/howto_js_scroll_to_top.asp)
+    let mybutton = document.getElementById('scheduled-top-btn');
+
+    // When the user scrolls down 20px from the top of the document, show the button
+    window.onscroll = function() {scrollFunction()};
+
+    function scrollFunction() {
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            mybutton.style.display = "block";
+        } else {
+            mybutton.style.display = "none";
+        }
+    }
+
 });
 
 // Reformat date
@@ -62,9 +78,9 @@ function displayRun(id, dict_id, run, run_feel, date) {
     let div = document.createElement('div');
     div.id = `${id}-upcomming-run-${dict_id}`;
     div.innerHTML = `
-        <span <h6> ${run} | <small class="text-body-secondary align-middle">${run_feel}</small> </h6> </span>
-        <span>${date}</span>
-    `;
+<span <h6> ${run} | <small class="text-body-secondary align-middle">${run_feel}</small> </h6> </span>
+<span>${date}</span>
+`;
     div.className = `d-flex justify-content-between my-2 p-2 bg-grad-${dict_id} border border-secondary rounded align-middle`;
     return div;
 }
@@ -85,3 +101,8 @@ async function apiGetScheduledRuns() {
     return all_scheduled_runs;
 }
 
+// When the user clicks on the button, scroll to the top of the document
+function topFunction() {
+    document.body.scrollTop = 0; // For Safari
+    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+} 

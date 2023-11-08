@@ -52,7 +52,7 @@ def index(request):
             marathon_plan = MarathonPlan.objects.get(user=user) # Get the actual plan from the query set
             if marathon_plan:
                 # Calculate the days until the marathon
-                today = date.today()
+                today = date.today() + timedelta(days=1)
                 days_to_go = (marathon_plan.end_date - today).days
 
                 try:
@@ -156,8 +156,4 @@ def get_scheduled_runs(request):
             all_scheduled_runs = None
 
     return JsonResponse({'all_scheduled_runs': all_scheduled_runs})
-
-
-
-
 
