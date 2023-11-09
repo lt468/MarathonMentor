@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 rootMarkAsCompletedDiv.appendChild(runCompletedMessage);
             }
 
-            const buttonWithLabel = displayButton();
+            const buttonWithLabel = displayButton(values.completed);
             rootMarkAsCompletedDiv.appendChild(buttonWithLabel);
 
 
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             buttonElementInDiv.addEventListener('click', event => {
                 event.preventDefault();
                 editStatsAndMarkRunComplete(values); 
-                updateButtonText();
+                updateButtonText(values.completed);
             });
         }
     });
@@ -72,8 +72,20 @@ function changeBackground(runBox, dictId) {
 }
 
 // Mark as complete button and label for the index page
-function displayButton() {
-    let message = 'Mark As Completed';
+function displayButton(completed) {
+
+    let message;
+    let labelMessage
+
+    if (completed) {
+        message = 'Edit Stats';
+        labelMessage = 'Press edit stats to update the run stats';
+
+    } else {
+        message = 'Mark As Completed';
+        labelMessage = 'Mark as completed to enter your stats';
+    }
+
 
     // Create the button element
     let button = document.createElement('button');
@@ -81,13 +93,13 @@ function displayButton() {
     button.classList = 'btn btn-dark';
     button.type = 'submit';
     button.role = 'button';
-    button.innerHTML = `${message}`;
+    button.innerText = message;
 
     // Create the label element
     let label = document.createElement('small');
     label.id = 'mark-complete-label'
     label.classList = 'text-muted me-2';
-    label.innerText = 'Mark as completed to enter your stats';
+    label.innerText = labelMessage;
 
     // Create a div to hold the button and label
     let container = document.createElement('div');
@@ -99,15 +111,18 @@ function displayButton() {
 }
 
 // Function to update the button text
-function updateButtonText() {
-    // Check here to see if there is already a completed run in the database, if so, then use 'edit' and 'save' and no 'mark as complete'
+function updateButtonText(completed) {
 
     let message;
     let labelText;
     const button = document.getElementById('mark-complete');
     const label = document.getElementById('mark-complete-label');
 
-    if (button.innerHTML === 'Mark As Completed') {
+    if (completed) {
+        message = 'Edit Stats';
+        label = 'Press edit stats to update the run stats';
+    } else if (button.innerHTML === 'Mark As Completed') {
+        // TODO - backend (and frontend loading) update when pressed here 
         message = 'Save';
         labelText = 'Press save to record the completed run and update the run stats'
     } else {
@@ -118,6 +133,11 @@ function updateButtonText() {
     label.innerText = labelText;
     button.innerHTML = message;
 }
+
+// The initial info bar is now implemented when the page is loaded for the first time, now implement the system for updating and saving the run for the first
+// time and also when the user wants to update the stats. Implement visuals so that the user knows that it's saving (spinner and disable text area), provide
+// a front end message to confirm it's the case, and then send the appropriate request to the backend and db. Finally, update the completed run page, and then
+// after that, implement the strava linking feature
 
 // Function to edit the stats and mark the run as complete
 function editStatsAndMarkRunComplete(values) {
@@ -196,13 +216,12 @@ function editStatsAndMarkRunComplete(values) {
         alert('You cannot mark a rest day as complete!');
         return;
     }
-
 }
 
 // Function to display the stats of the run within the today's run div
 function displayRunInfoBar(values) {
 
-    let type, distance, duration, pace, sets, on, off, data;
+    let distance, duration, pace, sets, on, off, data;
 
     // Check to see if the page nees to display the completed run or the scheduled run, and what type of run
     if (values.completed) {
@@ -223,8 +242,6 @@ function displayRunInfoBar(values) {
         off = values.off;
         pace = values.est_pace;
         data = {on, off, sets, pace};
-    } else {
-        type = 'rest';
     }
 
     let rootDiv = document.createElement('div');
