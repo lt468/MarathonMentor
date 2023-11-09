@@ -8,4 +8,6 @@ urlpatterns = [
     path("mark-as-complete", views.mark_as_complete, name="mark-as-complete"),
     path("accounts/register", views.register, name="register"),
     path("api/get-scheduled-runs", views.get_scheduled_runs, name="get-scheduled-runs"),
+    path("api/get-todays-run", views.get_todays_run, name="get-todays-run"),
+    path("api/update-completed-run", views.update_completed_run, name="update-completed-run")
 ]

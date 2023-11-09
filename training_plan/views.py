@@ -1,4 +1,8 @@
+from importlib.util import resolve_name
+import json
+import re
 from urllib.parse import parse_qs, urlparse
+from django.core import serializers
 from datetime import date, datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
@@ -7,10 +11,11 @@ from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
-from social_django.utils import psa
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
 
 from .utils import plan_algo
-from .models import RunnerUser, MarathonPlan, ScheduledRun, StravaUserProfile
+from .models import RunnerUser, MarathonPlan, ScheduledRun, CompletedRun, StravaUserProfile
 from .forms import MergedSignUpForm, CompletedRunForm
 
 @login_required
@@ -52,7 +57,7 @@ def index(request):
             marathon_plan = MarathonPlan.objects.get(user=user) # Get the actual plan from the query set
             if marathon_plan:
                 # Calculate the days until the marathon
-                today = date.today() + timedelta(days=1)
+                today = date.today()
                 days_to_go = (marathon_plan.end_date - today).days
 
                 try:
@@ -150,10 +155,78 @@ def get_scheduled_runs(request):
     if marathon_plan:
 
         try:
-            all_scheduled_runs = list(ScheduledRun.objects.filter(marathon_plan=marathon_plan, date__gt=date.today()).order_by('date').values())
+            all_scheduled_runs = list(ScheduledRun.objects.filter(marathon_plan=marathon_plan, date__gt=date.today()).order_by("date").values())
             
         except ScheduledRun.DoesNotExist:
             all_scheduled_runs = None
 
-    return JsonResponse({'all_scheduled_runs': all_scheduled_runs})
+    return JsonResponse({"all_scheduled_runs": all_scheduled_runs})
+
+@login_required
+@require_POST
+@csrf_protect
+def update_completed_run(request):
+    try:
+        data = json.loads(request.body)
+        payload = data.get("payload") # payload is run_id, date, distance, duration, avg_pace
+
+        if request.user.is_authenticated:
+            username = request.user.username
+            user = RunnerUser.objects.get(username=username)
+
+            stats_dict = payload.copy()
+
+            # Converting the pace into the correct format for the model
+            match = re.match(r"(\d+):(\d+):(\d+)\.(\d+)", payload["avg_pace"])
+            if match:
+                hours, minutes, seconds, microseconds = map(int, match.groups())
+                # Convert to timedelta
+                formatted_avg_pace = timedelta(hours=hours, minutes=minutes, seconds=seconds, microseconds=microseconds)
+            else:
+                formatted_avg_pace = None
+
+            stats_dict["date"] = datetime.strptime(payload["date"], "%d %b %Y")
+            stats_dict["avg_pace"] = formatted_avg_pace
+            stats_dict.pop("run_id")
+            
+            scheduled_run = ScheduledRun.objects.get(id=payload["run_id"])
+
+            # TODO - continue implementing the API so that I can also update values, on the front end there is a loading save on the button and a 
+            # disabled text area, also able to get the data from an api for the front end or pass it so that the page loads with the saved values
+            # if the run has been completed
+
+            # Check first if there isn"t a completed run, if so make one, if not then update the values
+            completed_run, created = CompletedRun.objects.get_or_create( scheduled_run=scheduled_run, defaults=stats_dict) # Get the actual plan from the query set
+            
+            if not created: # Have used "get" to get the CompletedRun
+                pass # update values
+
+        return JsonResponse({"message": "Stats for run updated successfully"})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@login_required
+def get_todays_run(request):
+
+    if request.user.is_authenticated:
+        username = request.user.username
+
+        try:
+            user = RunnerUser.objects.get(username=username)
+            marathon_plan = MarathonPlan.objects.get(user=user) # Get the actual plan from the query set
+            today = date.today()
+            todays_run = ScheduledRun.objects.get(marathon_plan=marathon_plan, date=today)
+            serialized_data = serializers.serialize("python", [todays_run])
+
+            response_data = serialized_data[0]["fields"]
+            response_data['run_id'] = serialized_data[0]['pk'] # Add 'run_id' to the response_data dictionary
+
+            return JsonResponse(response_data, safe=False)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else: 
+        return HttpResponseRedirect(reverse("index")) 
 

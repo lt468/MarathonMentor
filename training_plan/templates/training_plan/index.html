@@ -7,6 +7,7 @@
     <div class="page-content" style="overflow-y: hidden;">
         <!-- If the user is looged in -->
         {% if user.is_authenticated %}
+        {% csrf_token %}
         <div class="d-flex justify-content-around mt-3 align-items-center">
             <div>
                 <h5 class="display-5">Good {{ greeting }}, {{ user.first_name }}</h5>
@@ -105,17 +106,6 @@
     let upCommingRunsDictIds = [{{ next_runs.0.dict_id|escapejs }}, {{ next_runs.1.dict_id|escapejs }}, {{ next_runs.2.dict_id|escapejs }}];
     let markAsCompletedURL = "{% url 'mark-as-complete' %}";
 
-    function isRunDistance(){
-    let obj = {
-            distance: {{ todays_run.distance }}, 
-            est_duration: {{ todays_run.est_duration }}, 
-            est_avg_pace: "{{ todays_run.est_avg_pace }}", 
-            on: {{ todays_run.on }}, 
-            off: {{ todays_run.off }}, 
-            sets: {{ todays_run.sets }},
-        }
-        return obj;
-    }
 </script>
 <script src="{% static 'js/index.js' %}"></script>
 
