@@ -81,32 +81,32 @@ body {
 
 /* Zone 0 background colour (Gray) */
 .bg-grad-0 {
-    background-image: linear-gradient(to bottom right, rgba(211, 211, 211, 0.5), white);
+    background-color: rgba(211, 211, 211, 0.5);
 }
 
 /* Zone 1 background colour (Blue) */
 .bg-grad-1 {
-    background-image: linear-gradient(to bottom right, rgba(0, 191, 255, 0.3), white);
+    background-color: rgba(0, 191, 255, 0.3);
 }
 
 /* Zone 2 and 6 background color (Green) */
 .bg-grad-2, .bg-grad-6 {
-    background-image: linear-gradient(to bottom right, rgba(144, 238, 144, 0.5), white);
+    background-color: rgba(144, 238, 144, 0.5);
 }
 
 /* Zone 3 and 4 background color (Orange) */
 .bg-grad-3, .bg-grad-4 {
-    background-image: linear-gradient(to bottom right, rgba(247, 149, 72, 0.5), white);
+    background-color: rgba(247, 149, 72, 0.5);
 }
 
 /* Zone 5 background color (Red) */
 .bg-grad-5 {
-    background-image: linear-gradient(to bottom right, rgba(255, 99, 71, 0.5), white);
+    background-color: rgba(255, 99, 71, 0.5);
 }
 
 /* Marathon day */
 .bg-grad-9 {
-    background-image: linear-gradient(to bottom right, rgba(255, 215, 0, 0.5), white);
+    background-color: rgba(255, 215, 0, 0.5);
 }
 
 .upcm-run {
@@ -136,9 +136,14 @@ body {
 // Go to top button for scheduled and completed runs
 .goto-top {
     display: none; /* Hidden by default */
+    border-color: var(--black) ;
     position: fixed; /* Fixed/sticky position */
     bottom: 20px; /* Place the button at the bottom of the page */
     right: 30px; /* Place the button 30px from the right */
     z-index: 99; /* Make sure it does not overlap */
+}
+
+.goto-top:hover {
+    border-color: var(--black);
 }
 

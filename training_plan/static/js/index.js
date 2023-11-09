@@ -5,21 +5,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get the document values from api
     const valuesPromise = getTodaysRun();
     valuesPromise.then(values => {
-        const todaysRunDiv = document.getElementById('todays-run');
-
-        // If the run is complete, render a well done message
-        const runCompletedMessage = displayRunCompletedMessage();
-        todaysRunDiv.appendChild(runCompletedMessage);
 
         // Render info bar to the dom for the first time when the page loads
+        const todaysRunDiv = document.getElementById('todays-run');
         const infoBar = displayRunInfoBar(values);
         todaysRunDiv.appendChild(infoBar);
 
         // Render button and label to the DOM (not if a rest day)
         if (values.distance || values.sets) {
             const rootMarkAsCompletedDiv = document.getElementById('root-mark-complete');
+ 
+            // If the run is complete, render a well done message
+            if (values.completed) {
+                rootMarkAsCompletedDiv.classList = 'd-flex justify-content-between mx-5';
+                const runCompletedMessage = displayRunCompletedMessage();
+                rootMarkAsCompletedDiv.appendChild(runCompletedMessage);
+            }
+
             const buttonWithLabel = displayButton();
             rootMarkAsCompletedDiv.appendChild(buttonWithLabel);
+
 
             // Get the button within the label and button div
             const buttonElementInDiv = buttonWithLabel.querySelector('button');
@@ -55,7 +60,7 @@ function displayRunCompletedMessage(){
     div.id = 'completed-message';
     div.classList = 'alert alert-success text-center';
     div.role = 'alert';
-    div.innerHTML = `<h4 class="alert-heading">${message}</h4>`;
+    div.innerHTML = `<h5 class="alert-heading">${message}</h5>`;
 
     return div;
 }
@@ -197,27 +202,27 @@ function editStatsAndMarkRunComplete(values) {
 // Function to display the stats of the run within the today's run div
 function displayRunInfoBar(values) {
 
-    let type, distance, duration, pace, sets, on, off;
+    let type, distance, duration, pace, sets, on, off, data;
 
     // Check to see if the page nees to display the completed run or the scheduled run, and what type of run
     if (values.completed) {
         distance = values.distance;
         duration = values.duration;
         pace = formatTime(values.avg_pace);
-        type = 'completed';
+        data = {distance, duration, pace};
+
     } else if (!values.completed && values['distance']) { 
         distance = values.distance;
         duration = values.est_duration;
         pace = values.est_pace;
-        type = 'distance';
+        data = {distance, duration, pace};
 
     } else if (!values.completed && values['sets']) {
-        distance = values.distance;
         sets = values.sets;
         on = values.on;
         off = values.off;
-        type = 'interval';
-
+        pace = values.est_pace;
+        data = {on, off, sets, pace};
     } else {
         type = 'rest';
     }
@@ -227,54 +232,103 @@ function displayRunInfoBar(values) {
     rootDiv.classList ='m-1 hstack gap-3 fs-5 align-middle';
 
     // Creating the inner HTML for the info bar
-    if (type === 'completed') {
+    let lastIndex = 0;
 
-    }
-    else if (type === 'distance') {
-        rootDiv.innerHTML = `
-            <div id="info-bar--distance" class="d-flex justify-content-center m-auto align-middle">Distance:&nbsp;<span id="distance--edit">${values.distance}</span>km</div>
-            <div class="vr"></div>
-            <div id="info-bar--duration" class="d-flex justify-content-center m-auto align-middle">Estimated Duration:&nbsp;<span id="duration--edit">${values.est_duration}</span>&nbsp;minutes</div>
-            <div class="vr"></div>
-            <div id="info-bar--pace" class="d-flex justify-content-center m-auto align-middle">Estimated Pace:&nbsp;<span id="pace--edit">${formatTime(values.est_avg_pace)}</span></div>
-        `
-    } else if (type === 'interval') {
-        rootDiv.innerHTML = `
-            <div id="info-bar--time" class="m-auto">Working time: ${values.on}km</div>
-            <div class="vr"></div>
-            <div id="info-bar--duration" class="m-auto">Rest time: ${values.off} minutes</div>
-            <div class="vr"></div>
-            <div id="info-bar--sets" class="m-auto">Sets: ${values.sets}</div>
-            <div class="vr"></div>
-            <div id="info-bar--pace" class="m-auto">Estimated Pace: ${formatTime(values.est_avg_pace)}</div>
-        `
-    } else {
-        rootDiv.innerHTML = `
-            <div id="info-bar--rest" class="fs-5">Enjoy your rest day</div>
-        `
+    // Loop over the object's keys (variable names) and values
+    for (const variableName in data) {
+        comp = new infoBarComponent(variableName, data[variableName], values.completed);
+        compDiv = comp.createComponent();
+        rootDiv.append(compDiv);
+
+        if (lastIndex === Object.keys(data).length - 1) {
+            break; // Exit the loop before the last element
+        }
+        lastIndex++;
+        rootDiv.appendChild(createVerticalDiv());
     }
     return rootDiv;
 }
 
-function infoBarComponent(attribute, value, completed) {
+// Create a vertical line div
+function createVerticalDiv() {
+    let div = document.createElement('div');
+    div.classList = 'vr';
+    return div;
+}
 
-    function innerHTMLCreator() {
-        if (completed) {
+// Creating of the info bar components for displaying the stats
+class infoBarComponent {
+    constructor(attribute, value, completed) {
+        this.attribute = attribute; // The distance, duration, pace, sets, on, off, etc., attribute
+        this.value = value; // The value of the attribute, e.g., 8 (km) or 40 (minutes)
+        this.completed = completed; // If the run has been completed
+    }
 
+    createComponent() {
+        const prefix = this.#createPrefix();
+        const suffix = this.#createSuffix();
+
+        let span = this.#createSpan();
+        let div = this.#createDiv();
+
+        div.innerHTML = `${prefix}&nbsp;`;
+        div.appendChild(span);
+        if (this.attribute === 'duration') {
+            div.innerHTML += '&nbsp;';
+        }
+        div.innerHTML += suffix;
+
+        return div;
+    }
+
+    #createPrefix() {
+        let pre = 'Estimated';
+        if (this.completed) {
+            pre = '';
+        }
+        const prefix = `${pre}${capitalizeFirstLetter(this.attribute)}:`;
+        return prefix;
+    }
+
+    #createSuffix() {
+        let suf;
+        switch (this.attribute) {
+            case 'distance':
+                suf = 'km';
+                break;
+            case 'duration':
+                suf = 'minutes';
+                break;
+            default:
+                suf = '';
+                break;
         }
 
+        return suf;
     }
 
-    function createSpanElement() {
-
+    #createDiv() {
+        let div = document.createElement('div');
+        div.id = `info-bar--${this.attribute}`;
+        div.classList = 'd-flex justify-content-center m-auto align-middle';
+        return div;
     }
 
+    #createSpan() {
+        let span = document.createElement('span');
+        span.id = `${this.attribute}--edit`;
+        span.innerHTML = this.value;
+        return span;
+    }
+}
 
-    let div = document.createElement('div');
-    div.id = `info-bar--${attribute}`;
-    div.classList = 'd-flex justify-content-center m-auto align-middle';
+// Helper function to capitalize the first letter
+function capitalizeFirstLetter(word) {
+    if (typeof word !== 'string' || word.length === 0) {
+        return word; // Return the word unchanged if it's not a string or an empty string
+    }
 
-    return div;
+    return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
 // Helper function that formats the time in the mm:ss format
