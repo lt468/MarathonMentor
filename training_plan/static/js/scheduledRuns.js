@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
         "12": "December",
     }
 
-    console.log('Dom Content loaded');
-
     const result = apiGetScheduledRuns();
 
     const rootDiv = document.getElementById('scheduled-runs-container'); // Get the root div for the page
@@ -36,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (runMonth !== currentMonth) {
                 // Create a new heading for the month
                 currentMonth = runMonth.toString();
-                console.log(currentMonth)
                 monthHeading = createMonthHeading(numbersToMonths[currentMonth]);
                 rootDiv.appendChild(monthHeading);
             }

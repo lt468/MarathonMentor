@@ -5,6 +5,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get the document values from api
     const valuesPromise = getTodaysRun();
     valuesPromise.then(values => {
+        const todaysRunDiv = document.getElementById('todays-run');
+
+        // If the run is complete, render a well done message
+        const runCompletedMessage = displayRunCompletedMessage();
+        todaysRunDiv.appendChild(runCompletedMessage);
+
+        // Render info bar to the dom for the first time when the page loads
+        const infoBar = displayRunInfoBar(values);
+        todaysRunDiv.appendChild(infoBar);
 
         // Render button and label to the DOM (not if a rest day)
         if (values.distance || values.sets) {
@@ -21,12 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateButtonText();
             });
         }
-
-        // Render info bar to the dom for the first time when the page loads
-        const todaysRunDiv = document.getElementById('todays-run');
-        const infoBar = displayRunInfoBar(values);
-        todaysRunDiv.appendChild(infoBar);
-
     });
 
     // Get the Main run and change its background colour
@@ -39,9 +42,23 @@ document.addEventListener('DOMContentLoaded', () => {
         changeBackground(box, upCommingRunsDictIds[i]);
     }
 
+    // TODO - Ensure correct order of operations
     updateStats();
 
 });
+
+function displayRunCompletedMessage(){
+
+    let message = 'This run has been completed - well done!';
+
+    let div = document.createElement('div');
+    div.id = 'completed-message';
+    div.classList = 'alert alert-success text-center';
+    div.role = 'alert';
+    div.innerHTML = `<h4 class="alert-heading">${message}</h4>`;
+
+    return div;
+}
 
 // Function to change the background of the divs for each of the run
 function changeBackground(runBox, dictId) {
@@ -102,7 +119,6 @@ function editStatsAndMarkRunComplete(values) {
 
     // Check to see if the run is a distance or interval based run
     if (values['distance']) {
-        // Grab the stats in the info bar for the distance based runs
         let distDiv;  
 
         let durDiv = {
@@ -181,12 +197,27 @@ function editStatsAndMarkRunComplete(values) {
 // Function to display the stats of the run within the today's run div
 function displayRunInfoBar(values) {
 
-    // Check to see if the run is a distance or interval based run
-    let type;
-    if (values['distance']) {
+    let type, distance, duration, pace, sets, on, off;
+
+    // Check to see if the page nees to display the completed run or the scheduled run, and what type of run
+    if (values.completed) {
+        distance = values.distance;
+        duration = values.duration;
+        pace = formatTime(values.avg_pace);
+        type = 'completed';
+    } else if (!values.completed && values['distance']) { 
+        distance = values.distance;
+        duration = values.est_duration;
+        pace = values.est_pace;
         type = 'distance';
-    } else if (values['sets']) {
+
+    } else if (!values.completed && values['sets']) {
+        distance = values.distance;
+        sets = values.sets;
+        on = values.on;
+        off = values.off;
         type = 'interval';
+
     } else {
         type = 'rest';
     }
@@ -196,7 +227,10 @@ function displayRunInfoBar(values) {
     rootDiv.classList ='m-1 hstack gap-3 fs-5 align-middle';
 
     // Creating the inner HTML for the info bar
-    if (type === 'distance') {
+    if (type === 'completed') {
+
+    }
+    else if (type === 'distance') {
         rootDiv.innerHTML = `
             <div id="info-bar--distance" class="d-flex justify-content-center m-auto align-middle">Distance:&nbsp;<span id="distance--edit">${values.distance}</span>km</div>
             <div class="vr"></div>
@@ -210,7 +244,7 @@ function displayRunInfoBar(values) {
             <div class="vr"></div>
             <div id="info-bar--duration" class="m-auto">Rest time: ${values.off} minutes</div>
             <div class="vr"></div>
-            <div id="info-bar--pace" class="m-auto">Sets: ${values.sets}</div>
+            <div id="info-bar--sets" class="m-auto">Sets: ${values.sets}</div>
             <div class="vr"></div>
             <div id="info-bar--pace" class="m-auto">Estimated Pace: ${formatTime(values.est_avg_pace)}</div>
         `
@@ -220,6 +254,27 @@ function displayRunInfoBar(values) {
         `
     }
     return rootDiv;
+}
+
+function infoBarComponent(attribute, value, completed) {
+
+    function innerHTMLCreator() {
+        if (completed) {
+
+        }
+
+    }
+
+    function createSpanElement() {
+
+    }
+
+
+    let div = document.createElement('div');
+    div.id = `info-bar--${attribute}`;
+    div.classList = 'd-flex justify-content-center m-auto align-middle';
+
+    return div;
 }
 
 // Helper function that formats the time in the mm:ss format
@@ -241,7 +296,7 @@ function formatTime(timeString) {
 async function updateStats() {
     const payload = {
         run_id: 1754,
-        date: "8 Nov 2023",
+        date: "9 Oct 2024",
         distance: 8,
         duration: 35,
         avg_pace: "0:04:17.352941"
@@ -266,7 +321,6 @@ async function updateStats() {
 
         if (response.ok) {
             console.log('Run updated/posted successfully');
-
         } else {
             console.error('Error updating run');
         }
@@ -282,6 +336,8 @@ async function getTodaysRun() {
     const url = '/api/get-todays-run';
     const response = await fetch(url);
     const data = await response.json();
+
+    console.log(data)
 
     return data;
 }
