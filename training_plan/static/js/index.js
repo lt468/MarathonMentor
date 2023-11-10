@@ -228,6 +228,16 @@ function saveAndUpdateStats(payload) {
 
     prom.then((val) => {
         const rootMarkAsCompletedDiv = document.getElementById('root-mark-complete');
+
+        // Add the pop up success message
+        rootMarkAsCompletedDiv.classList = 'd-flex justify-content-between mx-5';
+
+        rootMarkAsCompletedDiv.children[0].remove(); // Remove previous one
+
+        const runCompletedMessage = displayRunCompletedMessage();
+        rootMarkAsCompletedDiv.appendChild(runCompletedMessage);
+
+        // Adding button again
         const buttonWithLabel = displayButton(true);
         rootMarkAsCompletedDiv.appendChild(buttonWithLabel);
         
