@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             buttonElementInDiv.addEventListener('click', event => {
                 event.preventDefault();
-                editStatsAndMarkRunComplete(values); 
+                editStatsOnInfoBar(); 
                 updateButtonText(values.completed);
             });
         }
@@ -138,82 +138,40 @@ function updateButtonText(completed) {
 // a front end message to confirm it's the case, and then send the appropriate request to the backend and db. Finally, update the completed run page, and then
 // after that, implement the strava linking feature
 
-// Function to edit the stats and mark the run as complete
-function editStatsAndMarkRunComplete(values) {
-
-    // Check to see if the run is a distance or interval based run
-    if (values['distance']) {
-        let distDiv;  
-
-        let durDiv = {
-            element: document.getElementById('info-bar--duration'),
-            editableElement: document.getElementById('duration--edit'),
-            duration: values.est_duration
-        }
-
-        let paceDiv = {
-            element: document.getElementById('info-bar--pace'),
-            editableElement: document.getElementById('pace--edit'),
-            pace: values.est_avg_pace
-        }
-
-        let payload = {}
-
         //date = models.DateField(help_text="Date when run was completed")
         //distance = models.PositiveIntegerField(help_text="Distance of completed run in km")
         //duration = models.PositiveIntegerField(help_text="Duration of completed run in minutes")
         //avg_pace = models.DurationField(verbose_name="Average Pace", help_text="Please format like mm:ss")  
-
-        // Will need to change three different divs to a text area in edit mode
-        const inEditMode = document.getElementById('distance--edit').tagName === 'TEXTAREA'; // Look to see if in edit mode or not
-        
+//
         // TODO - Need to check if it's completed first by seeing if the api returns something
         // TODO - Need to to check that the inputted text is valid (integers or formatted time!)
-        if (inEditMode) {
+// Function to edit the stats and mark the run as complete
+function editStatsOnInfoBar() {
 
-            // Grab the current value
-            distDiv = {
-                element: document.getElementById('info-bar--distance'),
-                editableElement: document.getElementById('distance--edit'),
-                distance : function() {
-                    return document.getElementById('distance--edit').value;
-                }
-            }
+    // Get info info bar
+    const infoBar = document.getElementById('run-info-bar');
 
-            // TODO - Save the stats and mark as completed (via api)
-            distDiv.element.outerHTML = `<div id="info-bar--distance" class="d-flex justify-content-center m-auto align-middle">Distance:&nbsp;<span id="distance--edit">${distDiv.distance()}</span>km</div>`
-            durDiv.element.outerHTML = `<div id="info-bar--duration" class="d-flex justify-content-center m-auto align-middle">Duration:&nbsp;<span id="duration--edit">${durDiv.duration}</span>&nbsp;minutes</div>`
-            paceDiv.element.outerHTML = `<div id="info-bar--pace" class="d-flex justify-content-center m-auto align-middle">Average Pace:&nbsp;<span id="pace--edit">${formatTime(paceDiv.pace)}</span></div>`
+    // Loop through components
+    for (let i = 0; i < infoBar.children.length; i++) {
+        let infoBarComponent = infoBar.children[i];
+        let parts, attribute;
 
-        } else {
-
-            // Grab the current value
-                distDiv = {
-                element: document.getElementById('info-bar--distance'),
-                editableElement: document.getElementById('distance--edit'),
-                distance: values.distance
-            }
-
-
-            const currentDistDivContent = distDiv.editableElement.textContent;
-            distDiv.editableElement.outerHTML = `<textarea id="distance--edit" class="align-middle fs-5 mx-1 form-control form-control-info-bar">${currentDistDivContent}</textarea>`;
-
-            const currentDurDivContent = durDiv.editableElement.textContent;
-            const durDivEditableContent = `<textarea id="duration--edit" class="align-middle fs-5 mx-1 form-control form-control-info-bar">${currentDurDivContent}</textarea>`;
-            durDiv.editableElement.outerHTML = durDivEditableContent;
-            durDiv.element.outerHTML = `<div id="info-bar--duration" class="d-flex justify-content-center m-auto align-middle">Duration:&nbsp;${durDivEditableContent}&nbsp;minutes</div>`
-
-            const currentPaceDivContent = paceDiv.editableElement.textContent;
-            const paceDivEditableContent = `<textarea id="pace--edit" class="align-middle fs-5 mx-1 form-control form-control-info-bar">${currentPaceDivContent}</textarea>`;
-            paceDiv.editableElement.outerHTML = paceDivEditableContent;
-            paceDiv.element.outerHTML = `<div id="info-bar--pace" class="d-flex justify-content-center m-auto align-middle">Average Pace:&nbsp;${paceDivEditableContent}</div>`
+        // Check if the innerHTML contains the word "Estimated"
+        if (infoBarComponent.innerHTML.includes("Estimated")) {
+          // Remove the word "Estimated" from the innerHTML
+          infoBarComponent.innerHTML = infoBarComponent.innerHTML.replace("Estimated", "");
         }
 
-    } else if (values['sets']) {
-        type = 'interval';
-    } else {
-        alert('You cannot mark a rest day as complete!');
-        return;
+        if (infoBarComponent.children.length !== 0 && infoBarComponent.children[0].tagName === 'SPAN') {
+            parts = infoBarComponent.children[0].id.split('-');
+            attribute = parts[0];
+            changeSpanToTextarea(attribute);
+
+        } else if (infoBarComponent.children.length !== 0 && infoBarComponent.children[0].tagName === 'TEXTAREA') {
+            parts = infoBarComponent.children[0].id.split('-');
+            attribute = parts[0];
+            changeTextareaToSpan(attribute);
+        }
     }
 }
 
@@ -272,6 +230,46 @@ function createVerticalDiv() {
     return div;
 }
 
+// Change the editable component from a span to a textarea
+function changeSpanToTextarea(attribute) {
+    // Get the span that needs to be changed
+    const span =  document.getElementById(`${attribute}--edit`);
+
+    // Create a new textarea element
+    const textarea = document.createElement('textarea');
+    textarea.id = `${attribute}--edit`; // Same ID
+
+    if (attribute === 'distance' || attribute === 'duration')  {
+        textarea.classList = 'align-middle fs-5 mx-1 form-control form-control-info-bar-d';
+    } else {
+        textarea.classList = 'align-middle fs-5 mx-1 form-control form-control-info-bar';
+    }
+
+    // Copy the content from the span to the textarea
+    textarea.value = span.innerHTML;
+
+    // Replace the span with the textarea in the DOM
+    span.parentNode.replaceChild(textarea, span);
+}
+
+// Change the editable component from a textarea to a span - Exact opposite operations to the method above
+function changeTextareaToSpan(attribute) {
+
+    const textarea =  document.getElementById(`${attribute}--edit`);
+
+    // Create a new textarea element
+    const span = document.createElement('span');
+    span.id = `${attribute}--edit`; // Same ID
+    span.classList = ''; // Remove all the classes
+
+    // Copy the content from the span to the textarea
+    span.innerHTML = textarea.value;
+
+    // Replace the span with the textarea in the DOM
+    textarea.parentNode.replaceChild(span, textarea);
+}
+
+
 // Creating of the info bar components for displaying the stats
 class infoBarComponent {
     constructor(attribute, value, completed) {
@@ -301,10 +299,8 @@ class infoBarComponent {
         let pre = 'Estimated';
         if (this.completed || this.attribute === 'distance') {
             pre = '';
-        } else if (this.completed && this.attribute === 'pace') {
-            pre = 'Average';
         } else if (this.attribute === 'pace') {
-            pre = 'Estimated Average';
+            pre = 'Average';
         }
 
         const prefix = `${pre}&nbsp;${capitalizeFirstLetter(this.attribute)}:`;
