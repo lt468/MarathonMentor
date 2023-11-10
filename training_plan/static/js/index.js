@@ -221,12 +221,27 @@ function saveAndUpdateStats(payload) {
 
     button = document.getElementById('mark-complete'); // Have to get it again 
     // Changing the label of the button
-    button.parentNode.children[0].innerHTML = `Updating Stats, please don't refresh or exit`;
+    button.parentNode.children[0].innerHTML = `Updating stats, please don't refresh or exit`;
 
     // Make the post request
     const prom = updateStats(payload);
 
     prom.then((val) => {
+
+        // Dismiss existing toast
+        const existingToast = document.getElementById('liveToast');
+        const existingToastInstance = bootstrap.Toast.getInstance(existingToast);
+        if (existingToastInstance) {
+            existingToastInstance.hide();
+        }
+
+        // Create and show new toast
+        const pageContent = document.getElementsByClassName('page-content');
+        pageContent[0].appendChild(createToast());
+        const newToast = document.getElementById('liveToast');
+        const newToastInstance = new bootstrap.Toast(newToast);
+        newToastInstance.show();
+
         const rootMarkAsCompletedDiv = document.getElementById('root-mark-complete');
 
         // Add the pop up success message
@@ -520,4 +535,25 @@ async function getTodaysRun() {
     const response = await fetch(url);
     const data = await response.json();
     return data;
+}
+
+// Adding toast
+function createToast(){
+    const toastDiv = document.createElement('div');
+    toastDiv.classList = 'toast-container position-fixed bottom-0 end-0 p-3';
+    toastDiv.innerHTML = `
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <img src="${logoImagePath}" class="rounded me-2" width="24" height="24" alt="Marathon Mentor Dark Logo">
+                <strong class="me-auto">Marathon Mentor</strong>
+                <small class="text-body-secondary">now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                Run Statistics Saved!
+            </div>
+        </div>
+    `;
+
+    return toastDiv;
 }
