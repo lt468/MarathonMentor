@@ -6,14 +6,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const valuesPromise = getTodaysRun();
     valuesPromise.then(values => {
 
-        // Render info bar to the dom for the first time when the page loads
-        const todaysRunDiv = document.getElementById('todays-run');
-        const infoBar = displayRunInfoBar(values);
-        todaysRunDiv.appendChild(infoBar);
-
         // Render button and label to the DOM (not if a rest day)
         if (values.distance || values.sets) {
             const rootMarkAsCompletedDiv = document.getElementById('root-mark-complete');
+
+            // Render info bar to the dom for the first time when the page loads
+            const todaysRunDiv = document.getElementById('todays-run');
+            const infoBar = displayRunInfoBar(values);
+            todaysRunDiv.appendChild(infoBar);
  
             // If the run is complete, render a well done message
             if (values.completed) {
@@ -142,14 +142,16 @@ function updateButtonText(completed) {
         //distance = models.PositiveIntegerField(help_text="Distance of completed run in km")
         //duration = models.PositiveIntegerField(help_text="Duration of completed run in minutes")
         //avg_pace = models.DurationField(verbose_name="Average Pace", help_text="Please format like mm:ss")  
-//
+
         // TODO - Need to check if it's completed first by seeing if the api returns something
         // TODO - Need to to check that the inputted text is valid (integers or formatted time!)
+
 // Function to edit the stats and mark the run as complete
 function editStatsOnInfoBar() {
 
-    // Get info info bar
+    // Get the info bar
     const infoBar = document.getElementById('run-info-bar');
+    let new_values = [];
 
     // Loop through components
     for (let i = 0; i < infoBar.children.length; i++) {
@@ -165,14 +167,21 @@ function editStatsOnInfoBar() {
         if (infoBarComponent.children.length !== 0 && infoBarComponent.children[0].tagName === 'SPAN') {
             parts = infoBarComponent.children[0].id.split('-');
             attribute = parts[0];
-            changeSpanToTextarea(attribute);
+            let iEdit = changeSpanToTextarea(attribute);
+            i += iEdit; // To make sure a div element is not skipped over in the loop
 
         } else if (infoBarComponent.children.length !== 0 && infoBarComponent.children[0].tagName === 'TEXTAREA') {
             parts = infoBarComponent.children[0].id.split('-');
             attribute = parts[0];
             changeTextareaToSpan(attribute);
+
+            // Saving new values to the database 
         }
     }
+}
+
+function updateRunInDatabase() {
+
 }
 
 // Function to display the stats of the run within the today's run div
@@ -203,7 +212,7 @@ function displayRunInfoBar(values) {
 
     let rootDiv = document.createElement('div');
     rootDiv.id = 'run-info-bar';
-    rootDiv.classList ='m-1 hstack gap-3 fs-5 align-middle';
+    rootDiv.classList ='d-flex justify-content-evenly fs-5 mb-1 align-middle';
 
     // Creating the inner HTML for the info bar
     let lastIndex = 0;
@@ -233,16 +242,40 @@ function createVerticalDiv() {
 // Change the editable component from a span to a textarea
 function changeSpanToTextarea(attribute) {
     // Get the span that needs to be changed
-    const span =  document.getElementById(`${attribute}--edit`);
+    let span =  document.getElementById(`${attribute}--edit`);
+
+    // If the run was an interval, need to change the attributes to enter, will do this by discarding the 'on' attribute, changing the 
+    // 'off' to 'distance' and the 'sets' to 'duration'; the 'pace' will remain the same
+    if (attribute === 'on') {
+        span.parentNode.remove();
+        document.querySelector('.vr').remove(); // Remove the first vr
+        return -1; // To make sure a div element is not skipped over in the loop
+
+    } else if (attribute === 'off') {
+        span.parentNode.innerHTML = span.parentNode.innerHTML.replace('Off', 'Distance');
+        span = document.getElementById(`${attribute}--edit`); // Have to grab it again to make it work
+        span.parentNode.innerHTML = span.parentNode.innerHTML.replace('&nbsp;minutes', 'km');
+        span = document.getElementById(`${attribute}--edit`); // Grab it one more time for replacing things
+        span.innerHTML = ''; // Clearing the value so that user can fill it in
+        attribute = 'distance';
+
+    } else if (attribute === 'sets') {
+        span.parentNode.innerHTML = span.parentNode.innerHTML.replace('Sets', 'Duration');
+        span = document.getElementById(`${attribute}--edit`); // Have to grab it again to make it work
+        span.parentNode.innerHTML += 'minutes';
+        span = document.getElementById(`${attribute}--edit`); // Grab it one more time for replacing things
+        span.innerHTML = ''; // Clearing the value so that user can fill it in
+        attribute = 'duration';
+    }
 
     // Create a new textarea element
     const textarea = document.createElement('textarea');
     textarea.id = `${attribute}--edit`; // Same ID
 
-    if (attribute === 'distance' || attribute === 'duration')  {
-        textarea.classList = 'align-middle fs-5 mx-1 form-control form-control-info-bar-d';
+    if (attribute === 'pace')  {
+        textarea.classList = 'fs-5 form-control form-control-info-bar';
     } else {
-        textarea.classList = 'align-middle fs-5 mx-1 form-control form-control-info-bar';
+        textarea.classList = 'fs-5 form-control form-control-info-bar-d';
     }
 
     // Copy the content from the span to the textarea
@@ -250,6 +283,7 @@ function changeSpanToTextarea(attribute) {
 
     // Replace the span with the textarea in the DOM
     span.parentNode.replaceChild(textarea, span);
+    return 0;
 }
 
 // Change the editable component from a textarea to a span - Exact opposite operations to the method above
@@ -287,7 +321,7 @@ class infoBarComponent {
 
         div.innerHTML = `${prefix}&nbsp;`;
         div.appendChild(span);
-        if (this.attribute === 'duration') {
+        if (!(this.attribute === 'distance')) {
             div.innerHTML += '&nbsp;';
         }
         div.innerHTML += suffix;
@@ -297,10 +331,10 @@ class infoBarComponent {
 
     #createPrefix() {
         let pre = 'Estimated';
-        if (this.completed || this.attribute === 'distance') {
-            pre = '';
-        } else if (this.attribute === 'pace') {
+        if (this.attribute === 'pace') {
             pre = 'Average';
+        } else if (this.completed || !(this.attribute === 'duration')) {
+            pre = '';
         }
 
         const prefix = `${pre}&nbsp;${capitalizeFirstLetter(this.attribute)}:`;
@@ -316,6 +350,12 @@ class infoBarComponent {
             case 'duration':
                 suf = 'minutes';
                 break;
+            case 'on':
+                suf = 'minutes';
+                break;
+            case 'off':
+                suf = 'minutes';
+                break;
             default:
                 suf = '';
                 break;
@@ -327,7 +367,7 @@ class infoBarComponent {
     #createDiv() {
         let div = document.createElement('div');
         div.id = `info-bar--${this.attribute}`;
-        div.classList = 'd-flex justify-content-center m-auto align-middle';
+        div.classList = 'd-flex justify-content-center align-middle';
         return div;
     }
 
