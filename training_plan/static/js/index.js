@@ -133,13 +133,9 @@ function updateButtonText(msg) {
 
 }
 
-// The initial info bar is now implemented when the page is loaded for the first time, now implement the system for updating and saving the run for the first
-// time and also when the user wants to update the stats. Implement visuals so that the user knows that it's saving (spinner and disable text area), provide
-// a front end message to confirm it's the case, and then send the appropriate request to the backend and db. Finally, update the completed run page, and then
-// after that, implement the strava linking feature
-
-// TODO - Need to check if it's completed first by seeing if the api returns something
 // TODO - Need to to check that the inputted text is valid (integers or formatted time!)
+// TODO - implement the strava linking feature
+
 // Function to edit the stats and mark the run as complete
 function editStatsOnInfoBar(values) {
 
