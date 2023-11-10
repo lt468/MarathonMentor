@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const buttonWithLabel = displayButton(values.completed);
             rootMarkAsCompletedDiv.appendChild(buttonWithLabel);
 
-
             // Get the button within the label and button div
             const buttonElementInDiv = buttonWithLabel.querySelector('button');
 
@@ -233,14 +232,14 @@ function displayRunInfoBar(values) {
     } else if (!values.completed && values['distance']) { 
         distance = values.distance;
         duration = values.est_duration;
-        pace = values.est_pace;
+        pace = formatTime(values.est_avg_pace);
         data = {distance, duration, pace};
 
     } else if (!values.completed && values['sets']) {
         sets = values.sets;
         on = values.on;
         off = values.off;
-        pace = values.est_pace;
+        pace = formatTime(values.est_avg_pace);
         data = {on, off, sets, pace};
     }
 
@@ -300,10 +299,15 @@ class infoBarComponent {
 
     #createPrefix() {
         let pre = 'Estimated';
-        if (this.completed) {
+        if (this.completed || this.attribute === 'distance') {
             pre = '';
+        } else if (this.completed && this.attribute === 'pace') {
+            pre = 'Average';
+        } else if (this.attribute === 'pace') {
+            pre = 'Estimated Average';
         }
-        const prefix = `${pre}${capitalizeFirstLetter(this.attribute)}:`;
+
+        const prefix = `${pre}&nbsp;${capitalizeFirstLetter(this.attribute)}:`;
         return prefix;
     }
 
