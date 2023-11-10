@@ -97,9 +97,11 @@
         </div>
             {% endif %}
         </div>
+<!-- Include Moment.js from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <!-- Load js file for this template -->
-
 <script>
+
     let runDictId = {{ todays_run.dict_id|escapejs }};
     let upCommingRunsIds = [{{ next_runs.0.id|escapejs }}, {{ next_runs.1.id|escapejs }}, {{ next_runs.2.id|escapejs }}];
     let upCommingRunsDictIds = [{{ next_runs.0.dict_id|escapejs }}, {{ next_runs.1.dict_id|escapejs }}, {{ next_runs.2.dict_id|escapejs }}];

@@ -30,8 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             buttonElementInDiv.addEventListener('click', event => {
                 event.preventDefault();
-                editStatsOnInfoBar(); 
-                updateButtonText(values.completed);
+                if (values.completed) {
+                    editStatsOnInfoBar([values.scheduled_run, values.date, values.distance, values.duration, formatTime(values.avg_pace)]); 
+                } else {
+                    editStatsOnInfoBar([values.run_id, values.date, values.distance, values.est_duration, formatTime(values.est_avg_pace)]); 
+                }
             });
         }
     });
@@ -46,8 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
         changeBackground(box, upCommingRunsDictIds[i]);
     }
 
-    // TODO - Ensure correct order of operations
-    updateStats();
 
 });
 
@@ -78,13 +79,18 @@ function displayButton(completed) {
 
     if (completed) {
         message = 'Edit Stats';
-        labelMessage = 'Press edit stats to update the run stats';
+        labelMessage = 'Press edit stats to update the run statistics';
+
+        // Get and remove the old button
+        const oldBtn = document.getElementById('mark-complete');
+        if (oldBtn) {
+            oldBtn.parentNode.remove();
+        }
 
     } else {
         message = 'Mark As Completed';
         labelMessage = 'Mark as completed to enter your stats';
     }
-
 
     // Create the button element
     let button = document.createElement('button');
@@ -110,27 +116,21 @@ function displayButton(completed) {
 }
 
 // Function to update the button text
-function updateButtonText(completed) {
+function updateButtonText(msg) {
 
-    let message;
     let labelText;
-    const button = document.getElementById('mark-complete');
-    const label = document.getElementById('mark-complete-label');
+    let button = document.getElementById('mark-complete');
+    let label = document.getElementById('mark-complete-label');
 
-    if (completed) {
-        message = 'Edit Stats';
-        label = 'Press edit stats to update the run stats';
-    } else if (button.innerHTML === 'Mark As Completed') {
-        // TODO - backend (and frontend loading) update when pressed here 
-        message = 'Save';
-        labelText = 'Press save to record the completed run and update the run stats'
-    } else {
-        message = 'Mark As Completed';
-        labelText = 'Mark as complete to enter your stats';
+    if (msg === 'Save') {
+        labelText = 'Press save to record the completed run and update the run stats';
+    } else if (msg === 'Edit Stats') {
+        labelText = 'Press edit stats to update the run statistics';
     }
 
     label.innerText = labelText;
-    button.innerHTML = message;
+    button.innerHTML = msg;
+
 }
 
 // The initial info bar is now implemented when the page is loaded for the first time, now implement the system for updating and saving the run for the first
@@ -138,20 +138,22 @@ function updateButtonText(completed) {
 // a front end message to confirm it's the case, and then send the appropriate request to the backend and db. Finally, update the completed run page, and then
 // after that, implement the strava linking feature
 
-        //date = models.DateField(help_text="Date when run was completed")
-        //distance = models.PositiveIntegerField(help_text="Distance of completed run in km")
-        //duration = models.PositiveIntegerField(help_text="Duration of completed run in minutes")
-        //avg_pace = models.DurationField(verbose_name="Average Pace", help_text="Please format like mm:ss")  
-
-        // TODO - Need to check if it's completed first by seeing if the api returns something
-        // TODO - Need to to check that the inputted text is valid (integers or formatted time!)
-
+// TODO - Need to check if it's completed first by seeing if the api returns something
+// TODO - Need to to check that the inputted text is valid (integers or formatted time!)
 // Function to edit the stats and mark the run as complete
-function editStatsOnInfoBar() {
+function editStatsOnInfoBar(values) {
 
     // Get the info bar
     const infoBar = document.getElementById('run-info-bar');
-    let new_values = [];
+    let valueObj = {
+        run_id: values[0],
+        date: values[1],
+        distance: values[2],
+        duration: values[3],
+        pace: values[4],
+    }
+
+    let val, update, msg;
 
     // Loop through components
     for (let i = 0; i < infoBar.children.length; i++) {
@@ -165,23 +167,86 @@ function editStatsOnInfoBar() {
         }
 
         if (infoBarComponent.children.length !== 0 && infoBarComponent.children[0].tagName === 'SPAN') {
+
+            update = false;
             parts = infoBarComponent.children[0].id.split('-');
             attribute = parts[0];
             let iEdit = changeSpanToTextarea(attribute);
             i += iEdit; // To make sure a div element is not skipped over in the loop
 
         } else if (infoBarComponent.children.length !== 0 && infoBarComponent.children[0].tagName === 'TEXTAREA') {
+            update = true;
             parts = infoBarComponent.children[0].id.split('-');
             attribute = parts[0];
-            changeTextareaToSpan(attribute);
 
-            // Saving new values to the database 
+            val = changeTextareaToSpan(attribute); // Get the value in the textarea
+
+            valueObj[attribute] = val;
         }
+    }
+
+    // Saving new values to the database
+    if (update) {
+        saveAndUpdateStats(valueObj); // Saves the stats and toggles the button front end
+    } else {
+        msg = 'Save';
+        updateButtonText(msg); // Update the button text 
     }
 }
 
-function updateRunInDatabase() {
+function saveAndUpdateStats(payload) {
+    // Create the loading button
+    const loadingButton = document.createElement('button');
+    loadingButton.id = 'mark-complete';
+    loadingButton.classList = 'btn btn-dark';
+    loadingButton.type = 'button';
+    loadingButton.disabled = true;
 
+    // Create Span content for inside the button
+    const spanSpinner = document.createElement('span');
+    spanSpinner.classList = 'spinner-border spinner-border-sm';
+
+    const spanLoading = document.createElement('span');
+    spanLoading.role = 'status';
+    spanLoading.innerHTML = `&nbsp;Saving...`;
+
+    loadingButton.appendChild(spanSpinner);
+    loadingButton.appendChild(spanLoading);
+
+    // Get the button element inside the div
+    let button = document.getElementById('mark-complete');
+
+    // Replace the button inside the div with the loading button
+    button.parentNode.replaceChild(loadingButton, button);
+
+    button = document.getElementById('mark-complete'); // Have to get it again 
+    // Changing the label of the button
+    button.parentNode.children[0].innerHTML = `Updating Stats, please don't refresh or exit`;
+
+    // Make the post request
+    const prom = updateStats(payload);
+
+    prom.then((val) => {
+        const rootMarkAsCompletedDiv = document.getElementById('root-mark-complete');
+        const buttonWithLabel = displayButton(true);
+        rootMarkAsCompletedDiv.appendChild(buttonWithLabel);
+        
+        // Have to attach another event listener
+        const buttonElementInDiv = document.getElementById('mark-complete');
+
+        buttonElementInDiv.addEventListener('click', event => {
+            event.preventDefault();
+            const paceDuration = moment.duration(val.payload.avg_pace);
+            const formattedPace = moment.utc().startOf('day').add(paceDuration).format('HH:mm:ss.SSS');
+
+            const formattedDate = moment(val.payload.date).format('YYYY-MM-DD');
+            editStatsOnInfoBar([val.payload.run_id, formattedDate, val.payload.distance, val.payload.duration, formatTime(formattedPace)]);
+        });
+
+    }).catch((error) => {
+        console.error('Update failed: ', error);
+        // Additional code to handle the error
+    });
 }
 
 // Function to display the stats of the run within the today's run div
@@ -301,6 +366,8 @@ function changeTextareaToSpan(attribute) {
 
     // Replace the span with the textarea in the DOM
     textarea.parentNode.replaceChild(span, textarea);
+
+    return span.innerHTML;
 }
 
 
@@ -404,14 +471,7 @@ function formatTime(timeString) {
 }
 
 // API to post updated values to Completed runs and change the front end
-async function updateStats() {
-    const payload = {
-        run_id: 1754,
-        date: "9 Oct 2024",
-        distance: 8,
-        duration: 35,
-        avg_pace: "0:04:17.352941"
-    } 
+async function updateStats(payload) {
 
     // Payload is: run_id, date, distance, duration, avg_pace
     try {
@@ -432,23 +492,22 @@ async function updateStats() {
 
         if (response.ok) {
             console.log('Run updated/posted successfully');
+            const responseData = await response.json();  // Parse the response data
+            return responseData;  // Return the response data (including the payload)
         } else {
-            console.error('Error updating run');
+            const errorResponse = await response.json();  // Parse the error response data
+            console.error('Error updating run:', errorResponse.error);  // Log the error message
+            throw new Error('Error updating run');
         }
     } catch (error) {
-        console.error('Error updating run:', error);
+        throw error;  // Re-throw the error to propagate it to the caller
     }
 }
 
-
 // API to get the todays run and all of its attributes
 async function getTodaysRun() {
-
     const url = '/api/get-todays-run';
     const response = await fetch(url);
     const data = await response.json();
-
-    console.log(data)
-
     return data;
 }

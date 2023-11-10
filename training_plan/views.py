@@ -166,6 +166,7 @@ def get_scheduled_runs(request):
 @require_POST
 @csrf_protect
 def update_completed_run(request):
+
     try:
         data = json.loads(request.body)
         payload = data.get("payload") # payload is run_id, date, distance, duration, avg_pace
@@ -177,35 +178,38 @@ def update_completed_run(request):
             stats_dict = payload.copy()
 
             # Converting the pace into the correct format for the model
-            match = re.match(r"(\d+):(\d+):(\d+)\.(\d+)", payload["avg_pace"])
-            if match:
-                hours, minutes, seconds, microseconds = map(int, match.groups())
-                # Convert to timedelta
-                formatted_avg_pace = timedelta(hours=hours, minutes=minutes, seconds=seconds, microseconds=microseconds)
-            else:
-                formatted_avg_pace = None
+            pace_parts = payload["pace"].split(":")
+            formatted_avg_pace = timedelta(minutes=int(pace_parts[0]), seconds=int(pace_parts[1]))
 
-            stats_dict["date"] = datetime.strptime(payload["date"], "%d %b %Y")
-            stats_dict["avg_pace"] = formatted_avg_pace
-            stats_dict.pop("run_id")
+
+            stats_dict["date"] = datetime.strptime(payload["date"], "%Y-%m-%d")
+            stats_dict["distance"] = int(payload["distance"])
+            stats_dict["duration"] = int(payload["duration"])
+            stats_dict["pace"] = formatted_avg_pace
+            run_id_val = stats_dict.pop("run_id")
+
+            # Changing pace to avg_pace like in the model
+            stats_dict["avg_pace"] = stats_dict["pace"]
+            stats_dict.pop("pace")
             
             scheduled_run = ScheduledRun.objects.get(id=payload["run_id"])
-
-            # TODO - continue implementing the API so that I can also update values, on the front end there is a loading save on the button and a 
-            # disabled text area, also able to get the data from an api for the front end or pass it so that the page loads with the saved values
-            # if the run has been completed
 
             # Check first if there isn"t a completed run, if so make one, if not then update the values
             completed_run, created = CompletedRun.objects.get_or_create(scheduled_run=scheduled_run, defaults=stats_dict) # Get the actual plan from the query set
             
-            if not created: # Have used "get" to get the CompletedRun
-                pass # update values
+            if not created:  # Use "get" to get the CompletedRun
+                for field in stats_dict:
+                    setattr(completed_run, field, stats_dict[field])
+                completed_run.save()
 
-        return JsonResponse({"message": "Stats for run updated successfully"})
+            # Add back run_id before response
+            stats_dict["run_id"] = run_id_val
+            return JsonResponse({"message": "Stats for run updated successfully", "payload": stats_dict})
+        else:
+            return JsonResponse({"error": "User is not logged in"}, status=403)
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
-
 
 @login_required
 def get_todays_run(request):
