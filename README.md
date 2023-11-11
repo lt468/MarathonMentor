@@ -8,7 +8,7 @@ python3 manage.py migrate
 ```
 
 ## TODOs:
-- Need to to check that the inputted text is valid (integers or formatted time!)
+- ~~Need to to check that the inputted text is valid (integers or formatted time!)~~
 - Implement the strava linking feature
 - Complete the completed runs template/view
 ### Future features to implement:
