@@ -5,6 +5,9 @@
     --taupe-gray: #9999a1ff;
     --platinum: #e6e6e9ff;
     --antiflash-white: #f4f4f6ff;
+
+    // Strava
+    --strava-orange: #fc5200;
 }
 
 // Overide default colours
@@ -152,3 +155,15 @@ body {
     border-color: var(--black);
 }
 
+.btn-strava {
+  --bs-btn-color: var(--bs-white);
+  --bs-btn-bg: var(--strava-orange); 
+  --bs-btn-border-color: var(--strava-orange); 
+  --bs-btn-hover-color: var(--strava-orange);
+  --bs-btn-hover-bg: lighten(var(--strava-orange), 10%); /* Lighten the color by 10% */
+  --bs-btn-hover-border-color: lighten(var(--strava-orange), 10%);
+  --bs-btn-focus-shadow-rgb: var(--strava-orange);
+  --bs-btn-active-color: var(--bs-btn-hover-color);
+  --bs-btn-active-bg: lighten(var(--strava-orange), 20%); /* Lighten the color by 20% */
+  --bs-btn-active-border-color: lighten(var(--strava-orange), 20%);
+}

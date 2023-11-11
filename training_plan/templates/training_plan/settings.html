@@ -8,8 +8,10 @@
 
 {% block body %}
 <div class="page-content" style="overflow-y: hidden;">
-    <h1>Link Your Strava Account</h1>
-    <p>Click the link below to link your Strava account:</p>
-    <a href="{% url "social:begin" "strava" %}">Link your Strava account</a>
+    <div class="mx-5 mt-3">
+        <h5 class="display-5">Link Your Strava Account</h5>
+        <hr>
+        <a class="btn btn-primary btn-strava" href="{% url "social:begin" "strava" %}" role="button">Link your Strava account</a>
+    </div>
 </div>
 {% endblock %}
