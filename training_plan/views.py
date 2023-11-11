@@ -1,12 +1,8 @@
-from importlib.util import resolve_name
 import json
-import re
-from urllib.parse import parse_qs, urlparse
 from django.core import serializers
 from datetime import date, datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
-from django.shortcuts import render
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
@@ -14,33 +10,40 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
 
-from .utils import plan_algo
+from .utils import plan_algo, strava_funcs
 from .models import RunnerUser, MarathonPlan, ScheduledRun, CompletedRun, StravaUserProfile
-from .forms import MergedSignUpForm, CompletedRunForm
+from .forms import MergedSignUpForm
 
 @login_required
-def mark_as_complete(request):
-    if request.method == "POST":
-        form = CompletedRunForm(request.POST, request.user)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse("index")) # For now, change in a bit
-        else:
-            # Errors here
-            print(form.errors)
-            return render(request, "training_plan/mark_as_complete.html", {
-                "form": form
-            })
-    else:
-        form = CompletedRunForm(request.user)
+def remove_strava_account(request):
+    if request.user.is_authenticated:
+        username = request.user.username
+        strava_funcs.unlink_strava(username)
 
-    return render(request, "training_plan/mark_as_complete.html", {
-        "form": form
-    })
+    return HttpResponseRedirect(reverse("settings"))
 
 @login_required
 def settings(request):
-    return render(request, "training_plan/settings.html")
+    strava_user = None
+
+    if request.user.is_authenticated:
+        username = request.user.username
+        try:
+            user = RunnerUser.objects.get(username=username)
+        except Exception as e:
+            print(e)
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            try:
+                strava_user = StravaUserProfile.objects.get(user=user)
+            except Exception as e:
+                print(e)
+
+            return render(request, "training_plan/settings.html", {
+                "strava_user": strava_user
+            })
+    else:
+        return HttpResponseRedirect(reverse("settings"))
 
 @login_required
 def scheduled_runs(request):
@@ -248,4 +251,29 @@ def get_todays_run(request):
             return JsonResponse({"error": str(e)}, status=500)
     else: 
         return HttpResponseRedirect(reverse("index")) 
+
+@login_required
+def get_strava_run(request):
+
+    if request.user.is_authenticated:
+
+        username = request.user.username
+        user = RunnerUser.objects.get(username=username)
+        marathon_plan = MarathonPlan.objects.get(user=user) 
+        strava_funcs.refresh_trava_token(username)
+        todays_run = ScheduledRun.objects.get(marathon_plan=marathon_plan, date=date.today())
+
+        try:
+            completed_run = CompletedRun.objects.get(scheduled_run=todays_run)
+        except Exception as e:
+            completed_run = None
+            print(e)
+        try:
+            if not completed_run:
+                strava_funcs.get_strava_run_func(user, todays_run)
+
+        except LookupError:
+            return HttpResponseRedirect(reverse("index")) 
+
+    return HttpResponseRedirect(reverse("index")) 
 

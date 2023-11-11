@@ -9,9 +9,13 @@
 {% block body %}
 <div class="page-content" style="overflow-y: hidden;">
     <div class="mx-5 mt-3">
-        <h5 class="display-5">Link Your Strava Account</h5>
+        <h5 class="display-5">Connect Your Strava Account</h5>
         <hr>
-        <a class="btn btn-primary btn-strava" href="{% url "social:begin" "strava" %}" role="button">Link your Strava account</a>
+        {% if strava_user %}
+            <a class="btn btn-primary btn-strava" href="{% url 'remove-strava-account' %}" role="button">Unlink your Strava account</a>
+        {% else %}
+            <a class="btn btn-primary btn-strava" href="{% url "social:begin" "strava" %}" role="button">Link your Strava account</a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
