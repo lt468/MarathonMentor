@@ -149,8 +149,6 @@ function updateButtonText(msg) {
 
 // Function to edit the stats and mark the run as complete
 function editStatsOnInfoBar(values) {
-    console.log('in edit stats on info bar', values)
-
     // Get the info bar
     const infoBar = document.getElementById('run-info-bar');
     let valueObj = {
@@ -233,10 +231,8 @@ function saveAndUpdateStats(payload) {
     button.parentNode.children[0].innerHTML = `Updating stats, please don't refresh or exit`;
 
     // Validating the inputs
-    console.log(payload)
     const validatedPayload = validateInputPayload(payload);
     if (!validatedPayload[0]) {
-        console.log(validatedPayload);
 
         // Toast failure
         // Dismiss existing toast
@@ -269,7 +265,6 @@ function saveAndUpdateStats(payload) {
         // Have to attach another event listener
         const buttonElementInDiv = document.getElementById('mark-complete');
 
-        console.log('above e1', payload)
         buttonElementInDiv.addEventListener('click', event => {
             event.preventDefault();
             let payloadArr = [];
@@ -320,7 +315,6 @@ function saveAndUpdateStats(payload) {
         const buttonElementInDiv = document.getElementById('mark-complete');
 
         buttonElementInDiv.addEventListener('click', event => {
-            console.log('e2', payload)
             event.preventDefault();
             const paceDuration = moment.duration(val.payload.avg_pace);
             const formattedPace = moment.utc().startOf('day').add(paceDuration).format('HH:mm:ss.SSS');
@@ -342,19 +336,26 @@ function validateInputPayload(payload) {
             case 'distance':
             case 'duration':
                 let trimmedInput = value.trim(); // Remove leading and trailing whitespaces
+                const regex = /^[0-9]+$/;
+                if (!(regex.test(trimmedInput))) {
+                    return [false, payload]; // Contains non-numbers
+                }
+
                 let numericValue = parseFloat(trimmedInput); // Parse the input as a float
+
+                let intValue = parseInt(numericValue);
 
                 // Check for fail conditions
                 if (
                     trimmedInput === '' ||            // Empty string
-                        isNaN(numericValue) ||            // Not a number (NaN)
-                        !Number.isInteger(numericValue)   // Not an integer
+                        isNaN(intValue) ||            // Not a number (NaN)
+                        !Number.isInteger(intValue)   // Not an integer
                 ) {
                     return [false, payload];
                 }
 
                 // Update value if data is valid
-                payload[key] = Math.floor(numericValue); // Use Math.floor to remove the decimal part
+                payload[key] = Math.floor(intValue); // Use Math.floor to remove the decimal part
                 break;
 
             case 'pace':
@@ -514,6 +515,8 @@ function changeTextareaToSpan(attribute) {
 
     if (cleanedInner[0]) {
         span.innerHTML = cleanedInner[1][attribute];
+    } else {
+        span.innerHTML = textarea.value;
     }
 
     // Replace the span with the textarea in the DOM
