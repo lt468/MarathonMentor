@@ -57,8 +57,13 @@ def index(request):
             marathon_plan = MarathonPlan.objects.get(user=user) # Get the actual plan from the query set
             if marathon_plan:
                 # Calculate the days until the marathon
-                today = date.today()# + timedelta(days = 334)
+                today = date.today() #+ timedelta(days = 344)
                 days_to_go = (marathon_plan.end_date - today).days
+
+                # Send user to create a new plan
+                if days_to_go <= -1:
+                    pass
+                    # TODO - return render a template to the user to get them to create a new plan
 
                 try:
                     todays_run = ScheduledRun.objects.get(marathon_plan=marathon_plan, date=today)
@@ -215,7 +220,7 @@ def update_completed_run(request):
 def get_todays_run(request):
 
     if request.user.is_authenticated:
-        today = date.today()# + timedelta(days = 334)
+        today = date.today() #+ timedelta(days = 339)
 
         username = request.user.username
         user = RunnerUser.objects.get(username=username)

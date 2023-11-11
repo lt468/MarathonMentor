@@ -65,6 +65,19 @@ function displayRunCompletedMessage(){
     return div;
 }
 
+function displayRunFailureMessage(){
+
+    let message = 'Error updating stats - check your input!';
+
+    let div = document.createElement('div');
+    div.id = 'completed-message';
+    div.classList = 'alert alert-danger text-center';
+    div.role = 'alert';
+    div.innerHTML = `<h5 class="alert-heading">${message}</h5>`;
+
+    return div;
+}
+
 // Function to change the background of the divs for each of the run
 function changeBackground(runBox, dictId) {
     runBox.classList.remove('bg-white');
@@ -130,14 +143,13 @@ function updateButtonText(msg) {
 
     label.innerText = labelText;
     button.innerHTML = msg;
-
 }
 
-// TODO - Need to to check that the inputted text is valid (integers or formatted time!)
 // TODO - implement the strava linking feature
 
 // Function to edit the stats and mark the run as complete
 function editStatsOnInfoBar(values) {
+    console.log('in edit stats on info bar', values)
 
     // Get the info bar
     const infoBar = document.getElementById('run-info-bar');
@@ -183,7 +195,8 @@ function editStatsOnInfoBar(values) {
 
     // Saving new values to the database
     if (update) {
-        saveAndUpdateStats(valueObj); // Saves the stats and toggles the button front end
+        saveAndUpdateStats(valueObj);
+
     } else {
         msg = 'Save';
         updateButtonText(msg); // Update the button text 
@@ -219,8 +232,59 @@ function saveAndUpdateStats(payload) {
     // Changing the label of the button
     button.parentNode.children[0].innerHTML = `Updating stats, please don't refresh or exit`;
 
+    // Validating the inputs
+    console.log(payload)
+    const validatedPayload = validateInputPayload(payload);
+    if (!validatedPayload[0]) {
+        console.log(validatedPayload);
+
+        // Toast failure
+        // Dismiss existing toast
+        const existingToast = document.getElementById('liveToast');
+        const existingToastInstance = bootstrap.Toast.getInstance(existingToast);
+        if (existingToastInstance) {
+            existingToastInstance.hide();
+        }
+
+        // Create and show new toast
+        const pageContent = document.getElementsByClassName('page-content');
+        pageContent[0].appendChild(createFailureToast());
+        const newToast = document.getElementById('liveFailureToast');
+        const newToastInstance = new bootstrap.Toast(newToast);
+        newToastInstance.show();
+
+        // Add the pop up failure message
+        const rootMarkAsCompletedDiv = document.getElementById('root-mark-complete');
+        rootMarkAsCompletedDiv.classList = 'd-flex justify-content-between mx-5';
+
+        rootMarkAsCompletedDiv.children[0].remove(); // Remove previous one
+
+        const runFailureMessage = displayRunFailureMessage();
+        rootMarkAsCompletedDiv.appendChild(runFailureMessage);
+
+        // Adding button again
+        const buttonWithLabel = displayButton(true);
+        rootMarkAsCompletedDiv.appendChild(buttonWithLabel);
+        
+        // Have to attach another event listener
+        const buttonElementInDiv = document.getElementById('mark-complete');
+
+        console.log('above e1', payload)
+        buttonElementInDiv.addEventListener('click', event => {
+            event.preventDefault();
+            let payloadArr = [];
+            for (const [key, value] of Object.entries(payload)) {
+                payloadArr.push(value);
+            }
+            editStatsOnInfoBar([payloadArr[0], payloadArr[1], payloadArr[2], payloadArr[3], payloadArr[4]]);
+        });
+        return;
+    } 
+
+    let cleanedPayload = validatedPayload[1]; // If payload is valid;
+
     // Make the post request
-    const prom = updateStats(payload);
+    const prom = updateStats(cleanedPayload);
 
     prom.then((val) => {
 
@@ -256,6 +320,7 @@ function saveAndUpdateStats(payload) {
         const buttonElementInDiv = document.getElementById('mark-complete');
 
         buttonElementInDiv.addEventListener('click', event => {
+            console.log('e2', payload)
             event.preventDefault();
             const paceDuration = moment.duration(val.payload.avg_pace);
             const formattedPace = moment.utc().startOf('day').add(paceDuration).format('HH:mm:ss.SSS');
@@ -268,6 +333,65 @@ function saveAndUpdateStats(payload) {
         console.error('Update failed: ', error);
         // Additional code to handle the error
     });
+}
+
+function validateInputPayload(payload) {
+
+    for (const [key, value] of Object.entries(payload)) {
+        switch (key) {
+            case 'distance':
+            case 'duration':
+                let trimmedInput = value.trim(); // Remove leading and trailing whitespaces
+                let numericValue = parseFloat(trimmedInput); // Parse the input as a float
+
+                // Check for fail conditions
+                if (
+                    trimmedInput === '' ||            // Empty string
+                        isNaN(numericValue) ||            // Not a number (NaN)
+                        !Number.isInteger(numericValue)   // Not an integer
+                ) {
+                    return [false, payload];
+                }
+
+                // Update value if data is valid
+                payload[key] = Math.floor(numericValue); // Use Math.floor to remove the decimal part
+                break;
+
+            case 'pace':
+                let paceValue = value.trim(); // Remove leading and trailing whitespaces
+                let paceRegex = /^(\d+):(\d+)$/; // Regular expression for mm:ss format
+
+                // Check for fail conditions
+                if (
+                    paceValue === '' ||                    // Empty string
+                        !paceRegex.test(paceValue) ||          // Not matching mm:ss format
+                        paceValue.includes('-') ||             // Contains a nonnumeric value or a hyphen
+                        paceValue.includes(' ') ||             // Contains whitespace
+                        paceValue.includes(':') === false      // Does not contain ':'
+                ) {
+                    return [false, payload];
+                }
+
+                // Parse minutes and seconds
+                let match = paceValue.match(paceRegex);
+                let minutes = parseInt(match[1], 10);
+                let seconds = parseInt(match[2], 10);
+
+                // Check for invalid integer values
+                if (isNaN(minutes) || isNaN(seconds)) {
+                    return [false, payload];
+                }
+
+                // Update value if data is valid
+                payload[key] = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                break;
+
+            default:
+                payload[key] = value;
+                break;
+        }
+    }
+    return [true, payload];
 }
 
 // Function to display the stats of the run within the today's run div
@@ -382,8 +506,15 @@ function changeTextareaToSpan(attribute) {
     span.id = `${attribute}--edit`; // Same ID
     span.classList = ''; // Remove all the classes
 
-    // Copy the content from the span to the textarea
-    span.innerHTML = textarea.value;
+    // Copy the content from the textarea to the span
+    let innerHTMLObj = {
+        [attribute]: textarea.value
+    }
+    let cleanedInner = validateInputPayload(innerHTMLObj);
+
+    if (cleanedInner[0]) {
+        span.innerHTML = cleanedInner[1][attribute];
+    }
 
     // Replace the span with the textarea in the DOM
     textarea.parentNode.replaceChild(span, textarea);
@@ -547,6 +678,27 @@ function createToast(){
             </div>
             <div class="toast-body">
                 Run Statistics Saved!
+            </div>
+        </div>
+    `;
+
+    return toastDiv;
+}
+
+// Adding failure toast
+function createFailureToast(){
+    const toastDiv = document.createElement('div');
+    toastDiv.classList = 'toast-container position-fixed bottom-0 end-0 p-3';
+    toastDiv.innerHTML = `
+        <div id="liveFailureToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <img src="${logoImagePath}" class="rounded me-2" width="24" height="24" alt="Marathon Mentor Dark Logo">
+                <strong class="me-auto">Marathon Mentor</strong>
+                <small class="text-body-secondary">now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                Run Statistics Failed to Save - Error In Input
             </div>
         </div>
     `;
