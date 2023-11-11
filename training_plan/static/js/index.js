@@ -336,7 +336,7 @@ function validateInputPayload(payload) {
             case 'distance':
             case 'duration':
                 let trimmedInput = value.trim(); // Remove leading and trailing whitespaces
-                const regex = /^[0-9]+$/;
+                const regex = /^[0-9]+(\.[0-9]+)?$/;
                 if (!(regex.test(trimmedInput))) {
                     return [false, payload]; // Contains non-numbers
                 }
@@ -348,8 +348,7 @@ function validateInputPayload(payload) {
                 // Check for fail conditions
                 if (
                     trimmedInput === '' ||            // Empty string
-                        isNaN(intValue) ||            // Not a number (NaN)
-                        !Number.isInteger(intValue)   // Not an integer
+                    isNaN(intValue)             // Not a number (NaN)
                 ) {
                     return [false, payload];
                 }
@@ -516,6 +515,7 @@ function changeTextareaToSpan(attribute) {
     if (cleanedInner[0]) {
         span.innerHTML = cleanedInner[1][attribute];
     } else {
+        span.classList = 'text-danger';
         span.innerHTML = textarea.value;
     }
 
