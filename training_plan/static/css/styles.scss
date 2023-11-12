@@ -155,15 +155,33 @@ body {
     border-color: var(--black);
 }
 
+// Function to convert hex to hsl
+@function hexToHsl($hex) {
+  @return hsl(
+    hue($hex),
+    saturation($hex),
+    lightness($hex)
+  );
+}
+
+// Strava orange
+$strava-orange: #fc5200;
+$strava-orange-hsl: hexToHsl($strava-orange);
+
 .btn-strava {
   --bs-btn-color: var(--bs-white);
   --bs-btn-bg: var(--strava-orange); 
   --bs-btn-border-color: var(--strava-orange); 
   --bs-btn-hover-color: var(--strava-orange);
-  --bs-btn-hover-bg: lighten(var(--strava-orange), 10%); /* Lighten the color by 10% */
-  --bs-btn-hover-border-color: lighten(var(--strava-orange), 10%);
+
+  // Adjusted for hover state
+  --bs-btn-hover-bg: lighten($strava-orange-hsl, 10%);
+  --bs-btn-hover-border-color: lighten($strava-orange-hsl, 10%);
+
   --bs-btn-focus-shadow-rgb: var(--strava-orange);
   --bs-btn-active-color: var(--bs-btn-hover-color);
-  --bs-btn-active-bg: lighten(var(--strava-orange), 20%); /* Lighten the color by 20% */
-  --bs-btn-active-border-color: lighten(var(--strava-orange), 20%);
+
+  // Adjusted for active state
+  --bs-btn-active-bg: lighten($strava-orange-hsl, 20%);
+  --bs-btn-active-border-color: lighten($strava-orange-hsl, 20%);
 }

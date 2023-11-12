@@ -3,7 +3,6 @@ from django.core import serializers
 from datetime import date, datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
-from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -48,6 +47,10 @@ def settings(request):
 @login_required
 def scheduled_runs(request):
     return render(request, "training_plan/scheduled_runs.html")
+
+@login_required
+def completed_runs(request):
+    return render(request, "training_plan/completed_runs.html")
 
 def index(request):
     marathon_plan = days_to_go = todays_run = next_runs = today = None
@@ -174,6 +177,41 @@ def get_scheduled_runs(request):
             all_scheduled_runs = None
 
     return JsonResponse({"all_scheduled_runs": all_scheduled_runs})
+
+@login_required
+
+def get_completed_runs(request):
+    username = request.user.username
+
+    user = RunnerUser.objects.get(username=username)
+    marathon_plan = MarathonPlan.objects.get(user=user) 
+    all_completed_runs = None
+
+    if marathon_plan:
+        try:
+            # Get all completed runs for the logged-in user
+            completed_runs = CompletedRun.objects.filter(scheduled_run__marathon_plan=marathon_plan, date__lte=date.today()).order_by("-date")
+
+            # Create a list of dictionaries with required information
+            all_completed_runs = [
+                {
+                    "completed_run": {
+                        "date": run.date,
+                        "distance": run.distance,
+                        "duration": run.duration,
+                        "avg_pace": run.avg_pace
+                    },
+                    "scheduled_run": {
+                        "dict_id": run.scheduled_run.dict_id,
+                        "run": run.scheduled_run.run
+                    }
+                }
+                for run in completed_runs
+            ]
+        except CompletedRun.DoesNotExist:
+            all_completed_runs = None
+
+    return JsonResponse({"all_completed_runs": all_completed_runs})
 
 @login_required
 @require_POST
