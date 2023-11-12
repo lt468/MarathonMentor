@@ -67,13 +67,18 @@ def index(request):
                 if days_to_go <= -1:
                     pass
                     # TODO - return render a template to the user to get them to create a new plan
-
                 try:
                     todays_run = ScheduledRun.objects.get(marathon_plan=marathon_plan, date=today)
+
+                    # Get the strava run and profile if there is one and update the run
+                    try:
+                        get_strava_run(username, user, marathon_plan)
+                    except LookupError:
+                        pass
+
                 except ScheduledRun.DoesNotExist:
                     # If there is no run scheduled then it means that the plan hasn't started yet
                     todays_run = None
-
                 try:
                     next_runs = ScheduledRun.objects.filter(marathon_plan=marathon_plan, date__gte=today).order_by('date')[1:4]
                 except IndexError:
@@ -252,28 +257,24 @@ def get_todays_run(request):
     else: 
         return HttpResponseRedirect(reverse("index")) 
 
-@login_required
-def get_strava_run(request):
-
-    if request.user.is_authenticated:
-
-        username = request.user.username
-        user = RunnerUser.objects.get(username=username)
-        marathon_plan = MarathonPlan.objects.get(user=user) 
+def get_strava_run(username, user, marathon_plan):
+    try:
         strava_funcs.refresh_trava_token(username)
-        todays_run = ScheduledRun.objects.get(marathon_plan=marathon_plan, date=date.today())
+    except LookupError:
+        raise LookupError('No Strava User found')
 
-        try:
-            completed_run = CompletedRun.objects.get(scheduled_run=todays_run)
-        except Exception as e:
-            completed_run = None
-            print(e)
-        try:
-            if not completed_run:
-                strava_funcs.get_strava_run_func(user, todays_run)
+    todays_run = ScheduledRun.objects.get(marathon_plan=marathon_plan, date=date.today())
 
-        except LookupError:
-            return HttpResponseRedirect(reverse("index")) 
+    try:
+        completed_run = CompletedRun.objects.get(scheduled_run=todays_run)
+    except Exception as e:
+        completed_run = None
+        print(e)
+    try:
+        if not completed_run:
+            strava_funcs.get_strava_run_func(user, todays_run)
+    except LookupError:
+        return HttpResponseRedirect(reverse("index")) 
 
     return HttpResponseRedirect(reverse("index")) 
 

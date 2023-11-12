@@ -83,7 +83,7 @@ def refresh_trava_token(username):
         user = RunnerUser.objects.get(username=username)
         strava_profile = StravaUserProfile.objects.get(user=user)
     except Exception as e:
-        print(f"No user or Strava account found: {e}")
+        raise LookupError("Strava profile not found", e)
     else:
 
         # Your Strava API credentials
