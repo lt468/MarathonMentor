@@ -1,0 +1,40 @@
+List 1: Python Files for Docstrings
+
+    manage.py
+    MarathonMentor/asgi.py
+    MarathonMentor/__init__.py
+    MarathonMentor/settings.py
+    MarathonMentor/urls.py
+    MarathonMentor/wsgi.py
+    training_plan/admin.py
+    training_plan/apps.py
+    training_plan/forms.py
+    training_plan/__init__.py
+    training_plan/models.py
+    training_plan/templatetags/custom_filters.py
+    training_plan/tests.py
+    training_plan/urls.py
+    training_plan/utils/p_a_constants.py
+    training_plan/utils/plan_algo.py
+    training_plan/utils/strava_funcs.py
+    training_plan/views.py
+
+List 2: Non-Python Files for Additional Documentation or Organization
+
+    training_plan/static/css/styles.scss
+    training_plan/static/js/completedRuns.js
+    training_plan/static/js/index.js
+    training_plan/static/js/scheduledRuns.js
+    training_plan/templates/registration/login.html
+    training_plan/templates/registration/nonavbar.html
+    training_plan/templates/registration/password_reset_complete.html
+    training_plan/templates/registration/password_reset_confirm.html
+    training_plan/templates/registration/password_reset_done.html
+    training_plan/templates/registration/password_reset_form.html
+    training_plan/templates/registration/register.html
+    training_plan/templates/training_plan/completed_runs.html
+    training_plan/templates/training_plan/index.html
+    training_plan/templates/training_plan/navbar_layout.html
+    training_plan/templates/training_plan/scheduled_runs.html
+    training_plan/templates/training_plan/settings.html
+    training_plan/templatetags/ (directory)

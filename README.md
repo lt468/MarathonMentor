@@ -10,39 +10,53 @@ Explain how your project is distinct from others in the course, especially from 
 
 ## Project Files
 ### Django App Files
-- **`LICENSE`**: License file for your project.
-- **`manage.py`**: Django management script.
 - **`MarathonMentor/`**: Django project folder.
-  - **`asgi.py`**: ASGI configuration.
-  - **`__init__.py`**: Initialization file.
   - **`settings.py`**: Django settings.
   - **`urls.py`**: URL patterns.
-  - **`wsgi.py`**: WSGI configuration.
 
 ### Training Plan App Files
 - **`training_plan/`**: Django app folder.
-  - ... (List other important files and folders)
-
-### Static Files
-- **`static/`**: Folder for static files (CSS, JS, images).
-  - ... (List important static files and subdirectories)
-
-### Templates
-- **`templates/`**: Folder for HTML templates.
-  - ... (List important template files and subdirectories)
-
-### Utils Files
-- **`utils/`**: Folder for utility files.
-  - **`p_a_constants.py`**: Constants used in the training plan algorithm.
-  - **`plan_algo.py`**: Main training plan algorithm.
-  - **`RUNS.md`**: Information about different run formats and types.
-  - **`strava_funcs.py`**: Functions related to Strava integration.
-
-### Other Important Files
-- **`README.md`**: This file.
+  - **`admin.py`**: Django admin configuration.
+  - **`apps.py`**: App configuration.
+  - **`forms.py`**: Forms used in the app.
+  - **`models.py`**: Django models for the app.
+  - **`static/`**: Folder for static files (CSS, JS, images).
+    - **`css/`**: Folder for CSS files.
+      - **`styles.scss`**: Main SCSS file.
+    - **`js/`**: Folder for JavaScript files.
+      - **`completedRuns.js`**: JavaScript file for completed runs.
+      - **`index.js`**: Main JavaScript file.
+      - **`scheduledRuns.js`**: JavaScript file for scheduled runs.
+  - **`templates/`**: Folder for HTML templates.
+    - **`registration/`**: Folder for registration-related templates.
+      - **`login.html`**: Login template.
+      - **`nonavbar.html`**: Template without a navigation bar.
+      - **`password_reset_complete.html`**: Password reset completion template.
+      - **`password_reset_confirm.html`**: Password reset confirmation template.
+      - **`password_reset_done.html`**: Password reset done template.
+      - **`password_reset_form.html`**: Password reset form template.
+      - **`register.html`**: Registration template.
+    - **`training_plan/`**: Folder for training plan-related templates.
+      - **`completed_runs.html`**: Template for completed runs.
+      - **`index.html`**: Main index template.
+      - **`navbar_layout.html`**: Template with a navigation bar.
+      - **`scheduled_runs.html`**: Template for scheduled runs.
+      - **`settings.html`**: Settings template.
+  - **`templatetags/`**: Folder for template tags.
+    - **`custom_filters.py`**: Custom template filters.
+  - **`tests.py`**: Test cases for the app.
+  - **`urls.py`**: URL patterns for the app.
+  - **`utils/`**: Folder for utility files.
+    - **`p_a_constants.py`**: Constants used in the training plan algorithm.
+    - **`plan_algo.py`**: Main training plan algorithm.
+    - **`RUNS.md`**: Information about different run formats and types.
+    - **`strava_funcs.py`**: Functions related to Strava integration.
+  - **`views.py`**: Views for the app.
 
 ## How to Run
 Explain the steps to run your application. Include any prerequisites and commands.
+
+### Requirements
 
 ### Note: You will need to run
 ```
