@@ -291,30 +291,35 @@ def get_todays_run(request):
         user = RunnerUser.objects.get(username=username)
         marathon_plan = MarathonPlan.objects.get(user=user)
 
-        scheduled_run = ScheduledRun.objects.get(
-            marathon_plan=marathon_plan, date=today)
-
         try:
-            todays_run = CompletedRun.objects.get(
-                date=today, scheduled_run=scheduled_run)
-            completed = True
-        except CompletedRun.DoesNotExist:
-            todays_run = scheduled_run
-            completed = False
+            scheduled_run = ScheduledRun.objects.get(
+                marathon_plan=marathon_plan, date=today)
+        except ScheduledRun.DoesNotExist:
+            scheduled_run = None
+            return JsonResponse(scheduled_run, safe=False)
 
-        try:
-            serialized_data = serializers.serialize("python", [todays_run])
+        else:
+            try:
+                todays_run = CompletedRun.objects.get(
+                    date=today, scheduled_run=scheduled_run)
+                completed = True
+            except CompletedRun.DoesNotExist:
+                todays_run = scheduled_run
+                completed = False
 
-            response_data = serialized_data[0]["fields"]
-            # Add 'run_id' to the response_data dictionary
-            response_data['run_id'] = serialized_data[0]['pk']
-            # Add completed to easily identify if working with the scheduled or completed run
-            response_data['completed'] = completed
+            try:
+                serialized_data = serializers.serialize("python", [todays_run])
 
-            return JsonResponse(response_data, safe=False)
+                response_data = serialized_data[0]["fields"]
+                # Add 'run_id' to the response_data dictionary
+                response_data['run_id'] = serialized_data[0]['pk']
+                # Add completed to easily identify if working with the scheduled or completed run
+                response_data['completed'] = completed
 
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+                return JsonResponse(response_data, safe=False)
+
+            except Exception as e:
+                return JsonResponse({"error": str(e)}, status=500)
     else:
         return HttpResponseRedirect(reverse("index"))
 

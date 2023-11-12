@@ -27,7 +27,7 @@
         <!-- Today's run -->
         <div id="todays-run" class="mx-5 my-3 p-2 containter bg-white border border-secondary rounded flex-row">
             <div class="d-flex justify-content-between">
-                <span><h6 class="display-6"> Today's Workout - {{ todays_run.run }} </h6></span>
+                <span><h6 id="todays-run-title" class="display-6"> Today's Workout - {{ todays_run.run }} </h6></span>
                 <span><h6 class="display-6"><small class="text-body-secondary">{{ todays_run.date|date:"jS F" }}</small></h6></span>
             </div>
             <div class="m-1">
@@ -102,7 +102,7 @@
 <!-- Load js file for this template -->
 <script>
 
-    let runDictId = {{ todays_run.dict_id|escapejs }};
+    let runDictId = {% if todays_run %}{{ todays_run.dict_id|escapejs }}{% else %}null{% endif %};
     let upCommingRunsIds = [{{ next_runs.0.id|escapejs }}, {{ next_runs.1.id|escapejs }}, {{ next_runs.2.id|escapejs }}];
     let upCommingRunsDictIds = [{{ next_runs.0.dict_id|escapejs }}, {{ next_runs.1.dict_id|escapejs }}, {{ next_runs.2.dict_id|escapejs }}];
     const logoImagePath = "{% static 'images/logo_dark.png' %}";

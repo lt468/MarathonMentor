@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     valuesPromise.then(values => {
 
         // Render button and label to the DOM (not if a rest day)
-        if (values.distance || values.sets) {
+        if (values && (values.distance || values.sets)) { // If the plan hasn't started yet
             const rootMarkAsCompletedDiv = document.getElementById('root-mark-complete');
 
             // Render info bar to the dom for the first time when the page loads
@@ -41,7 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Get the Main run and change its background colour
     const mainRunBox = document.getElementById('todays-run');
-    changeBackground(mainRunBox, runDictId); // runDictId imported from template
+    if (runDictId) {
+        changeBackground(mainRunBox, runDictId); // runDictId imported from template
+    } else {
+        changeTitle(); // runDictId imported from template
+    }
 
     // Get the upcomming runs and change their background
     for (let i = 0; i < upCommingRunsIds.length; i++) {
@@ -82,6 +86,11 @@ function displayRunFailureMessage(){
 function changeBackground(runBox, dictId) {
     runBox.classList.remove('bg-white');
     runBox.classList.add(`bg-grad-${dictId}`);
+}
+
+function changeTitle() {
+    const title = document.getElementById('todays-run-title');
+    title.innerHTML = `Plan Starts On Monday!`;
 }
 
 // Mark as complete button and label for the index page
