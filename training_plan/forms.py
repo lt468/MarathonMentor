@@ -40,7 +40,8 @@ class MergedSignUpForm(UserCreationForm):
                 css_class="form-row m-1"
             ),
             Row(
-                Column(Submit('submit', 'Register', css_class="btn btn-dark"), css_class="form-group"),
+                Column(Submit('submit', 'Register',
+                       css_class="btn btn-dark"), css_class="form-group"),
                 css_class="for-rowm m-1",
             )
         )
@@ -98,6 +99,7 @@ class MergedSignUpForm(UserCreationForm):
             raise ValidationError(f"Please enter a valid date of birth")
 
         return birth_date
+
 
 """Leave if you want two sign-up pages"""
 # For initial sign-up

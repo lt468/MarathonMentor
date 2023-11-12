@@ -1,10 +1,11 @@
+from decouple import config
 import requests
 from datetime import datetime, timedelta, date
 from django.utils import timezone
 import urllib3
 from ..models import StravaUserProfile, RunnerUser, CompletedRun
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-from decouple import config
+
 
 def save_profile(user, response, *args, **kwargs):
 
@@ -15,14 +16,15 @@ def save_profile(user, response, *args, **kwargs):
 
     # Linking the Strava account to the runneruser
     strava_profile = StravaUserProfile(
-        user = user,
-        client_id = client_id,
-        strava_access_token = access_token,
-        strava_refresh_token = refresh_token,
-        expires_at = datetime.fromtimestamp(expires_at)
+        user=user,
+        client_id=client_id,
+        strava_access_token=access_token,
+        strava_refresh_token=refresh_token,
+        expires_at=datetime.fromtimestamp(expires_at)
     )
 
     strava_profile.save()
+
 
 def get_strava_run_func(user, todays_run):
 
@@ -38,25 +40,31 @@ def get_strava_run_func(user, todays_run):
 
         # Get the latest n activities
         n = 5
-        header = {'Authorization': 'Bearer ' + access_token} # Need to use the access token for the user you want to get the runs on 
+        # Need to use the access token for the user you want to get the runs on
+        header = {'Authorization': 'Bearer ' + access_token}
         param = {'per_page': n, 'page': 1}
-        my_dataset = requests.get(activites_url, headers=header, params=param).json()
+        my_dataset = requests.get(
+            activites_url, headers=header, params=param).json()
 
         # Get the latest run activity of today's run
-        for activity in my_dataset: 
+        for activity in my_dataset:
             date_of_run = activity["start_date"].split("T")[0]
-            date_of_run_formatted = (datetime.strptime(date_of_run,'%Y-%m-%d')).date()
+            date_of_run_formatted = (datetime.strptime(
+                date_of_run, '%Y-%m-%d')).date()
 
             if (activity["type"] == "Run") and (date_of_run_formatted == date.today()):
 
                 distance = int(activity["distance"] // 1000)
                 duration = int(activity["moving_time"] // 60)
                 # Calculate pace in seconds per kilometer
-                pace_seconds_per_m = activity["moving_time"] / activity["distance"]
+                pace_seconds_per_m = activity["moving_time"] / \
+                    activity["distance"]
                 # Convert pace back to minutes and seconds
-                pace_minutes, pace_seconds = divmod(pace_seconds_per_m * 1000, 60)
+                pace_minutes, pace_seconds = divmod(
+                    pace_seconds_per_m * 1000, 60)
                 # Format the result as mm:ss
-                avg_pace = timedelta(minutes=pace_minutes, seconds=pace_seconds)
+                avg_pace = timedelta(minutes=pace_minutes,
+                                     seconds=pace_seconds)
 
                 completed_run = CompletedRun(
                     scheduled_run=todays_run,
@@ -68,6 +76,7 @@ def get_strava_run_func(user, todays_run):
                 completed_run.save()
                 break
 
+
 def unlink_strava(username):
     try:
         user = RunnerUser.objects.get(username=username)
@@ -77,6 +86,7 @@ def unlink_strava(username):
 
     except Exception as e:
         print(f"No user account found: {e}")
+
 
 def refresh_trava_token(username):
     try:
@@ -117,8 +127,8 @@ def refresh_trava_token(username):
                 strava_profile.save()
             else:
                 # Handle the error, e.g., log it or raise an exception
-                print(f"Token refresh failed with status code {response.status_code}")
+                print(
+                    f"Token refresh failed with status code {response.status_code}")
         else:
             # Access token is still valid, no need to refresh
             print("Strava access token still valid")
-            
