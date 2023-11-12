@@ -131,3 +131,6 @@ training_plan/static/css/styles.css
 
 # Other dot files
 .autopep8pyfiles.zsh
+
+# Docs (for now)
+./docs/

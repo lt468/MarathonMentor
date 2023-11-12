@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>training_plan.forms &mdash; MarathonMentor 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            MarathonMentor
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">MarathonMentor</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">training_plan.forms</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for training_plan.forms</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">forms</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.forms</span> <span class="kn">import</span> <span class="n">UserCreationForm</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">crispy_forms.layout</span> <span class="kn">import</span> <span class="n">Layout</span><span class="p">,</span> <span class="n">Submit</span><span class="p">,</span> <span class="n">Row</span><span class="p">,</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">crispy_forms.helper</span> <span class="kn">import</span> <span class="n">FormHelper</span>
+
+<span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">RunnerUser</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">p_a_constants</span> <span class="k">as</span> <span class="n">c</span>
+
+
+<div class="viewcode-block" id="MergedSignUpForm">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.forms.MergedSignUpForm">[docs]</a>
+<span class="k">class</span> <span class="nc">MergedSignUpForm</span><span class="p">(</span><span class="n">UserCreationForm</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MergedSignUpForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helper</span> <span class="o">=</span> <span class="n">FormHelper</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helper</span><span class="o">.</span><span class="n">form_id</span> <span class="o">=</span> <span class="s2">&quot;registration_form&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helper</span><span class="o">.</span><span class="n">form_class</span> <span class="o">=</span> <span class="s2">&quot;registration_form&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helper</span><span class="o">.</span><span class="n">form_method</span> <span class="o">=</span> <span class="s2">&quot;post&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helper</span><span class="o">.</span><span class="n">form_action</span> <span class="o">=</span> <span class="s2">&quot;register&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helper</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="p">(</span>
+            <span class="n">Row</span><span class="p">(</span>
+                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;first_name&quot;</span><span class="p">,</span> <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-group col-md-6&quot;</span><span class="p">),</span>
+                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;last_name&quot;</span><span class="p">,</span> <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-group col-md-6&quot;</span><span class="p">),</span>
+                <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-row m-1&quot;</span>
+            <span class="p">),</span>
+            <span class="n">Row</span><span class="p">(</span>
+                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-group col-md-6&quot;</span><span class="p">),</span>
+                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">,</span> <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-group col-md-6&quot;</span><span class="p">),</span>
+                <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-row m-1&quot;</span>
+            <span class="p">),</span>
+            <span class="n">Row</span><span class="p">(</span>
+                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;password1&quot;</span><span class="p">,</span> <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-group col-md-6&quot;</span><span class="p">),</span>
+                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;password2&quot;</span><span class="p">,</span> <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-group col-md-6&quot;</span><span class="p">),</span>
+                <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-row m-1&quot;</span>
+            <span class="p">),</span>
+            <span class="n">Row</span><span class="p">(</span>
+                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;dob&quot;</span><span class="p">,</span> <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-group col-md-4&quot;</span><span class="p">),</span>
+                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;fitness_level&quot;</span><span class="p">,</span> <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-group col-md-4&quot;</span><span class="p">),</span>
+                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;date_of_marathon&quot;</span><span class="p">,</span> <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-group col-md-4&quot;</span><span class="p">),</span>
+                <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-row m-1&quot;</span>
+            <span class="p">),</span>
+            <span class="n">Row</span><span class="p">(</span>
+                <span class="n">Column</span><span class="p">(</span><span class="n">Submit</span><span class="p">(</span><span class="s1">&#39;submit&#39;</span><span class="p">,</span> <span class="s1">&#39;Register&#39;</span><span class="p">,</span>
+                       <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;btn btn-dark&quot;</span><span class="p">),</span> <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;form-group&quot;</span><span class="p">),</span>
+                <span class="n">css_class</span><span class="o">=</span><span class="s2">&quot;for-rowm m-1&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">email</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">EmailField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MergedSignUpForm.Meta">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.forms.MergedSignUpForm.Meta">[docs]</a>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">RunnerUser</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;first_name&quot;</span><span class="p">,</span> <span class="s2">&quot;last_name&quot;</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="s2">&quot;email&quot;</span><span class="p">,</span> <span class="s2">&quot;password1&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;password2&quot;</span><span class="p">,</span> <span class="s2">&quot;dob&quot;</span><span class="p">,</span> <span class="s2">&quot;fitness_level&quot;</span><span class="p">,</span> <span class="s2">&quot;date_of_marathon&quot;</span><span class="p">]</span>
+
+        <span class="n">widgets</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;dob&quot;</span><span class="p">:</span> <span class="n">forms</span><span class="o">.</span><span class="n">DateInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;date&quot;</span><span class="p">}),</span>
+            <span class="s2">&quot;fitness_level&quot;</span><span class="p">:</span> <span class="n">forms</span><span class="o">.</span><span class="n">Select</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">RunnerUser</span><span class="o">.</span><span class="n">FITNESS_LEVEL_CHOICES</span><span class="p">),</span>
+            <span class="s2">&quot;date_of_marathon&quot;</span><span class="p">:</span> <span class="n">forms</span><span class="o">.</span><span class="n">DateInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;date&quot;</span><span class="p">}),</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="MergedSignUpForm.clean_date_of_marathon">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.forms.MergedSignUpForm.clean_date_of_marathon">[docs]</a>
+    <span class="k">def</span> <span class="nf">clean_date_of_marathon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">date_of_marathon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;date_of_marathon&quot;</span><span class="p">)</span>
+        <span class="n">today</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">date_of_marathon</span> <span class="ow">and</span> <span class="n">date_of_marathon</span> <span class="o">&lt;=</span> <span class="n">today</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                <span class="s2">&quot;The date of the marathon must be in the future.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">date_of_marathon</span> <span class="ow">and</span> <span class="n">date_of_marathon</span> <span class="o">&lt;</span> <span class="n">today</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">MIN_DAYS</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The date of the marathon must be at least </span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">MIN_DAYS</span><span class="si">}</span><span class="s2"> days from today.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">date_of_marathon</span> <span class="ow">and</span> <span class="n">date_of_marathon</span> <span class="o">&gt;</span> <span class="n">today</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">MAX_DAYS</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The date of the marathon must be less than </span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">MAX_DAYS</span><span class="si">}</span><span class="s2"> days from today.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">date_of_marathon</span></div>
+
+
+<div class="viewcode-block" id="MergedSignUpForm.clean_dob">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.forms.MergedSignUpForm.clean_dob">[docs]</a>
+    <span class="k">def</span> <span class="nf">clean_dob</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">birth_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dob&quot;</span><span class="p">)</span>
+        <span class="n">today</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">birth_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Date of birth required&quot;</span><span class="p">)</span>
+
+        <span class="n">DATE_LIMIT</span> <span class="o">=</span> <span class="n">today</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">365</span><span class="o">*</span><span class="mi">120</span><span class="p">)</span>
+        <span class="n">age</span> <span class="o">=</span> <span class="n">today</span><span class="o">.</span><span class="n">year</span> <span class="o">-</span> <span class="n">birth_date</span><span class="o">.</span><span class="n">year</span> <span class="o">-</span> \
+            <span class="p">((</span><span class="n">today</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">today</span><span class="o">.</span><span class="n">day</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">birth_date</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">birth_date</span><span class="o">.</span><span class="n">day</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">age</span> <span class="o">&lt;</span> <span class="mi">18</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                <span class="s2">&quot;You must be at least 18 years old to register.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">birth_date</span> <span class="o">&gt;=</span> <span class="n">today</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Your date of birth cannot be in the future&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">birth_date</span> <span class="o">&lt;</span> <span class="n">DATE_LIMIT</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Please enter a valid date of birth&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">birth_date</span></div>
+</div>
+
+
+
+<span class="sd">&quot;&quot;&quot;Leave if you want two sign-up pages&quot;&quot;&quot;</span>
+<span class="c1"># For initial sign-up</span>
+<span class="c1"># class SignUpForm(UserCreationForm):</span>
+<span class="c1">#    email = forms.EmailField()</span>
+<span class="c1">#</span>
+<span class="c1">#    class Meta:</span>
+<span class="c1">#        model = RunnerUser</span>
+<span class="c1">#        fields = [&quot;first_name&quot;, &quot;last_name&quot;, &quot;username&quot;, &quot;email&quot;, &quot;password1&quot;, &quot;password2&quot;]</span>
+<span class="c1">#</span>
+<span class="c1"># For additional user details</span>
+<span class="c1"># class RunnerUserDetailForm(forms.ModelForm):</span>
+<span class="c1">#    class Meta:</span>
+<span class="c1">#        model = RunnerUser</span>
+<span class="c1">#        fields = [&quot;dob&quot;, &quot;weight&quot;, &quot;height&quot;, &quot;fitness_level&quot;, &quot;date_of_marathon&quot;]</span>
+<span class="c1">#</span>
+<span class="c1">#        widgets = {</span>
+<span class="c1">#            &quot;dob&quot;: forms.DateInput(attrs={&quot;type&quot;: &quot;date&quot;}),</span>
+<span class="c1">#            &quot;weight&quot;: forms.NumberInput(attrs={&quot;placeholder&quot;: &quot;Weight in kg&quot;}),</span>
+<span class="c1">#            &quot;height&quot;: forms.NumberInput(attrs={&quot;placeholder&quot;: &quot;Height in cm&quot;}),</span>
+<span class="c1">#            &quot;fitness_level&quot;: forms.Select(choices=RunnerUser.FITNESS_LEVEL_CHOICES),</span>
+<span class="c1">#            &quot;date_of_marathon&quot;: forms.DateInput(attrs={&quot;type&quot;: &quot;date&quot;})</span>
+<span class="c1">#        }</span>
+<span class="c1">#</span>
+<span class="c1">#    # Check that the date is valid and is between the min and max times</span>
+<span class="c1">#    def clean_date_of_marathon(self):</span>
+<span class="c1">#        date_of_marathon = self.cleaned_data.get(&quot;date_of_marathon&quot;)</span>
+<span class="c1">#        today = date.today()</span>
+<span class="c1">#</span>
+<span class="c1">#        if date_of_marathon &lt;= today:</span>
+<span class="c1">#            raise ValidationError(&quot;The date of the marathon must be in the future.&quot;)</span>
+<span class="c1">#</span>
+<span class="c1">#        if date_of_marathon &lt; today + timedelta(days=plan_algo.MIN_DAYS):</span>
+<span class="c1">#            raise ValidationError(f&quot;The date of the marathon must be at least {plan_algo.MIN_DAYS} days from today.&quot;)</span>
+<span class="c1">#</span>
+<span class="c1">#        if date_of_marathon &gt; today + timedelta(days=plan_algo.MAX_DAYS):</span>
+<span class="c1">#            raise ValidationError(f&quot;The date of the marathon must be less than {plan_algo.MAX_DAYS} days from today.&quot;)</span>
+<span class="c1">#</span>
+<span class="c1">#        return date_of_marathon</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Luca Tremblay.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

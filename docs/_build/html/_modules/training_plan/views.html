@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>training_plan.views &mdash; MarathonMentor 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            MarathonMentor
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">MarathonMentor</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">training_plan.views</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for training_plan.views</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">django.core</span> <span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.decorators</span> <span class="kn">import</span> <span class="n">login_required</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="kn">import</span> <span class="n">authenticate</span><span class="p">,</span> <span class="n">login</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">HttpResponseRedirect</span><span class="p">,</span> <span class="n">JsonResponse</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="kn">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.views.decorators.http</span> <span class="kn">import</span> <span class="n">require_POST</span>
+<span class="kn">from</span> <span class="nn">django.views.decorators.csrf</span> <span class="kn">import</span> <span class="n">csrf_protect</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">plan_algo</span><span class="p">,</span> <span class="n">strava_funcs</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">RunnerUser</span><span class="p">,</span> <span class="n">MarathonPlan</span><span class="p">,</span> <span class="n">ScheduledRun</span><span class="p">,</span> <span class="n">CompletedRun</span><span class="p">,</span> <span class="n">StravaUserProfile</span>
+<span class="kn">from</span> <span class="nn">.forms</span> <span class="kn">import</span> <span class="n">MergedSignUpForm</span>
+
+
+<div class="viewcode-block" id="remove_strava_account">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.views.remove_strava_account">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">remove_strava_account</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+        <span class="n">strava_funcs</span><span class="o">.</span><span class="n">unlink_strava</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;settings&quot;</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="settings">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.views.settings">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">settings</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">strava_user</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">RunnerUser</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">strava_user</span> <span class="o">=</span> <span class="n">StravaUserProfile</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;training_plan/settings.html&quot;</span><span class="p">,</span> <span class="p">{</span>
+                <span class="s2">&quot;strava_user&quot;</span><span class="p">:</span> <span class="n">strava_user</span>
+            <span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;settings&quot;</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="scheduled_runs">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.views.scheduled_runs">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">scheduled_runs</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;training_plan/scheduled_runs.html&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="completed_runs">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.views.completed_runs">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">completed_runs</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;training_plan/completed_runs.html&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="index">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.views.index">[docs]</a>
+<span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">marathon_plan</span> <span class="o">=</span> <span class="n">days_to_go</span> <span class="o">=</span> <span class="n">todays_run</span> <span class="o">=</span> <span class="n">next_runs</span> <span class="o">=</span> <span class="n">today</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">RunnerUser</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
+            <span class="c1"># Get the actual plan from the query set</span>
+            <span class="n">marathon_plan</span> <span class="o">=</span> <span class="n">MarathonPlan</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">marathon_plan</span><span class="p">:</span>
+                <span class="c1"># Calculate the days until the marathon</span>
+                <span class="n">today</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>  <span class="c1"># + timedelta(days = 344)</span>
+                <span class="n">days_to_go</span> <span class="o">=</span> <span class="p">(</span><span class="n">marathon_plan</span><span class="o">.</span><span class="n">end_date</span> <span class="o">-</span> <span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">days</span>
+
+                <span class="c1"># Send user to create a new plan</span>
+                <span class="k">if</span> <span class="n">days_to_go</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                    <span class="c1"># TODO - return render a template to the user to get them to create a new plan</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">todays_run</span> <span class="o">=</span> <span class="n">ScheduledRun</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                        <span class="n">marathon_plan</span><span class="o">=</span><span class="n">marathon_plan</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">today</span><span class="p">)</span>
+
+                    <span class="c1"># Get the strava run and profile if there is one and update the run</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">get_strava_run</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">marathon_plan</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+                <span class="k">except</span> <span class="n">ScheduledRun</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+                    <span class="c1"># If there is no run scheduled then it means that the plan hasn&#39;t started yet</span>
+                    <span class="n">todays_run</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">next_runs</span> <span class="o">=</span> <span class="n">ScheduledRun</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                        <span class="n">marathon_plan</span><span class="o">=</span><span class="n">marathon_plan</span><span class="p">,</span> <span class="n">date__gte</span><span class="o">=</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                    <span class="c1"># If there is no run scheduled then it means that the plan hasn&#39;t started yet</span>
+                    <span class="n">next_runs</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># No marathon plan found for the specified user</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No marathon plan found for user </span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">RunnerUser</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+            <span class="c1"># User with the specified username does not exist</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;User with username </span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;training_plan/index.html&quot;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s2">&quot;plan&quot;</span><span class="p">:</span> <span class="n">marathon_plan</span><span class="p">,</span>
+        <span class="s2">&quot;today&quot;</span><span class="p">:</span> <span class="n">today</span><span class="p">,</span>
+        <span class="s2">&quot;days_to_go&quot;</span><span class="p">:</span> <span class="n">days_to_go</span><span class="p">,</span>
+        <span class="s2">&quot;todays_run&quot;</span><span class="p">:</span> <span class="n">todays_run</span><span class="p">,</span>
+        <span class="s2">&quot;next_runs&quot;</span><span class="p">:</span> <span class="n">next_runs</span><span class="p">,</span>
+        <span class="s2">&quot;greeting&quot;</span><span class="p">:</span> <span class="n">calc_greeting</span><span class="p">()</span>
+    <span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="register">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.views.register">[docs]</a>
+<span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;POST&quot;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">MergedSignUpForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="n">plan</span> <span class="o">=</span> <span class="n">plan_algo</span><span class="o">.</span><span class="n">NewMarathonPlan</span><span class="p">(</span>
+                <span class="n">user</span><span class="p">)</span>  <span class="c1"># Create Marathon plan object</span>
+
+            <span class="c1"># Create new plan</span>
+            <span class="n">success</span><span class="p">,</span> <span class="n">user_plan</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">create_plan</span><span class="p">()</span>
+
+            <span class="c1"># If there is an error in the marathon date</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;trainin_plan/error.html&quot;</span><span class="p">,</span> <span class="p">{</span>
+                    <span class="s2">&quot;error_msg&quot;</span><span class="p">:</span> <span class="n">user_plan</span>
+                <span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">422</span><span class="p">)</span>
+
+            <span class="c1"># Schedule the runs</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">create_runs_in_plan</span><span class="p">()</span>
+
+            <span class="c1"># To log the user in after registration</span>
+            <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span>
+            <span class="n">password</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;password1&#39;</span><span class="p">]</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+            <span class="n">login</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Errors here</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">form</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;registration/register.html&quot;</span><span class="p">,</span> <span class="p">{</span>
+                <span class="s2">&quot;form&quot;</span><span class="p">:</span> <span class="n">form</span>
+            <span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">MergedSignUpForm</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;registration/register.html&quot;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s2">&quot;form&quot;</span><span class="p">:</span> <span class="n">form</span>
+    <span class="p">})</span></div>
+
+
+
+<span class="sd">&quot;&quot;&quot; Helper functions &quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="calc_greeting">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.views.calc_greeting">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_greeting</span><span class="p">():</span>
+    <span class="n">hours</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">hour</span>
+
+    <span class="k">if</span> <span class="n">hours</span> <span class="o">&gt;=</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">hours</span> <span class="o">&lt;</span> <span class="mi">12</span><span class="p">:</span>
+        <span class="n">time_of_day</span> <span class="o">=</span> <span class="s2">&quot;morning&quot;</span>
+    <span class="k">elif</span> <span class="n">hours</span> <span class="o">&gt;=</span> <span class="mi">12</span> <span class="ow">and</span> <span class="n">hours</span> <span class="o">&lt;</span> <span class="mi">17</span><span class="p">:</span>
+        <span class="n">time_of_day</span> <span class="o">=</span> <span class="s2">&quot;afternoon&quot;</span>
+    <span class="k">elif</span> <span class="n">hours</span> <span class="o">&gt;=</span> <span class="mi">17</span> <span class="ow">and</span> <span class="n">hours</span> <span class="o">&lt;</span> <span class="mi">23</span><span class="p">:</span>
+        <span class="n">time_of_day</span> <span class="o">=</span> <span class="s2">&quot;evening&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">time_of_day</span> <span class="o">=</span> <span class="s2">&quot;night&quot;</span>
+
+    <span class="k">return</span> <span class="n">time_of_day</span></div>
+
+
+
+<div class="viewcode-block" id="get_scheduled_runs">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.views.get_scheduled_runs">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">get_scheduled_runs</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+
+    <span class="n">user</span> <span class="o">=</span> <span class="n">RunnerUser</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
+    <span class="n">marathon_plan</span> <span class="o">=</span> <span class="n">MarathonPlan</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">all_scheduled_runs</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">marathon_plan</span><span class="p">:</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">all_scheduled_runs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ScheduledRun</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">marathon_plan</span><span class="o">=</span><span class="n">marathon_plan</span><span class="p">,</span> <span class="n">date__gt</span><span class="o">=</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+        <span class="k">except</span> <span class="n">ScheduledRun</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+            <span class="n">all_scheduled_runs</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s2">&quot;all_scheduled_runs&quot;</span><span class="p">:</span> <span class="n">all_scheduled_runs</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="get_completed_runs">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.views.get_completed_runs">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">get_completed_runs</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+
+    <span class="n">user</span> <span class="o">=</span> <span class="n">RunnerUser</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
+    <span class="n">marathon_plan</span> <span class="o">=</span> <span class="n">MarathonPlan</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">all_completed_runs</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">marathon_plan</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Get all completed runs for the logged-in user</span>
+            <span class="n">completed_runs</span> <span class="o">=</span> <span class="n">CompletedRun</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">scheduled_run__marathon_plan</span><span class="o">=</span><span class="n">marathon_plan</span><span class="p">,</span> <span class="n">date__lte</span><span class="o">=</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">&quot;-date&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Create a list of dictionaries with required information</span>
+            <span class="n">all_completed_runs</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;completed_run&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+                        <span class="s2">&quot;distance&quot;</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span>
+                        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
+                        <span class="s2">&quot;avg_pace&quot;</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">avg_pace</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;scheduled_run&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;dict_id&quot;</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">scheduled_run</span><span class="o">.</span><span class="n">dict_id</span><span class="p">,</span>
+                        <span class="s2">&quot;run&quot;</span><span class="p">:</span> <span class="n">run</span><span class="o">.</span><span class="n">scheduled_run</span><span class="o">.</span><span class="n">run</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+                <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">completed_runs</span>
+            <span class="p">]</span>
+        <span class="k">except</span> <span class="n">CompletedRun</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+            <span class="n">all_completed_runs</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s2">&quot;all_completed_runs&quot;</span><span class="p">:</span> <span class="n">all_completed_runs</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="update_completed_run">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.views.update_completed_run">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="nd">@require_POST</span>
+<span class="nd">@csrf_protect</span>
+<span class="k">def</span> <span class="nf">update_completed_run</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+        <span class="c1"># payload is run_id, date, distance, duration, avg_pace</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;payload&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
+            <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">RunnerUser</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
+
+            <span class="n">stats_dict</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="c1"># Converting the pace into the correct format for the model</span>
+            <span class="n">pace_parts</span> <span class="o">=</span> <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;pace&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+            <span class="n">formatted_avg_pace</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span>
+                <span class="n">pace_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">seconds</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">pace_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+            <span class="n">stats_dict</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">],</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">stats_dict</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">])</span>
+            <span class="n">stats_dict</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">])</span>
+            <span class="n">stats_dict</span><span class="p">[</span><span class="s2">&quot;pace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">formatted_avg_pace</span>
+            <span class="n">run_id_val</span> <span class="o">=</span> <span class="n">stats_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;run_id&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Changing pace to avg_pace like in the model</span>
+            <span class="n">stats_dict</span><span class="p">[</span><span class="s2">&quot;avg_pace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stats_dict</span><span class="p">[</span><span class="s2">&quot;pace&quot;</span><span class="p">]</span>
+            <span class="n">stats_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;pace&quot;</span><span class="p">)</span>
+
+            <span class="n">scheduled_run</span> <span class="o">=</span> <span class="n">ScheduledRun</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;run_id&quot;</span><span class="p">])</span>
+
+            <span class="c1"># Check first if there isn&quot;t a completed run, if so make one, if not then update the values</span>
+            <span class="n">completed_run</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">CompletedRun</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+                <span class="n">scheduled_run</span><span class="o">=</span><span class="n">scheduled_run</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="n">stats_dict</span><span class="p">)</span>  <span class="c1"># Get the actual plan from the query set</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">created</span><span class="p">:</span>  <span class="c1"># Use &quot;get&quot; to get the CompletedRun</span>
+                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">stats_dict</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">completed_run</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">stats_dict</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
+                <span class="n">completed_run</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="c1"># Add back run_id before response</span>
+            <span class="n">stats_dict</span><span class="p">[</span><span class="s2">&quot;run_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">run_id_val</span>
+            <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Stats for run updated successfully&quot;</span><span class="p">,</span> <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="n">stats_dict</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;User is not logged in&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">403</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)},</span> <span class="n">status</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_todays_run">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.views.get_todays_run">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">get_todays_run</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
+        <span class="n">today</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>  <span class="c1"># + timedelta(days = 339)</span>
+
+        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">RunnerUser</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
+        <span class="n">marathon_plan</span> <span class="o">=</span> <span class="n">MarathonPlan</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+
+        <span class="n">scheduled_run</span> <span class="o">=</span> <span class="n">ScheduledRun</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">marathon_plan</span><span class="o">=</span><span class="n">marathon_plan</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">today</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">todays_run</span> <span class="o">=</span> <span class="n">CompletedRun</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">date</span><span class="o">=</span><span class="n">today</span><span class="p">,</span> <span class="n">scheduled_run</span><span class="o">=</span><span class="n">scheduled_run</span><span class="p">)</span>
+            <span class="n">completed</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="n">CompletedRun</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+            <span class="n">todays_run</span> <span class="o">=</span> <span class="n">scheduled_run</span>
+            <span class="n">completed</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">serialized_data</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">todays_run</span><span class="p">])</span>
+
+            <span class="n">response_data</span> <span class="o">=</span> <span class="n">serialized_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">]</span>
+            <span class="c1"># Add &#39;run_id&#39; to the response_data dictionary</span>
+            <span class="n">response_data</span><span class="p">[</span><span class="s1">&#39;run_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">serialized_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;pk&#39;</span><span class="p">]</span>
+            <span class="c1"># Add completed to easily identify if working with the scheduled or completed run</span>
+            <span class="n">response_data</span><span class="p">[</span><span class="s1">&#39;completed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">completed</span>
+
+            <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">response_data</span><span class="p">,</span> <span class="n">safe</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)},</span> <span class="n">status</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="get_strava_run">
+<a class="viewcode-back" href="../../training_plan.html#training_plan.views.get_strava_run">[docs]</a>
+<span class="k">def</span> <span class="nf">get_strava_run</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">marathon_plan</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">strava_funcs</span><span class="o">.</span><span class="n">refresh_trava_token</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s1">&#39;No Strava User found&#39;</span><span class="p">)</span>
+
+    <span class="n">todays_run</span> <span class="o">=</span> <span class="n">ScheduledRun</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="n">marathon_plan</span><span class="o">=</span><span class="n">marathon_plan</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">completed_run</span> <span class="o">=</span> <span class="n">CompletedRun</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">scheduled_run</span><span class="o">=</span><span class="n">todays_run</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">completed_run</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">completed_run</span><span class="p">:</span>
+            <span class="n">strava_funcs</span><span class="o">.</span><span class="n">get_strava_run_func</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">todays_run</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">))</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Luca Tremblay.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
