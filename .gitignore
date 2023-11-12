@@ -129,3 +129,5 @@ package-lock.json
 training_plan/static/css/styles.css.map
 training_plan/static/css/styles.css
 
+# Other dot files
+.autopep8pyfiles.zsh
