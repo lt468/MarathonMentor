@@ -1,5 +1,7 @@
 """
-This module provides constants that are used in the creation of a marathon training plan.
+This module provides constants that are used in the creation of a marathon training plan. It provides the skeleton for the training plans.
+
+See ./plan_algo.py for more information.
 """
 
 """ Week"""

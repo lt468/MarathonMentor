@@ -1,39 +1,82 @@
 """
-This module provides logic for creating a marathon training plan.
+Module implementing the MarathonMentor training plan algorithm.
 
-It uses a user's fitness level and the date of their marathon to create a tailored training plan split into different phases.
+This module defines the NewMarathonPlan class, which is responsible for creating a new marathon training plan
+for a user based on their fitness level and the date of their marathon.
+
+Training Plan Algorithm - MarathonMentor
+
+This algorithm is designed to create a comprehensive training plan based on user inputs and predefined workout templates. The primary structure of the plan adheres to an 80/20 split between Base runs (long distance, steady-state) and Higher intensity runs, which include longer threshold/tempo runs and very short anaerobic runs. Recovery runs are also incorporated on recovery days and are considered optional.
+
+The actual training plan generated will consider user-specific inputs like current fitness level, target marathon time, availability, and other factors to tailor the plan to individual needs.
+
+Run Formats:
+- zone (1-5): Heart rate zone to be in.
+  * 1: Z1 - Recovery
+  * 2: Z2 - Base
+  * 3: Z3 - Tempo
+  * 4: Z4 - High Tempo
+  * 5: Z5 - Interval/Anaerobic
+
+- feel (recovery, base, hard, max-effort): Subjective description of run intensity.
+  * recovery: Low intensity, focused on easy movement and muscle recovery.
+  * base: Steady state, building aerobic capacity.
+  * hard: Pushing above comfortable limits, challenging but not maximal.
+  * max-effort: Short bursts of all-out effort, maximizing anaerobic capacity.
+
+- duration (mins): Duration of the run in minutes.
+- distance (km): Distance of the run in kilometers.
+
+Run Types:
+- Recovery runs (Z1): Low intensity, aiding in muscle recovery and easy aerobic development.
+- Base runs (Z2): Steady-state runs building the foundational aerobic capacity.
+- Tempo runs (Z3 - Z4): Pushing the boundaries of aerobic capacity, running at or near the lactate threshold.
+- Interval runs (Z4 - Z5): Short, high-intensity intervals focused on anaerobic capacity and speed.
+
+Classes:
+- NewMarathonPlan: Creates a new marathon training plan for a user.
+
+Attributes:
+- user (object): The user for whom the plan is created.
+- date_of_marathon (date): The date of the user's marathon.
+- today (date): The current date.
+- plan (object): The generated marathon training plan.
+
+Methods:
+- _validate_marathon_date: Performs final validation for the date of the marathon.
+- create_plan: Creates the marathon training plan and saves it.
+- create_runs_in_plan: Creates the scheduled runs within the plan.
+- _schedule_runs_for_phase: Schedules runs for a specific phase of the plan.
+- _schedule_runs_for_taper: Schedules taper runs at the end of the plan.
+- _calculate_distance: Calculates the distance for a run based on user's fitness level and phase.
+- _calculate_interval_progression: Calculates the progression of interval values (on, off, sets) during a phase.
+- _calculate_duration: Not implemented. Placeholder for calculating run duration.
+- _calculate_run_date: Calculates the date for a scheduled run based on the start date, day of the week, and week of the phase.
+
+Example:
+python
+# Create a new marathon plan for a user
+user = RunnerUser.objects.get(username='example_user')
+new_plan = NewMarathonPlan(user)
+success, plan = new_plan.create_plan()
+
+# Check the success status and access the plan
+if success:
+    print(f"Marathon plan created successfully: {plan}")
+else:
+    print(f"Error creating marathon plan: {plan}")
+
 """
+
 from datetime import date, timedelta
 import numpy as np
 
-from ..models import MarathonPlan, ScheduledRun, CompletedRun
+from ..models import MarathonPlan, ScheduledRun
 from . import p_a_constants as c
 
 
 class NewMarathonPlan:
-    """ 
-     A class to represent a marathon training plan.
-
-    This class provides functionalities to create a marathon training plan based on a user's fitness level 
-    and the date of their marathon. The training plan is split into different phases with specific workouts 
-    and runs scheduled.
-
-    Attributes:
-        user (User): The user for whom the marathon plan is being created.
-        date_of_marathon (date): The date on which the marathon will take place.
-        today (date): The current date.
-        plan (MarathonPlan, optional): An instance of MarathonPlan representing the created training plan. 
-            Defaults to None.
-    """
-    # Constructor
-
     def __init__(self, user) -> None:
-        """
-        Initializes a new instance of the marathon training plan.
-
-        Args:
-            user (User): The user for whom the marathon plan is being created.
-        """
         self.user = user
         self.date_of_marathon = user.date_of_marathon
         self.today = date.today()
@@ -42,14 +85,16 @@ class NewMarathonPlan:
     # Final validation for the date of the marathon
     def _validate_marathon_date(self) -> None:
         """
-        Validates that the marathon date is within the allowed range.
-
-        The allowed date range is defined by the MIN_DAYS and MAX_DAYS constants.
+        Perform final validation for the date of the marathon.
 
         Raises:
-            ValueError: If the marathon date is not within the allowed range.
-        """
+        - ValueError: If the marathon date is not in the allowed range.
 
+        Example:
+        python
+        self._validate_marathon_date()
+        
+        """
         if not (self.today + timedelta(days=c.MIN_DAYS) <= self.date_of_marathon <= self.today + timedelta(days=c.MAX_DAYS)):
             raise ValueError(
                 "Date of marathon is not in allowed range (caught in plan_algo.py)")
@@ -57,13 +102,19 @@ class NewMarathonPlan:
     # Create the marathon plan
     def create_plan(self) -> tuple:
         """
-        Creates the marathon training plan.
-
-        This method validates the marathon date, initializes a MarathonPlan instance, and saves it.
+        Create the marathon training plan and save it.
 
         Returns:
-            tuple: A tuple containing a boolean indicating the success of the operation and the MarathonPlan 
-                instance if successful, or an error message if not.
+        - tuple: A tuple indicating success status (True or False) and the generated plan.
+
+        Example:
+        python
+        success, plan = self.create_plan()
+        if success:
+            print(f"Marathon plan created successfully: {plan}")
+        else:
+            print(f"Error creating marathon plan: {plan}")
+        
         """
 
         try:
@@ -79,14 +130,14 @@ class NewMarathonPlan:
     # Creates the runs given the time frame of dates
     def create_runs_in_plan(self) -> None:
         """
-        Creates and schedules the runs within the training plan.
+        Create the scheduled runs within the plan.
 
-        This method calculates the total number of days for the training, divides the training period into 
-        different phases, and schedules the runs based on the user's fitness level and the training phase.
-
-        Returns:
-            None: Calculates dates and then calls the methods to schedule the runs.
+        Example:
+        python
+        self.create_runs_in_plan()
+        
         """
+
         # Calculate total days between start and marathon date
         total_days = (self.date_of_marathon - self.today).days
 
@@ -133,16 +184,19 @@ class NewMarathonPlan:
     # Schedule the runs for a given phase
     def _schedule_runs_for_phase(self, phase, phase_start_date, weeks_in_phase) -> None:
         """
-        Schedules the runs for a given phase of the training plan.
+        Schedule runs for a specific phase of the plan.
 
         Args:
-            phase (int): The current training phase.
-            phase_start_date (date): The start date of the current training phase.
-            weeks_in_phase (int): The total number of weeks in the current training phase.
+        - phase (str): The phase for which runs are to be scheduled.
+        - phase_start_date (date): The start date of the phase.
+        - weeks_in_phase (int): The number of weeks in the phase.
 
-        Returns:
-            None: This method doesn't return anything. It schedules the runs and saves them to the database.
+        Example:
+        python
+        self._schedule_runs_for_phase("phase1", phase1_start, phase1_weeks + 1)
+        
         """
+
         # Data required for getting workouts from DEFAULT_RUNS dictonary
         fit_level = self.user.fitness_level
         phase = phase
@@ -196,15 +250,18 @@ class NewMarathonPlan:
 
     def _schedule_runs_for_taper(self, phase3_end, fit_level) -> None:
         """
-        Schedules the taper runs at the end of the training plan.
+        Schedule taper runs at the end of the plan.
 
         Args:
-            phase3_end (date): The end date of the third phase of the training plan.
-            fit_level (str): The fitness level of the user.
+        - phase3_end (date): The end date of phase 3.
+        - fit_level (str): The user's fitness level.
 
-        Returns:
-            None: This method doesn't return anything. It schedules the taper runs and saves them to the database.
+        Example:
+        python
+        self._schedule_runs_for_taper(phase3_end, self.user.fitness_level)
+        
         """
+
         phase3_end_weekday = phase3_end.weekday()
 
         # We always know the current last scheduled day in phase 3 is a sunday, so a weekday of 6
@@ -277,17 +334,22 @@ class NewMarathonPlan:
 
     def _calculate_distance(self, run_id, fit_level, phase, weeks_in_phase, i) -> float:
         """
-         Calculates the distance for a specific run.
+        Calculate the distance for a run based on user's fitness level and phase.
 
         Args:
-            run_id (str): The identifier for the type of run.
-            fit_level (str): The fitness level of the user.
-            phase (int): The current training phase.
-            weeks_in_phase (int): The total number of weeks in the current training phase.
-            i (int): The current week in the training plan.
+        - run_id (int): The ID of the run.
+        - fit_level (str): The user's fitness level.
+        - phase (str): The phase of the plan.
+        - weeks_in_phase (int): The number of weeks in the phase.
+        - i (int): The current week within the phase.
 
         Returns:
-            float: The calculated distance for the run.
+        - float: The calculated distance for the run.
+
+        Example:
+        python
+        distance = self._calculate_distance(run_id, fit_level, phase, weeks_in_phase, i)
+        
         """
 
         low = c.DEFAULT_RUNS[run_id]["distance"][fit_level][phase]["low"]
@@ -300,19 +362,23 @@ class NewMarathonPlan:
 
     def _calculate_interval_progression(self, fit_level, phase, weeks_in_phase, i, run_id=5):
         """
-        Calculates the progression of intervals for a specific run.
+        Calculate the progression of interval values (on, off, sets) during a phase.
 
         Args:
-            fit_level (str): The fitness level of the user.
-            phase (int): The current training phase.
-            weeks_in_phase (int): The total number of weeks in the current training phase.
-            i (int): The current week in the training plan.
-            run_id (str): The identifier for the type of run. Defaults to 5.
+        - fit_level (str): The user's fitness level.
+        - phase (str): The phase of the plan.
+        - weeks_in_phase (int): The number of weeks in the phase.
+        - i (int): The current week within the phase.
+        - run_id (int): The ID of the run.
 
         Returns:
-            tuple: A tuple containing the calculated values for 'on', 'off', and 'sets'.
-        """
+        - tuple: A tuple containing the calculated values for on, off, and sets.
 
+        Example:
+        python
+        on, off, sets = self._calculate_interval_progression(fit_level, phase, weeks_in_phase, i)
+        
+        """
         def calculate_weekly_value(low, high, weeks, current_week):
             diff = high - low
 
@@ -339,31 +405,24 @@ class NewMarathonPlan:
 
         return (on_value, off_value, sets_value)
 
-    def _calculate_duration(self):
-        """ Not yet implemented """
-        # completed_runs_with_specific_dict_id = CompletedRun.objects.filter(scheduled_run__dict_id=run_id)
-        # if not completed_runs_with_specific_dict_id.exists():
-        #    pass
-        #    #avg_paces = [run.avg_pace for run in completed_runs_with_specific_dict_id if run.avg_pace]
-        #    #seconds_list = [pace.total_seconds() for pace in avg_paces]
-        #    #avg_seconds = int(np.mean(seconds_list))
-        #    #avg_timedelta = timedelta(seconds=avg_seconds)
-        return NotImplemented
-
     # Calculate the run date
     def _calculate_run_date(self, start_date, day_of_week, week_of_phase) -> date:
         """
-        Calculates the date on which a specific run should take place.
+        Calculate the run date.
 
         Args:
-            start_date (date): The start date of the training phase.
-            day_of_week (str): The day of the week on which the run should take place.
-            week_of_phase (int): The week of the training phase.
+        - start_date (date): The start date of the phase.
+        - day_of_week (str): The day of the week for the scheduled run.
+        - week_of_phase (int): The week within the phase.
 
         Returns:
-            date: The calculated date on which the run should take place.
-        """
+        - date: The calculated date for the scheduled run.
 
+        Example:
+        python
+        run_date = self._calculate_run_date(phase_start_date, day, i)
+        
+        """
         days_mapping = {
             "mon": 0,
             "tue": 1,

@@ -8,6 +8,22 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
+
+This settings file includes adjustments for the MarathonMentor project, highlighting key modifications made for custom functionality and third-party integrations.
+
+Adjustments:
+- Custom User Model: AUTH_USER_MODEL is set to 'training_plan.RunnerUser'.
+- Middleware: Added 'social_django.middleware.SocialAuthExceptionMiddleware' for handling social authentication exceptions.
+- Templates: Added the 'BASE_DIR / "training_plan/templates"' path to template directories.
+- Database: Configured to use MySQL with specific credentials and database name 'mm_tp_db'.
+- Internationalization: Set language code to 'en-GB' and time zone to 'Europe/London'.
+- Static Files: Configured to serve static files from the '/static/' URL.
+- Default Auto Field: Set to 'django.db.models.BigAutoField'.
+- Login and Logout Redirect: Configured login and logout redirect URLs.
+- Password Reset: Configured to use file-based email backend with storage path 'BASE_DIR / "sent_emails"'.
+- Crispy: Configured to use Bootstrap 5 as the template pack for crispy forms.
+- Strava Integration: Added authentication backends and settings for Strava integration.
+- Social Auth Pipeline: Custom pipeline for handling social authentication and Strava profile data.
 """
 
 import os

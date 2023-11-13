@@ -1,3 +1,12 @@
+"""
+Module: views.py
+
+This module defines the views for the training plan application, including functions for rendering HTML pages,
+processing user requests, and interacting with the backend logic.
+
+Note: For brevity, the docstrings for the helper functions are kept concise.
+"""
+
 import json
 from django.core import serializers
 from datetime import date, datetime, timedelta
@@ -16,15 +25,34 @@ from .forms import MergedSignUpForm
 
 @login_required
 def remove_strava_account(request):
+    """
+    Removes the Strava account linked to the currently authenticated user.
+
+    Args:
+    - request: The HTTP request object.
+
+    Returns:
+    - HttpResponseRedirect: Redirects the user to the settings page.
+    """
     if request.user.is_authenticated:
         username = request.user.username
         strava_funcs.unlink_strava(username)
 
-    return HttpResponseRedirect(reverse("settings"))
+        return HttpResponseRedirect(reverse("settings"))
 
 
 @login_required
 def settings(request):
+    """
+    Renders the settings page for the currently authenticated user, displaying Strava user information if linked.
+
+    Args:
+    - request: The HTTP request object.
+
+    Returns:
+    - render: Renders the settings page with Strava user information.
+    """
+
     strava_user = None
 
     if request.user.is_authenticated:
@@ -49,15 +77,43 @@ def settings(request):
 
 @login_required
 def scheduled_runs(request):
+    """
+    Renders the scheduled runs page for the currently authenticated user.
+
+    Args:
+    - request: The HTTP request object.
+
+    Returns:
+    - render: Renders the scheduled runs page.
+    """
+
     return render(request, "training_plan/scheduled_runs.html")
 
 
 @login_required
 def completed_runs(request):
+    """
+    Renders the completed runs page for the currently authenticated user.
+
+    Args:
+    - request: The HTTP request object.
+
+    Returns:
+    - render: Renders the completed runs page.
+    """
     return render(request, "training_plan/completed_runs.html")
 
 
 def index(request):
+    """
+    Renders the index page with information about the user's marathon plan and today's scheduled run.
+
+    Args:
+    - request: The HTTP request object.
+
+    Returns:
+    - render: Renders the index page with relevant information.
+    """
     marathon_plan = days_to_go = todays_run = next_runs = today = None
 
     if request.user.is_authenticated:
@@ -115,6 +171,16 @@ def index(request):
 
 
 def register(request):
+    """
+    Handles user registration, creating a new marathon plan and scheduling runs upon successful registration.
+
+    Args:
+    - request: The HTTP request object.
+
+    Returns:
+    - HttpResponseRedirect: Redirects the user to the index page after successful registration.
+    """
+
     if request.method == "POST":
         form = MergedSignUpForm(request.POST)
         if form.is_valid():
@@ -160,6 +226,13 @@ def register(request):
 
 
 def calc_greeting():
+    """
+    Calculates a greeting based on the current time of day.
+
+    Returns:
+    - str: Greeting indicating the time of day (morning, afternoon, evening, night).
+    """
+
     hours = datetime.now().hour
 
     if hours >= 4 and hours < 12:
@@ -176,6 +249,16 @@ def calc_greeting():
 
 @login_required
 def get_scheduled_runs(request):
+    """
+    Retrieves the scheduled runs for the currently authenticated user.
+
+    Args:
+    - request: The HTTP request object.
+
+    Returns:
+    - JsonResponse: JSON response containing information about scheduled runs.
+    """
+
     username = request.user.username
 
     user = RunnerUser.objects.get(username=username)
@@ -195,6 +278,16 @@ def get_scheduled_runs(request):
 
 @login_required
 def get_completed_runs(request):
+    """
+    Retrieves the completed runs for the currently authenticated user.
+
+    Args:
+    - request: The HTTP request object.
+
+    Returns:
+    - JsonResponse: JSON response containing information about completed runs.
+    """
+
     username = request.user.username
 
     user = RunnerUser.objects.get(username=username)
@@ -233,7 +326,15 @@ def get_completed_runs(request):
 @require_POST
 @csrf_protect
 def update_completed_run(request):
+    """
+    Updates information for a completed run, allowing users to edit and save their run statistics.
 
+    Args:
+    - request: The HTTP request object.
+
+    Returns:
+    - JsonResponse: JSON response indicating the success or failure of the update.
+    """
     try:
         data = json.loads(request.body)
         # payload is run_id, date, distance, duration, avg_pace
@@ -283,6 +384,15 @@ def update_completed_run(request):
 
 @login_required
 def get_todays_run(request):
+    """
+    Retrieves information about today's scheduled run for the currently authenticated user.
+
+    Args:
+    - request: The HTTP request object.
+
+    Returns:
+    - JsonResponse: JSON response containing information about today's scheduled run.
+    """
 
     if request.user.is_authenticated:
         today = date.today()  # + timedelta(days = 339)
@@ -325,6 +435,18 @@ def get_todays_run(request):
 
 
 def get_strava_run(username, user, marathon_plan):
+    """
+    Retrieves and updates Strava run data for today's scheduled run.
+
+    Args:
+    - username: The username of the currently authenticated user.
+    - user: The RunnerUser object representing the currently authenticated user.
+    - marathon_plan: The MarathonPlan object for the user's marathon plan.
+
+    Returns:
+    - HttpResponseRedirect: Redirects the user to the index page after updating Strava run data.
+    """
+
     try:
         strava_funcs.refresh_trava_token(username)
     except LookupError:

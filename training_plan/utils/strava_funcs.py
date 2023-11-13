@@ -1,3 +1,18 @@
+"""
+Module implementing Strava-related functions.
+
+This module defines functions for interacting with Strava data, including saving Strava profiles,
+retrieving Strava runs, unlinking Strava accounts, and refreshing Strava access tokens.
+
+Functions:
+- save_profile(user, response, *args, **kwargs): Saves a Strava profile for a user based on the Strava API response.
+- get_strava_run_func(user, todays_run): Retrieves Strava run data for a user and updates the corresponding scheduled run.
+- unlink_strava(username): Unlinks a Strava account from a user.
+- refresh_trava_token(username): Refreshes the Strava access token for a user.
+
+Note: These functions are designed to work with the Strava API and are intended for use in a Django web application.
+"""
+
 from decouple import config
 import requests
 from datetime import datetime, timedelta, date
@@ -8,6 +23,17 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def save_profile(user, response, *args, **kwargs):
+    """
+    Save Strava profile for a user based on the Strava API response.
+
+    Args:
+    - user: The user for whom to save the Strava profile.
+    - response: The Strava API response containing profile information.
+    - *args, **kwargs: Additional arguments.
+
+    Returns:
+    None
+    """
 
     client_id = response["athlete"]["id"]
     access_token = response["access_token"]
@@ -27,6 +53,19 @@ def save_profile(user, response, *args, **kwargs):
 
 
 def get_strava_run_func(user, todays_run):
+    """
+    Retrieve Strava run data for a user and update the corresponding scheduled run.
+
+    Args:
+    - user: The user for whom to retrieve Strava run data.
+    - todays_run: The scheduled run corresponding to today's date.
+
+    Raises:
+    - LookupError: If the Strava profile is not found.
+
+    Returns:
+    None
+    """
 
     try:
         strava_profile = StravaUserProfile.objects.get(user=user)
@@ -78,6 +117,16 @@ def get_strava_run_func(user, todays_run):
 
 
 def unlink_strava(username):
+    """
+    Unlink a Strava account from a user.
+
+    Args:
+    - username: The username of the user to unlink.
+
+    Returns:
+    None
+    """
+
     try:
         user = RunnerUser.objects.get(username=username)
         strava_profile = StravaUserProfile.objects.get(user=user)
@@ -89,6 +138,19 @@ def unlink_strava(username):
 
 
 def refresh_trava_token(username):
+    """
+    Refresh the Strava access token for a user.
+
+    Args:
+    - username: The username of the user whose token needs to be refreshed.
+
+    Raises:
+    - LookupError: If the Strava profile is not found.
+
+    Returns:
+    None
+    """
+
     try:
         user = RunnerUser.objects.get(username=username)
         strava_profile = StravaUserProfile.objects.get(user=user)

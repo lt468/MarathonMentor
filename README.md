@@ -82,6 +82,9 @@ Brief explanation of the constants file and its purpose.
 ### Future features to implement:
 - Complete a better estimate for average pace
 - Have a better system for recording data
+- Tell the user when registering that their plan is being created
+- Create some Tests
+- Need to improve the plan_algo pyton code, make it more efficient, add more features, improve the javascript files!
 
 ### Potential bugs / features to implement
 - What happens to the home page when I finish a plan, what happens to the upcomming runs after I finish a plan, what happens to the pages after I finish a plan

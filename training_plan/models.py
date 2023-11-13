@@ -1,37 +1,27 @@
+"""
+This module defines the data models for the training_plan app.
+"""
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.contrib.auth.models import UserManager as DefaultUserManager
-from datetime import datetime
 
 # Override and create custom superuser with default values for non-nullable fields
 
 
 class RunnerUserManager(DefaultUserManager):
     """
-    Custom manager for RunnerUser to provide custom superuser creation.
+    Custom manager for the RunnerUser model.
+
+    This manager provides a method to create a superuser with default values for specific fields.
+
+    Example:
+    
+    manager = RunnerUserManager()
+    manager.create_superuser(username='admin', password='admin')
+    
     """
 
     def create_superuser(self, username, email=None, password=None, **extra_fields):
-        """
-        Creates and returns a superuser with the given username, email, and password.
-
-        Parameters
-        ----------
-        username : str
-            The desired username for the superuser.
-        email : str, optional
-            The email address for the superuser.
-        password : str, optional
-            The password for the superuser.
-        extra_fields : dict, optional
-            Additional fields to set for the superuser.
-
-        Returns
-        -------
-        RunnerUser
-            The created superuser.
-        """
-
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('dob', '2000-01-01')  # Set default DOB
@@ -48,7 +38,27 @@ class RunnerUserManager(DefaultUserManager):
 
 class RunnerUser(AbstractUser):
     """
-    Custom user model for runners which extends the default Django user model.
+    Custom user model for runners.
+
+    This model extends Django's AbstractUser and includes additional fields such as date of birth,
+    fitness level, and date of the marathon.
+
+    Attributes:
+    - FITNESS_LEVEL_CHOICES (list): Choices for the 'fitness_level' field.
+    - first_name (CharField): First name of the user.
+    - last_name (CharField): Last name of the user.
+    - dob (DateField): Date of birth of the user.
+    - fitness_level (CharField): Fitness level of the user.
+    - date_of_marathon (DateField): Date of the marathon for the user.
+
+    Example:
+    
+    user = RunnerUser.objects.create(username='JohnDoe', email='john@example.com', password='secret')
+    
+
+    Note:
+    This model is designed to be used within the Django framework and is used as the authentication
+    model for the training_plan app.
     """
 
     # User fintess choices
@@ -90,6 +100,23 @@ class RunnerUser(AbstractUser):
 
 
 class StravaUserProfile(models.Model):
+    """
+    Model representing a Strava user profile associated with a RunnerUser.
+
+    Attributes:
+    - user (OneToOneField): Reference to the associated RunnerUser.
+    - client_id (BigIntegerField): Strava client ID.
+    - strava_access_token (CharField): Strava access token.
+    - strava_refresh_token (CharField): Strava refresh token.
+    - expires_at (DateTimeField): Expiry date and time.
+
+    Example:
+    
+    profile = StravaUserProfile.objects.create(user=my_runner_user, client_id=123, strava_access_token='xyz', strava_refresh_token='abc', expires_at=datetime.now())
+    
+
+    """
+
     user = models.OneToOneField(RunnerUser, on_delete=models.CASCADE)
     client_id = models.BigIntegerField(null=True, blank=True)
     strava_access_token = models.CharField(max_length=200)
@@ -98,6 +125,23 @@ class StravaUserProfile(models.Model):
 
 
 class MarathonPlan(models.Model):
+    """
+    Model representing a training plan for a RunnerUser.
+
+    Attributes:
+    - id (AutoField): Auto-incremented primary key.
+    - user (ForeignKey): Reference to the associated RunnerUser.
+    - start_date (DateField): Start date of the training plan.
+    - end_date (DateField): End date of the training plan.
+
+    Example:
+    
+    plan = MarathonPlan.objects.create(user=my_runner_user, start_date='2023-01-01', end_date='2023-12-31')
+    
+
+    Note:
+    As of v0.1.0, a user can have only one marathon plan. If you wish to create a new plan for a user, ensure the old one is deleted first
+    """
 
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(
@@ -110,6 +154,47 @@ class MarathonPlan(models.Model):
 
 
 class ScheduledRun(models.Model):
+    """
+    Model representing a scheduled run within a training plan.
+
+    Attributes:
+    - id (AutoField): Auto-incremented primary key.
+    - dict_id (PositiveIntegerField): Nullable field for a dictionary ID.
+    - run (CharField): Name of the run.
+    - run_feel (CharField): Description of the run.
+    - marathon_plan (ForeignKey): Reference to the associated MarathonPlan.
+    - date (DateField): Date of the run.
+    - distance (PositiveIntegerField): Distance of the run.
+    - est_duration (PositiveIntegerField): Estimated duration of the run in minutes.
+    - est_avg_pace (DurationField, optional): Estimated average pace of the run.
+    - on (PositiveIntegerField, default=0): Work time in minutes.
+    - off (PositiveIntegerField, default=0): Rest time in minutes.
+    - sets (PositiveIntegerField, default=0): Number of sets.
+
+    Example:
+    python
+    run = ScheduledRun.objects.create(
+        run='Training Run',
+        marathon_plan=my_marathon_plan,
+        date='2023-05-01',
+        distance=10,
+        est_duration=60,
+        est_avg_pace='06:00',
+        on=30,
+        off=15,
+        sets=3
+    )
+    
+
+    This model represents a scheduled run within a training plan. It includes details such as the name of the run,
+    its description, associated marathon plan, date, distance, estimated duration, estimated average pace (optional),
+    work time, rest time, and the number of sets.
+
+    Note:
+    - The est_avg_pace field is optional and can be left blank.
+    - The date field represents the date of the scheduled run.
+    - The est_avg_pace field is the estimated average pace of the run and is expressed as a duration.
+    """
 
     id = models.AutoField(primary_key=True)
     dict_id = models.PositiveIntegerField(null=True, blank=True)
@@ -136,6 +221,21 @@ class ScheduledRun(models.Model):
 
 
 class CompletedRun(models.Model):
+    """
+    Model representing a completed run.
+
+    Attributes:
+    - scheduled_run (OneToOneField): Reference to the associated ScheduledRun.
+    - date (DateField): Date when the run was completed.
+    - distance (PositiveIntegerField): Distance of the completed run.
+    - duration (PositiveIntegerField): Duration of the completed run.
+    - avg_pace (DurationField): Average pace of the completed run.
+
+    Example:
+    
+    completed_run = CompletedRun.objects.create(scheduled_run=my_scheduled_run, date='2023-05-01', distance=10, duration=60, avg_pace='06:00')
+    
+    """
     scheduled_run = models.OneToOneField(
         ScheduledRun, on_delete=models.SET_NULL, null=True, blank=True)
     date = models.DateField(help_text="Date when run was completed")

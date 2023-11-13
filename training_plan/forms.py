@@ -1,3 +1,6 @@
+"""
+This module defines forms used in the training_plan app.
+"""
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
@@ -10,7 +13,33 @@ from .utils import p_a_constants as c
 
 
 class MergedSignUpForm(UserCreationForm):
+    """
+    Custom user registration form that extends the Django UserCreationForm.
+
+    This form includes additional fields such as first name, last name, date of birth, fitness level,
+    and the date of the marathon.
+
+    Attributes:
+    - helper (FormHelper): Crispy Forms helper for customizing the form's appearance.
+
+    Example:
+    
+    form = MergedSignUpForm()
+    
+
+    Note:
+    This form is designed to be used within the Django framework and is tied to the RunnerUser model.
+    """
+
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the form with customized layout and helper settings.
+
+        Example:
+        
+        form = MergedSignUpForm()
+        
+        """
         super(MergedSignUpForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_id = "registration_form"
@@ -49,6 +78,28 @@ class MergedSignUpForm(UserCreationForm):
     email = forms.EmailField()
 
     class Meta:
+        """
+        Metadata class defining the model and fields for the form.
+
+        Attributes:
+        - model (Model): The model associated with the form.
+        - fields (list): List of fields to include in the form.
+        - widgets (dict): Dictionary defining widgets for specific fields.
+
+        Example:
+        
+        class Meta:
+            model = RunnerUser
+            fields = ["first_name", "last_name", "username", "email", "password1",
+                      "password2", "dob", "fitness_level", "date_of_marathon"]
+            widgets = {
+                "dob": forms.DateInput(attrs={"type": "date"}),
+                "fitness_level": forms.Select(choices=RunnerUser.FITNESS_LEVEL_CHOICES),
+                "date_of_marathon": forms.DateInput(attrs={"type": "date"}),
+            }
+        
+        """
+
         model = RunnerUser
         fields = ["first_name", "last_name", "username", "email", "password1",
                   "password2", "dob", "fitness_level", "date_of_marathon"]
@@ -60,6 +111,17 @@ class MergedSignUpForm(UserCreationForm):
         }
 
     def clean_date_of_marathon(self):
+        """
+        Clean and validate the 'date_of_marathon' field.
+
+        Returns:
+        - date_of_marathon (date): Cleaned date value.
+
+        Raises:
+        - ValidationError: If the date is not in the future, not within the specified range,
+          or fails other validation criteria.
+        """
+
         date_of_marathon = self.cleaned_data.get("date_of_marathon")
         today = date.today()
 
@@ -78,6 +140,17 @@ class MergedSignUpForm(UserCreationForm):
         return date_of_marathon
 
     def clean_dob(self):
+        """
+        Clean and validate the 'dob' (date of birth) field.
+
+        Returns:
+        - birth_date (date): Cleaned date value.
+
+        Raises:
+        - ValidationError: If the date is missing, the user is underage, the date is in the future,
+          or fails other validation criteria.
+        """
+
         birth_date = self.cleaned_data.get("dob")
         today = date.today()
 
@@ -99,43 +172,3 @@ class MergedSignUpForm(UserCreationForm):
             raise ValidationError(f"Please enter a valid date of birth")
 
         return birth_date
-
-
-"""Leave if you want two sign-up pages"""
-# For initial sign-up
-# class SignUpForm(UserCreationForm):
-#    email = forms.EmailField()
-#
-#    class Meta:
-#        model = RunnerUser
-#        fields = ["first_name", "last_name", "username", "email", "password1", "password2"]
-#
-# For additional user details
-# class RunnerUserDetailForm(forms.ModelForm):
-#    class Meta:
-#        model = RunnerUser
-#        fields = ["dob", "weight", "height", "fitness_level", "date_of_marathon"]
-#
-#        widgets = {
-#            "dob": forms.DateInput(attrs={"type": "date"}),
-#            "weight": forms.NumberInput(attrs={"placeholder": "Weight in kg"}),
-#            "height": forms.NumberInput(attrs={"placeholder": "Height in cm"}),
-#            "fitness_level": forms.Select(choices=RunnerUser.FITNESS_LEVEL_CHOICES),
-#            "date_of_marathon": forms.DateInput(attrs={"type": "date"})
-#        }
-#
-#    # Check that the date is valid and is between the min and max times
-#    def clean_date_of_marathon(self):
-#        date_of_marathon = self.cleaned_data.get("date_of_marathon")
-#        today = date.today()
-#
-#        if date_of_marathon <= today:
-#            raise ValidationError("The date of the marathon must be in the future.")
-#
-#        if date_of_marathon < today + timedelta(days=plan_algo.MIN_DAYS):
-#            raise ValidationError(f"The date of the marathon must be at least {plan_algo.MIN_DAYS} days from today.")
-#
-#        if date_of_marathon > today + timedelta(days=plan_algo.MAX_DAYS):
-#            raise ValidationError(f"The date of the marathon must be less than {plan_algo.MAX_DAYS} days from today.")
-#
-#        return date_of_marathon
